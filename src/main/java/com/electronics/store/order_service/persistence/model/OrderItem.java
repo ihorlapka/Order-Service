@@ -10,6 +10,7 @@ import java.util.UUID;
 @ToString(exclude = "order")
 @Getter
 @Setter
+@Table(name = "order_items")
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderItem {
@@ -20,7 +21,7 @@ public class OrderItem {
     private UUID id;
 
     @Column(name = "item_id", nullable = false)
-    private String itemId;
+    private UUID itemId;
 
     @Column(name = "description", nullable = false)
     private String description;

@@ -12,6 +12,7 @@ import java.util.UUID;
 @ToString
 @Getter
 @Setter
+@Table(name = "order_events")
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderEvent {

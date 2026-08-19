@@ -17,6 +17,12 @@ import java.util.UUID;
 @ToString
 @Getter
 @Setter
+@Table(
+        name = "orders",
+        indexes = {
+                @Index(name = "order_customer_key", columnList = "customer_id")
+        }
+)
 @NoArgsConstructor
 @AllArgsConstructor
 public class Order {
@@ -38,6 +44,8 @@ public class Order {
     private OffsetDateTime createdAt;
 
     @Column(name = "currency", nullable = false, updatable = false, length = 5)
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private Currency currency;
 
     @Column(name = "total_price", nullable = false)
