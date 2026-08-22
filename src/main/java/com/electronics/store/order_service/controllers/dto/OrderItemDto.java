@@ -1,15 +1,17 @@
 package com.electronics.store.order_service.controllers.dto;
 
+import lombok.NonNull;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 
 public record OrderItemDto(
         UUID id,
-        UUID itemId,
-        String description,
+        @NonNull UUID itemId,
+        @NonNull String description,
         int quantity,
-        BigDecimal price,
+        @NonNull BigDecimal price,
         byte[] image,
-        String url
+        @NonNull String url
 ) {
 }

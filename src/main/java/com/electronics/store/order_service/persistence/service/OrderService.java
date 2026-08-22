@@ -14,20 +14,24 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.*;
 
+import static com.electronics.store.order_service.persistence.enums.OrderEventType.ORDER_CREATED;
 import static com.electronics.store.order_service.persistence.enums.OrderStatus.PENDING;
+import static com.electronics.store.order_service.persistence.mapping.Mapper.mapToOrderEvent;
 import static java.time.OffsetDateTime.now;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final OrderEventService orderEventService;
 
     public Optional<Order> findByOrderId(UUID orderId) {
         return orderRepository.findById(orderId);
     }
 
-    @Transactional()
+    @Transactional
     public Order persist(@Valid CreateOrderRequest request, Map<UUID, Item> itemsByIds) {
         final Order order = new Order();
         order.setCustomerId(request.customerId());
@@ -45,11 +49,17 @@ public class OrderService {
         }
         order.setItems(orderItems);
 
-        return orderRepository.save(order);
+        final Order savedOrder = orderRepository.save(order);
+        orderEventService.persist(mapToOrderEvent(savedOrder, ORDER_CREATED));
+        return savedOrder;
     }
 
-    public void deleteByOrderId(UUID orderId) {
-        orderRepository.deleteById(orderId);
+    public int deleteByOrderId(UUID orderId) {
+        return orderRepository.removeById(orderId);
+    }
+
+    public List<Order> findByCustomerId(UUID customerId) {
+        return orderRepository.findOrdersByCustomerId(customerId);
     }
 
     private BigDecimal getTotalPrice(Map<UUID, Item> itemsByIds) {

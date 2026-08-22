@@ -32,7 +32,6 @@ public class OrderItem {
     @Column(name = "price", nullable = false)
     private BigDecimal price;
 
-    @Lob
     @Column(name = "image_data", columnDefinition = "BYTEA")
     private byte[] imageData;
 

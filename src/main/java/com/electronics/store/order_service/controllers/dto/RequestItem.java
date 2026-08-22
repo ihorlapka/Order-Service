@@ -1,9 +1,11 @@
 package com.electronics.store.order_service.controllers.dto;
 
+import lombok.NonNull;
+
 import java.util.UUID;
 
 public record RequestItem(
-        UUID itemId,
+        @NonNull UUID itemId,
         int quantity
 ) {
 }
