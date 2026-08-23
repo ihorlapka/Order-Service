@@ -32,3 +32,14 @@ spring:
         order_updates: true
         generate_statistics: false
     open-in-view: false
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: ihor
+    password: admin
+    publisher-confirm-type: correlated
+    publisher-returns: true
+rabbit:
+  queue.name: es-orders-queue
+  exchange.name: es-orders-exchange
+  routing.key: order.#

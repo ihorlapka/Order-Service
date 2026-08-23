@@ -32,3 +32,12 @@ spring:
         order_updates: true
         generate_statistics: false
     open-in-view: false
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+rabbit:
+  queue.name: es-orders
+  exchange.name: es-orders-exchange
+  routing.key: order
