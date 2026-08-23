@@ -16,7 +16,7 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
 
     List<Order> findOrdersByCustomerId(UUID customerId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE FROM Order o WHERE o.id = :id")
     int removeById(@NonNull @Param("id") UUID id);
 }

@@ -8,6 +8,7 @@ import com.electronics.store.order_service.persistence.model.OrderItem;
 import com.electronics.store.order_service.persistence.repositories.OrderRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ import static com.electronics.store.order_service.persistence.enums.OrderStatus.
 import static com.electronics.store.order_service.persistence.mapping.Mapper.mapToOrderEvent;
 import static java.time.OffsetDateTime.now;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -54,8 +56,15 @@ public class OrderService {
         return savedOrder;
     }
 
+    @Transactional
     public int deleteByOrderId(UUID orderId) {
-        return orderRepository.removeById(orderId);
+        int orderRows = orderRepository.removeById(orderId);
+        int orderEventRows = orderEventService.removeByOrderId(orderId);
+        if (orderRows != 1 && orderEventRows != 1) {
+            log.error("Expected to be removed only one Order and one OrderEvent but there were removed " +
+                    "orders: {}, orderEvents: {}", orderRows, orderEventRows);
+        }
+        return orderRows;
     }
 
     public List<Order> findByCustomerId(UUID customerId) {

@@ -15,14 +15,14 @@ public class OrderEventService {
     private final OrderEventRepository eventRepository;
 
     public Optional<OrderEvent> findByOrderId(UUID orderId) {
-        return eventRepository.findById(orderId);
+        return eventRepository.findByOrderId(orderId);
     }
 
     public OrderEvent persist(OrderEvent event) {
         return eventRepository.save(event);
     }
 
-    public void deleteByOrderId(UUID orderId) {
-        eventRepository.deleteById(orderId);
+    public int removeByOrderId(UUID orderId) {
+        return eventRepository.removeByOrderId(orderId);
     }
 }

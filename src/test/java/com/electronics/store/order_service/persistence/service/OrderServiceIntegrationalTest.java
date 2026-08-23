@@ -153,7 +153,7 @@ class OrderServiceIntegrationalTest {
         int rowsDeleted = orderService.deleteByOrderId(savedOrder.getId());
 
         assertThat(rowsDeleted).isEqualTo(1);
-        assertThat(orderRepository.findById(savedOrder.getId())).isEmpty();
+        assertThat(orderService.findByOrderId(savedOrder.getId())).isEmpty();
     }
 
     @Test
