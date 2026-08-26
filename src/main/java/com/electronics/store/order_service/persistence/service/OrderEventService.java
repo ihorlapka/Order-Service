@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.electronics.store.order_service.persistence.enums.OrderEventStatus.PUBLISHED;
+
 @Service
 @RequiredArgsConstructor
 public class OrderEventService {
@@ -29,5 +31,9 @@ public class OrderEventService {
 
     public List<OrderEvent> findFreshEvents(int batchSize) {
         return eventRepository.findFreshEvents(batchSize);
+    }
+
+    public int updatePublishedEvents(List<UUID> publishedIds) {
+        return eventRepository.updateEventsStatuses(publishedIds, PUBLISHED.name());
     }
 }

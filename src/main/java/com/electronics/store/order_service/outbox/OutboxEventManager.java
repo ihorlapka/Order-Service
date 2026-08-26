@@ -1,15 +1,14 @@
 package com.electronics.store.order_service.outbox;
 
-import com.electronics.store.order_service.persistence.model.OrderEvent;
-import com.electronics.store.order_service.persistence.service.OrderEventService;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.electronics.store.order_service.outbox.OutboxProcessor.ProcessingResult;
 
 @Slf4j
 @Component
@@ -17,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class OutboxEventManager {
 
     private final AtomicBoolean processing = new AtomicBoolean(false);
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor(r -> new Thread(r, "outbox-publisher"));
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor(r -> new Thread(r, "outbox-processor"));
 
     private final OutboxProcessor outboxProcessor;
 
@@ -31,7 +30,11 @@ public class OutboxEventManager {
                     try {
                         boolean hasMore = true;
                         while (hasMore) {
-                            hasMore = outboxProcessor.processBatch();
+                            final ProcessingResult result = outboxProcessor.processBatch();
+                            hasMore = result.hasMore();
+                            if (result.hasError()) {
+                                Thread.sleep(5000);
+                            }
                         }
                         log.info("OutboxProcessor stopped");
                     } catch (Exception e) {

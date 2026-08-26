@@ -27,4 +27,12 @@ public interface OrderEventRepository extends JpaRepository<OrderEvent, UUID> {
             ORDER BY created_at LIMIT :batchSize
             FOR UPDATE SKIP LOCKED""", nativeQuery = true)
     List<OrderEvent> findFreshEvents(@Param("batchSize") int batchSize);
+
+    @Modifying
+    @Query(value = """
+            UPDATE order_events
+            SET status = :status
+            WHERE order_id IN (:publishedIds)
+            """, nativeQuery = true)
+    int updateEventsStatuses(@Param("publishedIds") List<UUID> publishedIds, @Param("status") String status);
 }

@@ -23,12 +23,13 @@ public class OutboxProcessor {
 
 
     @Transactional
-    public boolean processBatch() {
+    public ProcessingResult processBatch() {
         final List<OrderEvent> freshEvents = eventService.findFreshEvents(100);
         if (freshEvents.isEmpty()) {
-            return false;
+            return new ProcessingResult(false, false);
         }
         final List<UUID> publishedIds = new ArrayList<>();
+        boolean hasError = false;
         for (OrderEvent event : freshEvents) {
             log.info("Processing order event: {}", event);
             try {
@@ -36,11 +37,18 @@ public class OutboxProcessor {
                 publishedIds.add(event.getOrderId());
             } catch (Exception e) {
                 log.error("Error processing order event with orderId: {}", event.getOrderId(), e);
+                hasError = true;
             }
         }
         log.info("Finished processing order events with orderIds: {}", publishedIds);
-        eventService.updatePublishedEvents(publishedIds);
+        int updatedRows = eventService.updatePublishedEvents(publishedIds);
+        if (updatedRows != publishedIds.size()) {
+            log.warn("Expected to be updated: {} order events but were {}, missed events will " +
+                    "be retried in next iteration", publishedIds, updatedRows);
+        }
         log.info("Updated event status to PUBLISHED for events with orderIds: {}", publishedIds);
-        return true;
+        return new ProcessingResult(true, hasError);
     }
+
+    public record ProcessingResult(boolean hasMore, boolean hasError) {}
 }
