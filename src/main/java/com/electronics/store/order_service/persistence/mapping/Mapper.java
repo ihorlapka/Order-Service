@@ -2,6 +2,7 @@ package com.electronics.store.order_service.persistence.mapping;
 
 import com.electronics.store.order_service.controllers.dto.OrderDto;
 import com.electronics.store.order_service.controllers.dto.OrderItemDto;
+import com.electronics.store.order_service.persistence.enums.OrderEventStatus;
 import com.electronics.store.order_service.persistence.enums.OrderEventType;
 import com.electronics.store.order_service.persistence.model.Order;
 import com.electronics.store.order_service.persistence.model.OrderEvent;
@@ -17,12 +18,13 @@ public class Mapper {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    public static OrderEvent mapToOrderEvent(Order order, OrderEventType eventType) {
+    public static OrderEvent mapToOrderEvent(Order order, OrderEventType eventType, OrderEventStatus status) {
         final OrderEvent orderEvent = new OrderEvent();
         orderEvent.setEventType(eventType);
         orderEvent.setOrderId(order.getId());
         final String orderJson = OBJECT_MAPPER.writeValueAsString(mapToOrderDto(order));
         orderEvent.setPayload(orderJson);
+        orderEvent.setStatus(status);
         return orderEvent;
     }
 

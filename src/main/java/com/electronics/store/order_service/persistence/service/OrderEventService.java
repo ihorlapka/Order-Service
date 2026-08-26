@@ -5,6 +5,7 @@ import com.electronics.store.order_service.persistence.repositories.OrderEventRe
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -24,5 +25,9 @@ public class OrderEventService {
 
     public int removeByOrderId(UUID orderId) {
         return eventRepository.removeByOrderId(orderId);
+    }
+
+    public List<OrderEvent> findFreshEvents(int batchSize) {
+        return eventRepository.findFreshEvents(batchSize);
     }
 }

@@ -1,5 +1,6 @@
 package com.electronics.store.order_service.persistence.model;
 
+import com.electronics.store.order_service.persistence.enums.OrderEventStatus;
 import com.electronics.store.order_service.persistence.enums.OrderEventType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -33,4 +34,9 @@ public class OrderEvent {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "payload", columnDefinition = "jsonb")
     private String payload;
+
+    @Column(name = "event_status", nullable = false, updatable = false)
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    private OrderEventStatus status;
 }

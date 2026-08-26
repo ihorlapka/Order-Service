@@ -4,6 +4,7 @@ import com.electronics.store.order_service.OrderServiceApplication;
 import com.electronics.store.order_service.controllers.dto.RequestItem;
 import com.electronics.store.order_service.controllers.misc.CreateOrderRequest;
 import com.electronics.store.order_service.grpc.Item;
+import com.electronics.store.order_service.outbox.OutboxEventManager;
 import com.electronics.store.order_service.persistence.enums.OrderStatus;
 import com.electronics.store.order_service.persistence.model.Order;
 import com.electronics.store.order_service.persistence.repositories.OrderEventRepository;
@@ -41,7 +42,8 @@ import static org.assertj.core.api.Assertions.assertThat;
         OrderService.class,
         OrderEventRepository.class,
         OrderEventService.class,
-        OrderServiceIntegrationalTest.TestPersistenceConfig.class
+        OrderServiceIntegrationalTest.TestPersistenceConfig.class,
+        OutboxEventManager.class
 })
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Transactional

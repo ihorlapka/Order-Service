@@ -21,6 +21,8 @@ CREATE TYPE order_event_type AS ENUM (
     'SHIPMENT_COMPLETED'
 );
 
+CREATE TYPE event_status AS ENUM ('NEW', 'PUBLISHED');
+
 CREATE TABLE orders (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     customer_id UUID NOT NULL,
@@ -50,5 +52,6 @@ CREATE TABLE order_events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     event_type order_event_type,
     order_id UUID NOT NULL,
-    payload JSONB
+    payload JSONB NOT NULL ,
+    event_status event_status
 );

@@ -2,6 +2,7 @@ package com.electronics.store.order_service.persistence.service;
 
 import com.electronics.store.order_service.controllers.dto.RequestItem;
 import com.electronics.store.order_service.controllers.misc.CreateOrderRequest;
+import com.electronics.store.order_service.events.OrderCreatedEvent;
 import com.electronics.store.order_service.grpc.Item;
 import com.electronics.store.order_service.persistence.model.Order;
 import com.electronics.store.order_service.persistence.model.OrderItem;
@@ -9,12 +10,14 @@ import com.electronics.store.order_service.persistence.repositories.OrderReposit
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
 
+import static com.electronics.store.order_service.persistence.enums.OrderEventStatus.NEW;
 import static com.electronics.store.order_service.persistence.enums.OrderEventType.ORDER_CREATED;
 import static com.electronics.store.order_service.persistence.enums.OrderStatus.PENDING;
 import static com.electronics.store.order_service.persistence.mapping.Mapper.mapToOrderEvent;
@@ -28,6 +31,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderEventService orderEventService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public Optional<Order> findByOrderId(UUID orderId) {
         return orderRepository.findById(orderId);
@@ -52,8 +56,15 @@ public class OrderService {
         order.setItems(orderItems);
 
         final Order savedOrder = orderRepository.save(order);
-        orderEventService.persist(mapToOrderEvent(savedOrder, ORDER_CREATED));
+        orderEventService.persist(mapToOrderEvent(savedOrder, ORDER_CREATED, NEW));
+        publishAfterOrderIsCreated(savedOrder.getId());
         return savedOrder;
+    }
+
+    public void publishAfterOrderIsCreated(UUID orderId) {
+        final OrderCreatedEvent orderCreatedEvent = new OrderCreatedEvent(orderId);
+        log.info("Sending application OrderCreatedEvent: {}", orderCreatedEvent);
+        eventPublisher.publishEvent(orderCreatedEvent);
     }
 
     @Transactional
