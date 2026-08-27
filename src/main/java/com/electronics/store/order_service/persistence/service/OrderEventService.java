@@ -34,6 +34,6 @@ public class OrderEventService {
     }
 
     public int updatePublishedEvents(List<UUID> publishedIds) {
-        return eventRepository.updateEventsStatuses(publishedIds, PUBLISHED.name());
+        return eventRepository.updateEventsStatuses(publishedIds);
     }
 }

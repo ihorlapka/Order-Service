@@ -3,8 +3,8 @@ package com.electronics.store.order_service.outbox;
 import com.electronics.store.order_service.persistence.model.OrderEvent;
 import com.electronics.store.order_service.persistence.service.OrderEventService;
 import com.electronics.store.order_service.rabbit.RabbitMqPublisher;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,16 +15,23 @@ import java.util.UUID;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class OutboxProcessor {
 
     private final RabbitMqPublisher publisher;
     private final OrderEventService eventService;
+    private final int eventsBatchSize;
+
+    public OutboxProcessor(RabbitMqPublisher publisher, OrderEventService eventService,
+                           @Value("${outbox.events.batch.size}") int eventsBatchSize) {
+        this.publisher = publisher;
+        this.eventService = eventService;
+        this.eventsBatchSize = eventsBatchSize;
+    }
 
 
     @Transactional
     public ProcessingResult processBatch() {
-        final List<OrderEvent> freshEvents = eventService.findFreshEvents(100);
+        final List<OrderEvent> freshEvents = eventService.findFreshEvents(eventsBatchSize);
         if (freshEvents.isEmpty()) {
             return new ProcessingResult(false, false);
         }

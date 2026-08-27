@@ -1,24 +1,31 @@
 package com.electronics.store.order_service.outbox;
 
 import jakarta.annotation.PreDestroy;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.electronics.store.order_service.outbox.OutboxProcessor.ProcessingResult;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class OutboxEventManager {
 
     private final AtomicBoolean processing = new AtomicBoolean(false);
     private final ExecutorService executorService = Executors.newSingleThreadExecutor(r -> new Thread(r, "outbox-processor"));
 
     private final OutboxProcessor outboxProcessor;
+    private final int timeoutAfterFailure;
+
+    public OutboxEventManager(OutboxProcessor outboxProcessor,
+                              @Value("${outbox.timeout.after.failure.ms}") int timeoutAfterFailure) {
+        this.outboxProcessor = outboxProcessor;
+        this.timeoutAfterFailure = timeoutAfterFailure;
+    }
 
 
     public void publishAndUpdate() {
@@ -33,7 +40,7 @@ public class OutboxEventManager {
                             final ProcessingResult result = outboxProcessor.processBatch();
                             hasMore = result.hasMore();
                             if (result.hasError()) {
-                                Thread.sleep(5000);
+                                Thread.sleep(timeoutAfterFailure);
                             }
                         }
                         log.info("OutboxProcessor stopped");
@@ -50,7 +57,7 @@ public class OutboxEventManager {
     @PreDestroy
     public void destroy() throws InterruptedException {
         executorService.shutdown();
-        boolean isShutdown = executorService.awaitTermination(5, TimeUnit.SECONDS);
+        boolean isShutdown = executorService.awaitTermination(5, SECONDS);
         if (isShutdown) {
             log.info("Outbox executor service has been shut down gracefully");
         } else {

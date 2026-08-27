@@ -1,5 +1,6 @@
 package com.electronics.store.order_service.persistence.repositories;
 
+import com.electronics.store.order_service.persistence.enums.OrderEventStatus;
 import com.electronics.store.order_service.persistence.model.OrderEvent;
 import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,15 +25,15 @@ public interface OrderEventRepository extends JpaRepository<OrderEvent, UUID> {
     @Query(value = """
             SELECT * FROM order_events
             WHERE status = 'NEW'
-            ORDER BY created_at LIMIT :batchSize
+            LIMIT :batchSize
             FOR UPDATE SKIP LOCKED""", nativeQuery = true)
     List<OrderEvent> findFreshEvents(@Param("batchSize") int batchSize);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = """
             UPDATE order_events
-            SET status = :status
+            SET status = 'PUBLISHED'
             WHERE order_id IN (:publishedIds)
             """, nativeQuery = true)
-    int updateEventsStatuses(@Param("publishedIds") List<UUID> publishedIds, @Param("status") String status);
+    int updateEventsStatuses(@Param("publishedIds") List<UUID> publishedIds);
 }

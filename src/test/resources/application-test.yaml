@@ -41,3 +41,6 @@ rabbit:
   queue.name: es-orders
   exchange.name: es-orders-exchange
   routing.key: order
+outbox:
+  timeout.after.failure.ms: 5000
+  events.batch.size: 100

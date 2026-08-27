@@ -35,7 +35,7 @@ public class OrderEvent {
     @Column(name = "payload", columnDefinition = "jsonb")
     private String payload;
 
-    @Column(name = "event_status", nullable = false, updatable = false)
+    @Column(name = "status", nullable = false, updatable = false)
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private OrderEventStatus status;

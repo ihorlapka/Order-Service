@@ -65,9 +65,6 @@ class OrderServiceIntegrationalTest {
     private OrderService orderService;
 
     @Autowired
-    private OrderRepository orderRepository;
-
-    @Autowired
     private OrderEventService orderEventService;
 
 
