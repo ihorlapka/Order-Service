@@ -1,7 +1,7 @@
 package com.electronics.store.order_service.outbox;
 
 import com.electronics.store.order_service.OrderServiceApplication;
-import com.electronics.store.order_service.persistence.enums.OrderEventStatus;
+import com.electronics.store.order_service.persistence.enums.PublishmentStatus;
 import com.electronics.store.order_service.persistence.enums.OrderEventType;
 import com.electronics.store.order_service.persistence.model.OrderEvent;
 import com.electronics.store.order_service.persistence.repositories.OrderEventRepository;
@@ -26,7 +26,6 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -91,7 +90,7 @@ class OutboxProcessorTest {
 
         assertThat(orderEventRepository.findAll())
                 .extracting(OrderEvent::getStatus)
-                .containsOnly(OrderEventStatus.PUBLISHED);
+                .containsOnly(PublishmentStatus.PUBLISHED);
     }
 
     @Test
@@ -115,7 +114,7 @@ class OutboxProcessorTest {
         assertThat(result.hasError()).isTrue();
 
         OrderEvent reloaded = orderEventRepository.findById(event.getId()).orElseThrow();
-        assertThat(reloaded.getStatus()).isEqualTo(OrderEventStatus.NEW);
+        assertThat(reloaded.getStatus()).isEqualTo(PublishmentStatus.NEW);
     }
 
     @Test
@@ -136,11 +135,11 @@ class OutboxProcessorTest {
 
         assertThat(result.hasError()).isTrue();
         assertThat(orderEventRepository.findById(ok1.getId()).orElseThrow().getStatus())
-                .isEqualTo(OrderEventStatus.PUBLISHED);
+                .isEqualTo(PublishmentStatus.PUBLISHED);
         assertThat(orderEventRepository.findById(ok2.getId()).orElseThrow().getStatus())
-                .isEqualTo(OrderEventStatus.PUBLISHED);
+                .isEqualTo(PublishmentStatus.PUBLISHED);
         assertThat(orderEventRepository.findById(failing.getId()).orElseThrow().getStatus())
-                .isEqualTo(OrderEventStatus.NEW);
+                .isEqualTo(PublishmentStatus.NEW);
     }
 
     /**
@@ -186,7 +185,7 @@ class OutboxProcessorTest {
 
         assertThat(orderEventRepository.findAll())
                 .extracting(OrderEvent::getStatus)
-                .containsOnly(OrderEventStatus.PUBLISHED);
+                .containsOnly(PublishmentStatus.PUBLISHED);
     }
 
     private OrderEvent saveNewEvent() {
@@ -194,7 +193,7 @@ class OutboxProcessorTest {
         event.setOrderId(UUID.randomUUID());
         event.setEventType(OrderEventType.ORDER_CREATED);
         event.setPayload("{\"message\":\"hello\"}");
-        event.setStatus(OrderEventStatus.NEW);
+        event.setStatus(PublishmentStatus.NEW);
         return orderEventRepository.save(event);
     }
 

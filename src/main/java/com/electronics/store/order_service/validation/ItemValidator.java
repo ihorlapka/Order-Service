@@ -31,7 +31,7 @@ public class ItemValidator {
                 log.warn("Item with id: {} was not found", requestItem.itemId());
                 return false;
             }
-            if (actualItem.totalAmount() < requestItem.quantity()) {
+            if (actualItem.availableAmount() < requestItem.quantity()) {
                 log.warn("Not enough amount of items in inventory itemId: {}", requestItem.itemId());
                 return false;
             }

@@ -3,9 +3,13 @@ package com.electronics.store.order_service.persistence.enums;
 public enum OrderStatus {
 
     PENDING,
-    INVENTORY_RESERVED,
+    RESERVED,
+    RESERVE_FAILED,
     PENDING_PAYMENT,
     PAID,
+    PAYMENT_STUCK,
     SHIPPED,
-    CANCELED,
+    DELIVERED,
+    DELIVERY_FAILED,
+    CANCELLED
 }

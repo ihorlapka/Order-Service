@@ -52,6 +52,7 @@ CREATE TABLE order_events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     event_type order_event_type,
     order_id UUID NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     payload JSONB NOT NULL,
     status event_status
 );

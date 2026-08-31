@@ -41,9 +41,9 @@ public class OutboxProcessor {
             log.info("Processing order event: {}", event);
             try {
                 publisher.publish(event.getOrderId(), event.getPayload());
-                publishedIds.add(event.getOrderId());
+                publishedIds.add(event.getId());
             } catch (Exception e) {
-                log.error("Error processing order event with orderId: {}", event.getOrderId(), e);
+                log.error("Error processing order event with eventId: {}", event.getId(), e);
                 hasError = true;
             }
         }

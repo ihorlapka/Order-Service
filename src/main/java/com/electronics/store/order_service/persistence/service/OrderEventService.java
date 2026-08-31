@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.electronics.store.order_service.persistence.enums.OrderEventStatus.PUBLISHED;
-
 @Service
 @RequiredArgsConstructor
 public class OrderEventService {
@@ -34,6 +32,10 @@ public class OrderEventService {
     }
 
     public int updatePublishedEvents(List<UUID> publishedIds) {
-        return eventRepository.updateEventsStatuses(publishedIds);
+        return eventRepository.updatePublishedEvents(publishedIds);
+    }
+
+    public Optional<OrderEvent> findLastByOrderId(UUID orderId) {
+        return eventRepository.findLastByOrderId(orderId);
     }
 }

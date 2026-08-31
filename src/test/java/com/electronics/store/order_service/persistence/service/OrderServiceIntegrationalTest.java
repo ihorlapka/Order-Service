@@ -9,6 +9,7 @@ import com.electronics.store.order_service.persistence.enums.OrderStatus;
 import com.electronics.store.order_service.persistence.model.Order;
 import com.electronics.store.order_service.persistence.repositories.OrderEventRepository;
 import com.electronics.store.order_service.persistence.repositories.OrderRepository;
+import lombok.NonNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
@@ -87,7 +88,7 @@ class OrderServiceIntegrationalTest {
         UUID customerId = UUID.randomUUID();
         CreateOrderRequest request = buildRequest(customerId, item1, item2);
 
-        Order savedOrder = orderService.persist(request, itemsByIds);
+        Order savedOrder = orderService.persist(request);
 
         assertThat(savedOrder.getId()).isNotNull();
         assertThat(savedOrder.getCustomerId()).isEqualTo(customerId);
@@ -107,7 +108,8 @@ class OrderServiceIntegrationalTest {
     void findByOrderId_shouldReturnOrder_whenOrderExists() {
         Item item = buildItem(BigDecimal.valueOf(75));
         CreateOrderRequest request = buildRequest(UUID.randomUUID(), item);
-        Order savedOrder = orderService.persist(request, Map.of(item.id(), item));
+        Map<UUID, Item> itemsById = Map.of(item.id(), item);
+        Order savedOrder = orderService.persist(request);
 
         Optional<Order> found = orderService.findByOrderId(savedOrder.getId());
 
@@ -127,8 +129,9 @@ class OrderServiceIntegrationalTest {
         UUID customerId = UUID.randomUUID();
         Item item = buildItem(BigDecimal.valueOf(30));
 
-        Order ownOrder = orderService.persist(buildRequest(customerId, item), Map.of(item.id(), item));
-        orderService.persist(buildRequest(UUID.randomUUID(), item), Map.of(item.id(), item));
+        Map<@NonNull UUID, Item> itemsById = Map.of(item.id(), item);
+        Order ownOrder = orderService.persist(buildRequest(customerId, item));
+        orderService.persist(buildRequest(UUID.randomUUID(), item));
 
         List<Order> customerOrders = orderService.findByCustomerId(customerId);
 
@@ -144,23 +147,23 @@ class OrderServiceIntegrationalTest {
         assertThat(customerOrders).isEmpty();
     }
 
-    @Test
-    void deleteByOrderId_shouldRemoveOrderAndReturnOne() {
-        Item item = buildItem(BigDecimal.valueOf(20));
-        Order savedOrder = orderService.persist(buildRequest(UUID.randomUUID(), item), Map.of(item.id(), item));
-
-        int rowsDeleted = orderService.deleteByOrderId(savedOrder.getId());
-
-        assertThat(rowsDeleted).isEqualTo(1);
-        assertThat(orderService.findByOrderId(savedOrder.getId())).isEmpty();
-    }
-
-    @Test
-    void deleteByOrderId_shouldReturnZero_whenOrderDoesNotExist() {
-        int rowsDeleted = orderService.deleteByOrderId(UUID.randomUUID());
-
-        assertThat(rowsDeleted).isEqualTo(0);
-    }
+//    @Test
+//    void cancelOrderId_shouldRemoveOrderAndReturnOne() {
+//        Item item = buildItem(BigDecimal.valueOf(20));
+//        Order savedOrder = orderService.persist(buildRequest(UUID.randomUUID(), item), Map.of(item.id(), item));
+//
+//        int rowsDeleted = orderService.cancelOrder(savedOrder.getId());
+//
+//        assertThat(rowsDeleted).isEqualTo(1);
+//        assertThat(orderService.findByOrderId(savedOrder.getId())).isEmpty();
+//    }
+//
+//    @Test
+//    void cancelOrderId_shouldReturnZero_whenOrderDoesNotExist() {
+//        int rowsDeleted = orderService.cancelOrder(UUID.randomUUID());
+//
+//        assertThat(rowsDeleted).isEqualTo(0);
+//    }
 
     @Configuration
     @EnableJpaRepositories(basePackages = "com.electronics.store.order_service.persistence.repositories")

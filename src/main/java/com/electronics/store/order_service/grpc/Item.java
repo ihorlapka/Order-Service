@@ -9,7 +9,7 @@ import java.util.UUID;
 public record Item(
         @NonNull UUID id,
         @NonNull String description,
-        int totalAmount,
+        int availableAmount,
         @NonNull BigDecimal price,
         byte[] imageData,
         @NonNull String itemUrl

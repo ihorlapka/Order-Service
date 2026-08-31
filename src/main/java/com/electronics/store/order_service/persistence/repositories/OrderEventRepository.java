@@ -1,9 +1,10 @@
 package com.electronics.store.order_service.persistence.repositories;
 
-import com.electronics.store.order_service.persistence.enums.OrderEventStatus;
 import com.electronics.store.order_service.persistence.model.OrderEvent;
+import jakarta.persistence.LockModeType;
 import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,6 +26,7 @@ public interface OrderEventRepository extends JpaRepository<OrderEvent, UUID> {
     @Query(value = """
             SELECT * FROM order_events
             WHERE status = 'NEW'
+            ORDER BY created_at
             LIMIT :batchSize
             FOR UPDATE SKIP LOCKED""", nativeQuery = true)
     List<OrderEvent> findFreshEvents(@Param("batchSize") int batchSize);
@@ -35,5 +37,14 @@ public interface OrderEventRepository extends JpaRepository<OrderEvent, UUID> {
             SET status = 'PUBLISHED'
             WHERE order_id IN (:publishedIds)
             """, nativeQuery = true)
-    int updateEventsStatuses(@Param("publishedIds") List<UUID> publishedIds);
+    int updatePublishedEvents(@Param("publishedIds") List<UUID> publishedIds);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+            SELECT e FROM OrderEvent e
+            WHERE e.orderId = :orderId
+            ORDER BY e.createdAt DESC
+            LIMIT 1
+            """)
+    Optional<OrderEvent> findLastByOrderId(@Param("orderId") UUID orderId);
 }

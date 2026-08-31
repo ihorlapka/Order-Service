@@ -15,7 +15,7 @@ public class OrderEventHandler {
     private final OutboxEventManager outboxEventManager;
 
     @TransactionalEventListener
-    public void handleEvents(OrderCreatedEvent event) {
+    public void handleCreatedEvents(OrderCreatedEvent event) {
         log.info("Received application OrderCreatedEvent: {}", event);
         outboxEventManager.publishAndUpdate();
     }
