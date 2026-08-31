@@ -35,7 +35,7 @@ public class OrderEventService {
         return eventRepository.updatePublishedEvents(publishedIds);
     }
 
-    public Optional<OrderEvent> findLastByOrderId(UUID orderId) {
-        return eventRepository.findLastByOrderId(orderId);
+    public Optional<OrderEvent> findLastByOrderIdForUpdate(UUID orderId) {
+        return eventRepository.findLastByOrderIdForUpdate(orderId);
     }
 }

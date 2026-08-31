@@ -4,6 +4,5 @@ import lombok.NonNull;
 
 import java.util.UUID;
 
-public record OrderCreatedEvent(@NonNull UUID orderId) implements OrderApplicationEvent {
-
+public record PublishmentTriggerEvent(@NonNull UUID orderId) {
 }

@@ -4,6 +4,7 @@ import com.electronics.store.order_service.OrderServiceApplication;
 import com.electronics.store.order_service.controllers.dto.RequestItem;
 import com.electronics.store.order_service.controllers.misc.CreateOrderRequest;
 import com.electronics.store.order_service.grpc.Item;
+import com.electronics.store.order_service.grpc.ItemService;
 import com.electronics.store.order_service.outbox.OutboxEventManager;
 import com.electronics.store.order_service.persistence.enums.OrderStatus;
 import com.electronics.store.order_service.persistence.model.Order;
@@ -21,6 +22,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -34,6 +36,8 @@ import java.util.stream.Stream;
 
 import static com.electronics.store.order_service.persistence.enums.Currency.UAH;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.Mockito.when;
 
 @ActiveProfiles("test")
 @Testcontainers
@@ -68,6 +72,9 @@ class OrderServiceIntegrationalTest {
     @Autowired
     private OrderEventService orderEventService;
 
+    @MockitoBean
+    private ItemService itemService;
+
 
     private CreateOrderRequest buildRequest(UUID customerId, Item... items) {
         Set<RequestItem> requestItems = Stream.of(items)
@@ -87,6 +94,7 @@ class OrderServiceIntegrationalTest {
         Map<UUID, Item> itemsByIds = Map.of(item1.id(), item1, item2.id(), item2);
         UUID customerId = UUID.randomUUID();
         CreateOrderRequest request = buildRequest(customerId, item1, item2);
+        when(itemService.getItemsByIds(anySet())).thenReturn(itemsByIds);
 
         Order savedOrder = orderService.persist(request);
 
@@ -109,6 +117,7 @@ class OrderServiceIntegrationalTest {
         Item item = buildItem(BigDecimal.valueOf(75));
         CreateOrderRequest request = buildRequest(UUID.randomUUID(), item);
         Map<UUID, Item> itemsById = Map.of(item.id(), item);
+        when(itemService.getItemsByIds(anySet())).thenReturn(itemsById);
         Order savedOrder = orderService.persist(request);
 
         Optional<Order> found = orderService.findByOrderId(savedOrder.getId());
@@ -129,7 +138,8 @@ class OrderServiceIntegrationalTest {
         UUID customerId = UUID.randomUUID();
         Item item = buildItem(BigDecimal.valueOf(30));
 
-        Map<@NonNull UUID, Item> itemsById = Map.of(item.id(), item);
+        Map<UUID, Item> itemsById = Map.of(item.id(), item);
+        when(itemService.getItemsByIds(anySet())).thenReturn(itemsById);
         Order ownOrder = orderService.persist(buildRequest(customerId, item));
         orderService.persist(buildRequest(UUID.randomUUID(), item));
 
@@ -147,23 +157,6 @@ class OrderServiceIntegrationalTest {
         assertThat(customerOrders).isEmpty();
     }
 
-//    @Test
-//    void cancelOrderId_shouldRemoveOrderAndReturnOne() {
-//        Item item = buildItem(BigDecimal.valueOf(20));
-//        Order savedOrder = orderService.persist(buildRequest(UUID.randomUUID(), item), Map.of(item.id(), item));
-//
-//        int rowsDeleted = orderService.cancelOrder(savedOrder.getId());
-//
-//        assertThat(rowsDeleted).isEqualTo(1);
-//        assertThat(orderService.findByOrderId(savedOrder.getId())).isEmpty();
-//    }
-//
-//    @Test
-//    void cancelOrderId_shouldReturnZero_whenOrderDoesNotExist() {
-//        int rowsDeleted = orderService.cancelOrder(UUID.randomUUID());
-//
-//        assertThat(rowsDeleted).isEqualTo(0);
-//    }
 
     @Configuration
     @EnableJpaRepositories(basePackages = "com.electronics.store.order_service.persistence.repositories")

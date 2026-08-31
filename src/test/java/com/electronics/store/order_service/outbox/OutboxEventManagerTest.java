@@ -1,9 +1,9 @@
 package com.electronics.store.order_service.outbox;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -20,8 +20,12 @@ class OutboxEventManagerTest {
     @Mock
     private OutboxProcessor outboxProcessor;
 
-    @InjectMocks
     private OutboxEventManager outboxEventManager;
+
+    @BeforeEach
+    void setUp() {
+        outboxEventManager = new OutboxEventManager(outboxProcessor, 1000);
+    }
 
     @AfterEach
     void tearDown() throws InterruptedException {
@@ -110,7 +114,7 @@ class OutboxEventManagerTest {
         long elapsed = System.currentTimeMillis() - start;
         assertThat(elapsed)
                 .as("the 5s sleep on hasError=true must have actually happened")
-                .isGreaterThanOrEqualTo(5000);
+                .isGreaterThanOrEqualTo(1000);
     }
 
     @Test

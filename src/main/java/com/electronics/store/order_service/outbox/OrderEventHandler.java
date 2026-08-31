@@ -1,6 +1,6 @@
 package com.electronics.store.order_service.outbox;
 
-import com.electronics.store.order_service.events.OrderCreatedEvent;
+import com.electronics.store.order_service.events.PublishmentTriggerEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,7 +15,7 @@ public class OrderEventHandler {
     private final OutboxEventManager outboxEventManager;
 
     @TransactionalEventListener
-    public void handleCreatedEvents(OrderCreatedEvent event) {
+    public void handleCreatedEvents(PublishmentTriggerEvent event) {
         log.info("Received application OrderCreatedEvent: {}", event);
         outboxEventManager.publishAndUpdate();
     }

@@ -2,19 +2,13 @@ package com.electronics.store.order_service.persistence.service;
 
 import com.electronics.store.order_service.controllers.dto.RequestItem;
 import com.electronics.store.order_service.controllers.misc.CreateOrderRequest;
-import com.electronics.store.order_service.events.OrderApplicationEvent;
-import com.electronics.store.order_service.events.OrderCancelledEvent;
-import com.electronics.store.order_service.events.OrderCreatedEvent;
+import com.electronics.store.order_service.events.PublishmentTriggerEvent;
 import com.electronics.store.order_service.grpc.Item;
 import com.electronics.store.order_service.grpc.ItemService;
 import com.electronics.store.order_service.persistence.model.Order;
 import com.electronics.store.order_service.persistence.model.OrderEvent;
-import com.electronics.store.order_service.persistence.model.OrderItem;
 import com.electronics.store.order_service.persistence.repositories.OrderRepository;
-import com.electronics.store.order_service.persistence.service.exceptions.NotEnoughItemsException;
-import com.electronics.store.order_service.persistence.service.exceptions.OrderCancellationIsNotAllowedException;
-import com.electronics.store.order_service.persistence.service.exceptions.OrderIsAlreadyCancelledException;
-import com.electronics.store.order_service.persistence.service.exceptions.OrderEventNotFoundException;
+import com.electronics.store.order_service.persistence.service.exceptions.*;
 import com.electronics.store.order_service.validation.ItemValidator;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
+import static com.electronics.store.order_service.persistence.enums.OrderStatus.CANCELLED;
 import static com.electronics.store.order_service.persistence.enums.PublishmentStatus.*;
 import static com.electronics.store.order_service.persistence.enums.OrderEventType.*;
 import static com.electronics.store.order_service.persistence.mapping.EntityCreator.createOrder;
@@ -55,20 +50,20 @@ public class OrderService {
         }
         final Order order = orderRepository.save(createOrder(request, itemsByIds));
         orderEventService.persist(createOrderEvent(order, ORDER_CREATED, NEW, () -> itemsByIds));
-        publishOrderEvent(new OrderCreatedEvent(order.getId()));
+        publishOrderEvent(new PublishmentTriggerEvent(order.getId()));
         log.info("Order stored: {}", order);
         return order;
     }
 
     @Transactional
     public void cancelOrder(UUID orderId) {
-        final OrderEvent orderEvent = orderEventService.findLastByOrderId(orderId)
+        final OrderEvent orderEvent = orderEventService.findLastByOrderIdForUpdate(orderId)
                 .orElseThrow(() -> new OrderEventNotFoundException("Order event with orderId: " + orderId + " not found!"));
         log.info("Found the latest order event: {}", orderEvent);
         if (NEW.equals(orderEvent.getStatus()) && ORDER_CREATED.equals(orderEvent.getEventType())) {
             int orderRows = orderRepository.removeById(orderId);
             int orderEventRows = orderEventService.removeByOrderId(orderId);
-            if (orderRows != 1 && orderEventRows != 1) {
+            if (orderRows != 1 || orderEventRows != 1) {
                 log.error("Expected to be removed only one Order and one OrderEvent but there were removed " +
                         "orders: {}, orderEvents: {}", orderRows, orderEventRows);
             }
@@ -82,9 +77,10 @@ public class OrderService {
             throw new OrderCancellationIsNotAllowedException("Unable to cancel order event with orderId: " + orderId +
                     " because shipment has already been started");
         }
-        final Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderEventNotFoundException("Order with orderId: " + orderId + " not found!"));
-        orderEventService.persist(createOrderEvent(order, ORDER_CANCELLED, NEW, () -> itemService.getItemsByIds(getItemIds(order))));
-        publishOrderEvent(new OrderCancelledEvent(orderId));
+        final Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException("Order with orderId: " + orderId + " not found!"));
+        order.setStatus(CANCELLED); //dirty checking
+        orderEventService.persist(createOrderEvent(order, ORDER_CANCELLED, NEW, Collections::emptyMap));
+        publishOrderEvent(new PublishmentTriggerEvent(orderId));
         log.info("Order event with orderId: {} is being cancelled", orderId);
     }
 
@@ -92,16 +88,12 @@ public class OrderService {
         return orderRepository.findOrdersByCustomerId(customerId);
     }
 
-    private void publishOrderEvent(OrderApplicationEvent applicationEvent) {
+    private void publishOrderEvent(PublishmentTriggerEvent applicationEvent) {
         log.info("Sending application event: {}", applicationEvent);
         eventPublisher.publishEvent(applicationEvent);
     }
 
     private Set<UUID> getItemIds(CreateOrderRequest request) {
         return request.orderItems().stream().map(RequestItem::itemId).collect(toSet());
-    }
-
-    private Set<UUID> getItemIds(Order order) {
-        return order.getItems().stream().map(OrderItem::getItemId).collect(toSet());
     }
 }

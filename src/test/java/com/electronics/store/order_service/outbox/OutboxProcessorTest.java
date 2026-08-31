@@ -190,6 +190,7 @@ class OutboxProcessorTest {
 
     private OrderEvent saveNewEvent() {
         OrderEvent event = new OrderEvent();
+        event.setId(UUID.randomUUID());
         event.setOrderId(UUID.randomUUID());
         event.setEventType(OrderEventType.ORDER_CREATED);
         event.setPayload("{\"message\":\"hello\"}");

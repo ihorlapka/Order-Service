@@ -52,7 +52,7 @@ public class OrderController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<OrderDto> cancelOrder(@PathVariable UUID id) {
+    public ResponseEntity<Void> cancelOrder(@PathVariable UUID id) {
         log.info("Received request to cancel order {}", id);
         orderService.cancelOrder(id);
         return ResponseEntity.noContent().build();

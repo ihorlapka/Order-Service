@@ -35,7 +35,7 @@ public interface OrderEventRepository extends JpaRepository<OrderEvent, UUID> {
     @Query(value = """
             UPDATE order_events
             SET status = 'PUBLISHED'
-            WHERE order_id IN (:publishedIds)
+            WHERE id IN (:publishedIds)
             """, nativeQuery = true)
     int updatePublishedEvents(@Param("publishedIds") List<UUID> publishedIds);
 
@@ -46,5 +46,5 @@ public interface OrderEventRepository extends JpaRepository<OrderEvent, UUID> {
             ORDER BY e.createdAt DESC
             LIMIT 1
             """)
-    Optional<OrderEvent> findLastByOrderId(@Param("orderId") UUID orderId);
+    Optional<OrderEvent> findLastByOrderIdForUpdate(@Param("orderId") UUID orderId);
 }

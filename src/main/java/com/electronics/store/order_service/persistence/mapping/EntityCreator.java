@@ -47,6 +47,7 @@ public class EntityCreator {
     public static OrderEvent createOrderEvent(Order order, OrderEventType eventType, PublishmentStatus status,
                                               Supplier<Map<UUID, Item>> availableItems) {
         final OrderEvent orderEvent = new OrderEvent();
+        orderEvent.setId(UUID.randomUUID());
         orderEvent.setEventType(eventType);
         orderEvent.setOrderId(order.getId());
         orderEvent.setCreatedAt(now());

@@ -1,6 +1,7 @@
 package com.electronics.store.order_service.outbox;
 
 import jakarta.annotation.PreDestroy;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -22,9 +23,9 @@ public class OutboxEventManager {
     private final int timeoutAfterFailure;
 
     public OutboxEventManager(OutboxProcessor outboxProcessor,
-                              @Value("${outbox.timeout.after.failure.ms}") int timeoutAfterFailure) {
+                              @Value("${outbox.timeout.after.failure.ms:5000}") Integer timeoutAfterFailureMs) {
         this.outboxProcessor = outboxProcessor;
-        this.timeoutAfterFailure = timeoutAfterFailure;
+        this.timeoutAfterFailure = timeoutAfterFailureMs;
     }
 
 
