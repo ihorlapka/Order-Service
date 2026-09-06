@@ -4,7 +4,7 @@ public enum OrderStatus {
 
     PENDING,
     RESERVED,
-    RESERVE_FAILED,
+    RESERVATION_FAILED,
     PENDING_PAYMENT,
     PAID,
     PAYMENT_STUCK,

@@ -287,7 +287,7 @@ class OrderControllerTest {
                     "requestId": "%s",
                     "customerId": "%s",
                     "currency": "USD",
-                    "orderItems": [
+                    "requestItems": [
                         { "itemId": "%s", "quantity": 2 }
                     ]
                 }

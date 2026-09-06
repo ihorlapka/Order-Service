@@ -3,14 +3,22 @@ package com.electronics.store.order_service.persistence.service;
 import com.electronics.store.order_service.OrderServiceApplication;
 import com.electronics.store.order_service.controllers.dto.RequestItem;
 import com.electronics.store.order_service.controllers.misc.CreateOrderRequest;
-import com.electronics.store.order_service.grpc.Item;
-import com.electronics.store.order_service.grpc.ItemService;
+import com.electronics.store.order_service.controllers.misc.UpdateOrderRequest;
+import com.electronics.store.order_service.inventory.InventoryResponse;
+import com.electronics.store.order_service.inventory.Item;
+import com.electronics.store.order_service.inventory.ItemService;
 import com.electronics.store.order_service.outbox.OutboxEventManager;
+import com.electronics.store.order_service.persistence.enums.OrderEventType;
 import com.electronics.store.order_service.persistence.enums.OrderStatus;
 import com.electronics.store.order_service.persistence.model.Order;
+import com.electronics.store.order_service.persistence.model.OrderEvent;
+import com.electronics.store.order_service.persistence.model.OrderItem;
 import com.electronics.store.order_service.persistence.repositories.OrderEventRepository;
 import com.electronics.store.order_service.persistence.repositories.OrderRepository;
-import lombok.NonNull;
+import com.electronics.store.order_service.persistence.service.exceptions.InventoryNotAvailableException;
+import com.electronics.store.order_service.persistence.service.exceptions.OrderIsAlreadyCancelledException;
+import com.electronics.store.order_service.persistence.service.exceptions.OrderNotFoundException;
+import com.electronics.store.order_service.persistence.service.exceptions.UpdateRequestIsNotValidException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
@@ -36,6 +44,7 @@ import java.util.stream.Stream;
 
 import static com.electronics.store.order_service.persistence.enums.Currency.UAH;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.when;
 
@@ -71,6 +80,8 @@ class OrderServiceIntegrationalTest {
 
     @Autowired
     private OrderEventService orderEventService;
+    @Autowired
+    private OrderRepository orderRepository;
 
     @MockitoBean
     private ItemService itemService;
@@ -84,7 +95,7 @@ class OrderServiceIntegrationalTest {
     }
 
     private Item buildItem(BigDecimal price) {
-        return new Item(UUID.randomUUID(), "Test item", 10, price, null, "http://example.com/item.png");
+        return new Item(UUID.randomUUID(), "Test item", true, 10, price, null, "http://example.com/item.png");
     }
 
     @Test
@@ -155,6 +166,143 @@ class OrderServiceIntegrationalTest {
         List<Order> customerOrders = orderService.findByCustomerId(UUID.randomUUID());
 
         assertThat(customerOrders).isEmpty();
+    }
+
+    @Test
+    void reservesItems_andSetsStatusReserved_whenReservationSucceeds() {
+        Item existingItem = buildItem(BigDecimal.valueOf(20), true);
+        when(itemService.getItemsByIds(anySet())).thenReturn(Map.of(existingItem.id(), existingItem));
+        Order order = orderService.persist(buildRequest(UUID.randomUUID(), existingItem));
+
+        Item newItem = buildItem(BigDecimal.valueOf(40), true);
+        InventoryResponse reserveResponse = new InventoryResponse(true, "reserved", Map.of(newItem.id(), newItem));
+        when(itemService.reserve(anySet())).thenReturn(reserveResponse);
+
+        UpdateOrderRequest request = buildAddRequest(order.getId(), newItem);
+        Order patched = orderService.patch(request);
+
+        assertThat(patched.getStatus()).isEqualTo(OrderStatus.RESERVED);
+        assertThat(patched.getItems())
+                .extracting(OrderItem::getItemId)
+                .contains(newItem.id());
+
+        List<OrderEvent> events = orderEventService.findAllByOrderId(order.getId());
+        assertThat(events)
+                .extracting(OrderEvent::getEventType)
+                .contains(OrderEventType.INVENTORY_RESERVED);
+    }
+
+    @Test
+    void marksOrderReservationFailed_andSkipsUnreservedItems_whenReservationFails() {
+        Item existingItem = buildItem(BigDecimal.valueOf(20), true);
+        when(itemService.getItemsByIds(anySet())).thenReturn(Map.of(existingItem.id(), existingItem));
+        Order order = orderService.persist(buildRequest(UUID.randomUUID(), existingItem));
+
+        Item unreservedItem = buildItem(BigDecimal.valueOf(40), false);
+        InventoryResponse reserveResponse = new InventoryResponse(
+                false, "not enough stock", Map.of(unreservedItem.id(), unreservedItem));
+        when(itemService.reserve(anySet())).thenReturn(reserveResponse);
+
+        UpdateOrderRequest request = buildAddRequest(order.getId(), unreservedItem);
+        Order patched = orderService.patch(request);
+
+        assertThat(patched.getStatus()).isEqualTo(OrderStatus.RESERVATION_FAILED);
+        // the not-reserved item must NOT have been added to the order
+        assertThat(patched.getItems())
+                .extracting(OrderItem::getItemId)
+                .doesNotContain(unreservedItem.id());
+
+        List<OrderEvent> events = orderEventService.findAllByOrderId(order.getId());
+        assertThat(events)
+                .extracting(OrderEvent::getEventType)
+                .contains(OrderEventType.INVENTORY_FAILED);
+    }
+
+    @Test
+    void removesItems_andReleasesInventory_whenRemovalSucceeds() {
+        Item item = buildItem(BigDecimal.valueOf(20), true);
+        when(itemService.getItemsByIds(anySet())).thenReturn(Map.of(item.id(), item));
+        Order order = orderService.persist(buildRequest(UUID.randomUUID(), item));
+        assertThat(order.getItems()).hasSize(1);
+
+        when(itemService.release(anySet())).thenReturn(new InventoryResponse(true, "released", Map.of()));
+
+        UpdateOrderRequest request = buildRemoveRequest(order.getId(), Set.of(item.id()));
+        Order patched = orderService.patch(request);
+
+        assertThat(patched.getItems())
+                .extracting(OrderItem::getItemId)
+                .doesNotContain(item.id());
+    }
+
+    @Test
+    void throwsInventoryNotAvailable_whenReleaseCallFails() {
+        Item item = buildItem(BigDecimal.valueOf(20), true);
+        when(itemService.getItemsByIds(anySet())).thenReturn(Map.of(item.id(), item));
+        Order order = orderService.persist(buildRequest(UUID.randomUUID(), item));
+
+        when(itemService.release(anySet()))
+                .thenReturn(new InventoryResponse(false, "inventory service unreachable", Map.of()));
+
+        UpdateOrderRequest request = buildRemoveRequest(order.getId(), Set.of(item.id()));
+
+        assertThatThrownBy(() -> orderService.patch(request))
+                .isInstanceOf(InventoryNotAvailableException.class);
+    }
+
+    @Test
+    void throwsOrderNotFound_whenOrderDoesNotExist() {
+        Item item = buildItem(BigDecimal.valueOf(20), true);
+        UpdateOrderRequest request = buildAddRequest(UUID.randomUUID(), item);
+
+        assertThatThrownBy(() -> orderService.patch(request))
+                .isInstanceOf(OrderNotFoundException.class);
+    }
+
+    @Test
+    void throwsUpdateRequestIsNotValid_whenBothItemSetsAreEmpty() {
+        UpdateOrderRequest request = new UpdateOrderRequest(UUID.randomUUID(), UUID.randomUUID(), Set.of(), Set.of());
+
+        assertThatThrownBy(() -> orderService.patch(request))
+                .isInstanceOf(UpdateRequestIsNotValidException.class);
+    }
+
+    @Test
+    void throwsOrderIsAlreadyCancelled_whenOrderStatusIsCancelled() {
+        Item item = buildItem(BigDecimal.valueOf(20), true);
+        when(itemService.getItemsByIds(anySet())).thenReturn(Map.of(item.id(), item));
+        Order order = orderService.persist(buildRequest(UUID.randomUUID(), item));
+        forceStatus(order.getId(), OrderStatus.CANCELLED);
+
+        UpdateOrderRequest request = buildAddRequest(order.getId(), item);
+
+        assertThatThrownBy(() -> orderService.patch(request))
+                .isInstanceOf(OrderIsAlreadyCancelledException.class);
+    }
+
+    private Item buildItem(BigDecimal price, boolean reserved) {
+        return new Item(UUID.randomUUID(), "Test item", reserved, 10, price, null,
+                "http://example.com/item.png");
+    }
+
+    private UpdateOrderRequest buildAddRequest(UUID orderId, Item... items) {
+        Set<RequestItem> requestItems = Stream.of(items)
+                .map(item -> new RequestItem(item.id(), 2))
+                .collect(Collectors.toSet());
+        return new UpdateOrderRequest(UUID.randomUUID(), orderId, requestItems, Set.of());
+    }
+
+    private UpdateOrderRequest buildRemoveRequest(UUID orderId, Set<UUID> itemIdsToRemove) {
+        Set<RequestItem> requestItems = itemIdsToRemove.stream()
+                .map(id -> new RequestItem(id, 1))
+                .collect(Collectors.toSet());
+        return new UpdateOrderRequest(UUID.randomUUID(), orderId, Set.of(), requestItems);
+    }
+
+    private Order forceStatus(UUID orderId, OrderStatus status) {
+        Order order = orderRepository.findById(orderId).orElseThrow();
+        order.setStatus(status);
+        return orderRepository.save(order);
     }
 
 

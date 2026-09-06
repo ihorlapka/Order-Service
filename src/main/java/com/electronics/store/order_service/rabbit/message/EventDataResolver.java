@@ -1,6 +1,7 @@
 package com.electronics.store.order_service.rabbit.message;
 
-import com.electronics.store.order_service.grpc.Item;
+import com.electronics.store.order_service.controllers.dto.RequestItem;
+import com.electronics.store.order_service.inventory.Item;
 import com.electronics.store.order_service.persistence.model.Order;
 import com.electronics.store.order_service.persistence.model.OrderEvent;
 import com.electronics.store.order_service.persistence.model.OrderItem;
@@ -18,13 +19,13 @@ import static java.util.stream.Collectors.toSet;
 public class EventDataResolver {
 
     //todo: implement rest of data!
-    public static EventData resolveEventData(Order order, OrderEvent orderEvent,
+    public static EventData resolveEventData(Order order, Set<RequestItem> requestedItems, OrderEvent orderEvent,
                                              Supplier<Map<UUID, Item>> availableItems) {
         return switch (orderEvent.getEventType()) {
             case ORDER_CREATED -> new OrderCreatedData(order.getCustomerId(), order.getCurrency(), order.getTotalPrice(), mapToEventItems(order.getItems()));
             case ORDER_CANCELLED -> new OrderCancelledData(order.getStatus(), "cancellation reason");
             case INVENTORY_RESERVED -> new InventoryReservedData(mapToReservedItems(order.getItems()));
-            case INVENTORY_FAILED -> new InventoryFailedData(mapToUnavailableItems(order.getItems(), availableItems.get()), "reason");
+            case INVENTORY_FAILED -> new InventoryFailedData(mapToUnavailableItems(requestedItems, availableItems.get()), "reason");
             case PAYMENT_COMPLETED -> new PaymentCompletedData(UUID.randomUUID(), order.getCurrency(), order.getTotalPrice(), "payment_method");
             case PAYMENT_FAILED -> new PaymentFailedData("reason", "payment failed");
             case SHIPMENT_CREATED -> new ShipmentCreatedData("tracking_number", "carrier", OffsetDateTime.now().plusDays(2));
@@ -33,9 +34,10 @@ public class EventDataResolver {
         };
     }
 
-    private static Set<UnavailableItem> mapToUnavailableItems(Set<OrderItem> items, Map<UUID, Item> availableItemsByIds) {
-        return items.stream()
-                .map(oi -> new UnavailableItem(oi.getItemId(), oi.getQuantity(), availableItemsByIds.get(oi.getItemId()).availableAmount()))
+    private static Set<UnavailableItem> mapToUnavailableItems(Set<RequestItem> requestedItems,  Map<UUID, Item> availableItemsByIds) {
+        return requestedItems.stream()
+                .filter(requestItem -> !availableItemsByIds.get(requestItem.itemId()).isReserved())
+                .map(requestItem -> new UnavailableItem(requestItem.itemId(), requestItem.quantity(), availableItemsByIds.get(requestItem.itemId()).availableAmount()))
                 .collect(toSet());
     }
 

@@ -28,7 +28,8 @@ public interface OrderEventRepository extends JpaRepository<OrderEvent, UUID> {
             WHERE status = 'NEW'
             ORDER BY created_at
             LIMIT :batchSize
-            FOR UPDATE SKIP LOCKED""", nativeQuery = true)
+            FOR UPDATE SKIP LOCKED
+            """, nativeQuery = true)
     List<OrderEvent> findFreshEvents(@Param("batchSize") int batchSize);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
@@ -47,4 +48,6 @@ public interface OrderEventRepository extends JpaRepository<OrderEvent, UUID> {
             LIMIT 1
             """)
     Optional<OrderEvent> findLastByOrderIdForUpdate(@Param("orderId") UUID orderId);
+
+    List<OrderEvent> findAllByOrderId(UUID orderId);
 }

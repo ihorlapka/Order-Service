@@ -38,4 +38,8 @@ public class OrderEventService {
     public Optional<OrderEvent> findLastByOrderIdForUpdate(UUID orderId) {
         return eventRepository.findLastByOrderIdForUpdate(orderId);
     }
+
+    public List<OrderEvent> findAllByOrderId(UUID orderId) {
+        return eventRepository.findAllByOrderId(orderId);
+    }
 }

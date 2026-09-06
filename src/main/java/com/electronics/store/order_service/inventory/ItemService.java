@@ -1,5 +1,6 @@
-package com.electronics.store.order_service.grpc;
+package com.electronics.store.order_service.inventory;
 
+import com.electronics.store.order_service.controllers.dto.RequestItem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -13,5 +14,13 @@ public class ItemService {
 
     public Map<UUID, Item> getItemsByIds(Set<UUID> itemIds) { //todo: implement!
         return Map.of();
+    }
+
+    public InventoryResponse reserve(Set<RequestItem> requestItems) {
+        return null;
+    }
+
+    public InventoryResponse release(Set<RequestItem> requestItems) {
+        return null;
     }
 }

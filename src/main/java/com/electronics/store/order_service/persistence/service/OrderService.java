@@ -2,11 +2,16 @@ package com.electronics.store.order_service.persistence.service;
 
 import com.electronics.store.order_service.controllers.dto.RequestItem;
 import com.electronics.store.order_service.controllers.misc.CreateOrderRequest;
+import com.electronics.store.order_service.controllers.misc.UpdateOrderRequest;
 import com.electronics.store.order_service.events.PublishmentTriggerEvent;
-import com.electronics.store.order_service.grpc.Item;
-import com.electronics.store.order_service.grpc.ItemService;
+import com.electronics.store.order_service.inventory.InventoryResponse;
+import com.electronics.store.order_service.inventory.Item;
+import com.electronics.store.order_service.inventory.ItemService;
+import com.electronics.store.order_service.persistence.enums.OrderEventType;
+import com.electronics.store.order_service.persistence.enums.OrderStatus;
 import com.electronics.store.order_service.persistence.model.Order;
 import com.electronics.store.order_service.persistence.model.OrderEvent;
+import com.electronics.store.order_service.persistence.model.OrderItem;
 import com.electronics.store.order_service.persistence.repositories.OrderRepository;
 import com.electronics.store.order_service.persistence.service.exceptions.*;
 import com.electronics.store.order_service.validation.ItemValidator;
@@ -16,14 +21,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.function.Supplier;
 
-import static com.electronics.store.order_service.persistence.enums.OrderStatus.CANCELLED;
+import static com.electronics.store.order_service.persistence.enums.OrderStatus.*;
 import static com.electronics.store.order_service.persistence.enums.PublishmentStatus.*;
 import static com.electronics.store.order_service.persistence.enums.OrderEventType.*;
-import static com.electronics.store.order_service.persistence.mapping.EntityCreator.createOrder;
-import static com.electronics.store.order_service.persistence.mapping.EntityCreator.createOrderEvent;
+import static com.electronics.store.order_service.persistence.mapping.EntityCreator.*;
+import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 
 @Slf4j
@@ -44,12 +51,12 @@ public class OrderService {
 
     @Transactional
     public Order persist(@Valid CreateOrderRequest request) {
-        final Map<UUID, Item> itemsByIds = itemService.getItemsByIds(getItemIds(request));
+        final Map<UUID, Item> itemsByIds = itemService.getItemsByIds(getItemIds(request.requestItems()));
         if (!itemValidator.isValid(request, itemsByIds)) {
             throw new NotEnoughItemsException("Not enough items in inventory!");
         }
         final Order order = orderRepository.save(createOrder(request, itemsByIds));
-        orderEventService.persist(createOrderEvent(order, ORDER_CREATED, NEW, () -> itemsByIds));
+        orderEventService.persist(createOrderEvent(order, request.requestItems(), ORDER_CREATED, NEW, () -> itemsByIds));
         publishOrderEvent(new PublishmentTriggerEvent(order.getId()));
         log.info("Order stored: {}", order);
         return order;
@@ -79,7 +86,7 @@ public class OrderService {
         }
         final Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException("Order with orderId: " + orderId + " not found!"));
         order.setStatus(CANCELLED); //dirty checking
-        orderEventService.persist(createOrderEvent(order, ORDER_CANCELLED, NEW, Collections::emptyMap));
+        orderEventService.persist(createOrderEvent(order, emptySet(), ORDER_CANCELLED, NEW, Collections::emptyMap));
         publishOrderEvent(new PublishmentTriggerEvent(orderId));
         log.info("Order event with orderId: {} is being cancelled", orderId);
     }
@@ -88,12 +95,66 @@ public class OrderService {
         return orderRepository.findOrdersByCustomerId(customerId);
     }
 
+    @Transactional
+    public Order patch(@Valid UpdateOrderRequest request) {
+        if (CollectionUtils.isEmpty(request.orderItemsToBeAdded()) && CollectionUtils.isEmpty(request.orderItemsToBeRemoved())) {
+            throw new UpdateRequestIsNotValidException("Items to add or remove should be present, orderId: " + request.orderId() + "!");
+        }
+        final Order order = orderRepository.findOrderByIdForUpdate(request.orderId())
+                .orElseThrow(() -> new OrderNotFoundException("Order with orderId: " + request.orderId() + " not found!"));
+        final OrderStatus status = order.getStatus();
+        if (CANCELLED.equals(status)) {
+            throw new OrderIsAlreadyCancelledException("Order event with orderId: " + request.orderId() + " is cancelled");
+        } else if (SHIPPED.equals(status) || DELIVERED.equals(status) || DELIVERY_FAILED.equals(status)
+                || PAYMENT_STUCK.equals(status) || PAID.equals(status)) {
+            throw new OrderChangeRestrictedException("Order: " + request.orderId() + " cannot be modified anymore!");
+        }
+        boolean success = true;
+        OrderStatus newStatus = RESERVED;
+        OrderEventType newEventType = INVENTORY_RESERVED;
+        Supplier<Map<UUID, Item>> items = Collections::emptyMap;
+
+        if (!CollectionUtils.isEmpty(request.orderItemsToBeAdded())) {
+            final InventoryResponse response = itemService.reserve(request.orderItemsToBeAdded());
+            final Set<OrderItem> orderItems = createOrderItems(request.orderItemsToBeAdded(), response.itemsByIds(), order);
+            order.getItems().addAll(orderItems);
+            if (!response.success()) {
+                success = false;
+                newStatus = RESERVATION_FAILED;
+                newEventType = INVENTORY_FAILED;
+                items = response::itemsByIds;
+            }
+        }
+        if (!CollectionUtils.isEmpty(request.orderItemsToBeRemoved())) {
+            final InventoryResponse response = itemService.release(request.orderItemsToBeRemoved());
+            order.getItems().removeIf(orderItem -> itemsMatch(request, orderItem));
+            if (!response.success()) {
+                throw new InventoryNotAvailableException("Unable to get response from inventory service, please try again later orderId: "
+                        + request.orderId() + "!");
+            }
+        }
+        log.info("Items were updated successfully: {}, added: {}, removed: {}, requestId: {}",
+                success, request.orderItemsToBeAdded(), request.orderItemsToBeRemoved(), request.requestId());
+        order.setStatus(newStatus); //dirty checking
+        orderEventService.persist(createOrderEvent(order, request.orderItemsToBeAdded(), newEventType, NEW, items));
+        publishOrderEvent(new PublishmentTriggerEvent(request.orderId()));
+        log.info("Order updated: {}", order);
+        return order;
+    }
+
     private void publishOrderEvent(PublishmentTriggerEvent applicationEvent) {
         log.info("Sending application event: {}", applicationEvent);
         eventPublisher.publishEvent(applicationEvent);
     }
 
-    private Set<UUID> getItemIds(CreateOrderRequest request) {
-        return request.orderItems().stream().map(RequestItem::itemId).collect(toSet());
+    private Set<UUID> getItemIds(Set<RequestItem> items) {
+        return items.stream().map(RequestItem::itemId).collect(toSet());
     }
+
+    private boolean itemsMatch(UpdateOrderRequest request, OrderItem orderItem) {
+        return request.orderItemsToBeRemoved().stream()
+                .map(RequestItem::itemId)
+                .anyMatch(itemId -> itemId.equals(orderItem.getItemId()));
+    }
+
 }

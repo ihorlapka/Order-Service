@@ -1,10 +1,14 @@
 CREATE TYPE order_status AS ENUM (
     'PENDING',
-    'INVENTORY_RESERVED',
+    'RESERVED',
+    'RESERVATION_FAILED',
     'PENDING_PAYMENT',
     'PAID',
+    'PAYMENT_STUCK',
     'SHIPPED',
-    'CANCELED'
+    'DELIVERED',
+    'DELIVERY_FAILED',
+    'CANCELLED'
 );
 
 CREATE TYPE currency AS ENUM ('EUR', 'USD', 'UAH');

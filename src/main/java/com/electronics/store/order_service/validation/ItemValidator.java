@@ -2,7 +2,7 @@ package com.electronics.store.order_service.validation;
 
 import com.electronics.store.order_service.controllers.dto.RequestItem;
 import com.electronics.store.order_service.controllers.misc.CreateOrderRequest;
-import com.electronics.store.order_service.grpc.Item;
+import com.electronics.store.order_service.inventory.Item;
 import com.google.common.collect.Sets;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,12 +20,12 @@ public class ItemValidator {
 
 
     public boolean isValid(CreateOrderRequest request, Map<UUID, Item> itemsById) {
-        if (request.orderItems().size() != itemsById.size()) {
+        if (request.requestItems().size() != itemsById.size()) {
             log.warn("Not all items from requestId: {} are present in inventory, missed itemsIds: {}",
                     request.requestId(), getMissedItems(request, itemsById));
             return false;
         }
-        for (RequestItem requestItem : request.orderItems()) {
+        for (RequestItem requestItem : request.requestItems()) {
             final Item actualItem = itemsById.get(requestItem.itemId());
             if (actualItem == null) {
                 log.warn("Item with id: {} was not found", requestItem.itemId());
@@ -40,7 +40,7 @@ public class ItemValidator {
     }
 
     private boolean getMissedItems(CreateOrderRequest request, Map<UUID, Item> itemsById) {
-        return Sets.newHashSet(request.orderItems().stream()
+        return Sets.newHashSet(request.requestItems().stream()
                 .map(RequestItem::itemId)
                 .collect(toSet()))
                 .removeAll(itemsById.keySet());
