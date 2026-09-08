@@ -105,7 +105,7 @@ class OrderServiceIntegrationalTest {
         Map<UUID, Item> itemsByIds = Map.of(item1.id(), item1, item2.id(), item2);
         UUID customerId = UUID.randomUUID();
         CreateOrderRequest request = buildRequest(customerId, item1, item2);
-        when(itemService.getItemsByIds(anySet())).thenReturn(itemsByIds);
+        when(itemService.reserve(anySet())).thenReturn(new InventoryResponse(true, "Successfuly reserved", itemsByIds));
 
         Order savedOrder = orderService.persist(request);
 
@@ -128,7 +128,7 @@ class OrderServiceIntegrationalTest {
         Item item = buildItem(BigDecimal.valueOf(75));
         CreateOrderRequest request = buildRequest(UUID.randomUUID(), item);
         Map<UUID, Item> itemsById = Map.of(item.id(), item);
-        when(itemService.getItemsByIds(anySet())).thenReturn(itemsById);
+        when(itemService.reserve(anySet())).thenReturn(new InventoryResponse(true, "Successfully reserved", itemsById));
         Order savedOrder = orderService.persist(request);
 
         Optional<Order> found = orderService.findByOrderId(savedOrder.getId());
@@ -150,7 +150,7 @@ class OrderServiceIntegrationalTest {
         Item item = buildItem(BigDecimal.valueOf(30));
 
         Map<UUID, Item> itemsById = Map.of(item.id(), item);
-        when(itemService.getItemsByIds(anySet())).thenReturn(itemsById);
+        when(itemService.reserve(anySet())).thenReturn(new InventoryResponse(true, "Successfully reserved", itemsById));
         Order ownOrder = orderService.persist(buildRequest(customerId, item));
         orderService.persist(buildRequest(UUID.randomUUID(), item));
 
@@ -171,7 +171,7 @@ class OrderServiceIntegrationalTest {
     @Test
     void reservesItems_andSetsStatusReserved_whenReservationSucceeds() {
         Item existingItem = buildItem(BigDecimal.valueOf(20), true);
-        when(itemService.getItemsByIds(anySet())).thenReturn(Map.of(existingItem.id(), existingItem));
+        when(itemService.reserve(anySet())).thenReturn(new InventoryResponse(true, "Successfully reserved", Map.of(existingItem.id(), existingItem)));
         Order order = orderService.persist(buildRequest(UUID.randomUUID(), existingItem));
 
         Item newItem = buildItem(BigDecimal.valueOf(40), true);
@@ -195,7 +195,7 @@ class OrderServiceIntegrationalTest {
     @Test
     void marksOrderReservationFailed_andSkipsUnreservedItems_whenReservationFails() {
         Item existingItem = buildItem(BigDecimal.valueOf(20), true);
-        when(itemService.getItemsByIds(anySet())).thenReturn(Map.of(existingItem.id(), existingItem));
+        when(itemService.reserve(anySet())).thenReturn(new InventoryResponse(true, "Successfully reserved", Map.of(existingItem.id(), existingItem)));
         Order order = orderService.persist(buildRequest(UUID.randomUUID(), existingItem));
 
         Item unreservedItem = buildItem(BigDecimal.valueOf(40), false);
@@ -221,7 +221,7 @@ class OrderServiceIntegrationalTest {
     @Test
     void removesItems_andReleasesInventory_whenRemovalSucceeds() {
         Item item = buildItem(BigDecimal.valueOf(20), true);
-        when(itemService.getItemsByIds(anySet())).thenReturn(Map.of(item.id(), item));
+        when(itemService.reserve(anySet())).thenReturn(new InventoryResponse(true, "Successfully reserved", Map.of(item.id(), item)));
         Order order = orderService.persist(buildRequest(UUID.randomUUID(), item));
         assertThat(order.getItems()).hasSize(1);
 
@@ -238,7 +238,7 @@ class OrderServiceIntegrationalTest {
     @Test
     void throwsInventoryNotAvailable_whenReleaseCallFails() {
         Item item = buildItem(BigDecimal.valueOf(20), true);
-        when(itemService.getItemsByIds(anySet())).thenReturn(Map.of(item.id(), item));
+        when(itemService.reserve(anySet())).thenReturn(new InventoryResponse(true, "Successfully reserved", Map.of(item.id(), item)));
         Order order = orderService.persist(buildRequest(UUID.randomUUID(), item));
 
         when(itemService.release(anySet()))
@@ -270,7 +270,7 @@ class OrderServiceIntegrationalTest {
     @Test
     void throwsOrderIsAlreadyCancelled_whenOrderStatusIsCancelled() {
         Item item = buildItem(BigDecimal.valueOf(20), true);
-        when(itemService.getItemsByIds(anySet())).thenReturn(Map.of(item.id(), item));
+        when(itemService.reserve(anySet())).thenReturn(new InventoryResponse(true, "Successfully reserved", Map.of(item.id(), item)));
         Order order = orderService.persist(buildRequest(UUID.randomUUID(), item));
         forceStatus(order.getId(), OrderStatus.CANCELLED);
 

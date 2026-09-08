@@ -43,7 +43,6 @@ public class OrderService {
     private final OrderEventService orderEventService;
     private final ApplicationEventPublisher eventPublisher;
     private final ItemService itemService;
-    private final ItemValidator itemValidator;
 
     public Optional<Order> findByOrderId(UUID orderId) {
         return orderRepository.findById(orderId);
@@ -51,12 +50,12 @@ public class OrderService {
 
     @Transactional
     public Order persist(@Valid CreateOrderRequest request) {
-        final Map<UUID, Item> itemsByIds = itemService.getItemsByIds(getItemIds(request.requestItems()));
-        if (!itemValidator.isValid(request, itemsByIds)) {
+        final InventoryResponse response = itemService.reserve(request.requestItems());
+        if (!response.success()) {
             throw new NotEnoughItemsException("Not enough items in inventory!");
         }
-        final Order order = orderRepository.save(createOrder(request, itemsByIds));
-        orderEventService.persist(createOrderEvent(order, request.requestItems(), ORDER_CREATED, NEW, () -> itemsByIds));
+        final Order order = orderRepository.save(createOrder(request, response.itemsByIds()));
+        orderEventService.persist(createOrderEvent(order, request.requestItems(), ORDER_CREATED, NEW, response::itemsByIds));
         publishOrderEvent(new PublishmentTriggerEvent(order.getId()));
         log.info("Order stored: {}", order);
         return order;
