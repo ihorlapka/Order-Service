@@ -14,7 +14,6 @@ import com.electronics.store.order_service.persistence.model.OrderEvent;
 import com.electronics.store.order_service.persistence.model.OrderItem;
 import com.electronics.store.order_service.persistence.repositories.OrderRepository;
 import com.electronics.store.order_service.persistence.service.exceptions.*;
-import com.electronics.store.order_service.validation.ItemValidator;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +30,6 @@ import static com.electronics.store.order_service.persistence.enums.PublishmentS
 import static com.electronics.store.order_service.persistence.enums.OrderEventType.*;
 import static com.electronics.store.order_service.persistence.mapping.EntityCreator.*;
 import static java.util.Collections.emptySet;
-import static java.util.stream.Collectors.toSet;
 
 @Slf4j
 @Service
@@ -144,10 +142,6 @@ public class OrderService {
     private void publishOrderEvent(PublishmentTriggerEvent applicationEvent) {
         log.info("Sending application event: {}", applicationEvent);
         eventPublisher.publishEvent(applicationEvent);
-    }
-
-    private Set<UUID> getItemIds(Set<RequestItem> items) {
-        return items.stream().map(RequestItem::itemId).collect(toSet());
     }
 
     private boolean itemsMatch(UpdateOrderRequest request, OrderItem orderItem) {
