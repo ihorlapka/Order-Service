@@ -1,18 +1,16 @@
-package com.electronics.store.order_service.outbox;
+package com.electronics.store.outbox_event_publisher;
 
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.electronics.store.order_service.outbox.OutboxProcessor.ProcessingResult;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Slf4j
-@Component
 public class OutboxEventManager {
 
     private final AtomicBoolean processing = new AtomicBoolean(false);
@@ -37,7 +35,7 @@ public class OutboxEventManager {
                     try {
                         boolean hasMore = true;
                         while (hasMore) {
-                            final ProcessingResult result = outboxProcessor.processBatch();
+                            final OutboxProcessor.ProcessingResult result = outboxProcessor.processBatch();
                             hasMore = result.hasMore();
                             if (result.hasError()) {
                                 Thread.sleep(timeoutAfterFailure);

@@ -4,22 +4,19 @@ import com.electronics.store.order_service.OrderServiceApplication;
 import com.electronics.store.order_service.controllers.dto.RequestItem;
 import com.electronics.store.order_service.controllers.misc.CreateOrderRequest;
 import com.electronics.store.order_service.controllers.misc.UpdateOrderRequest;
-import com.electronics.store.order_service.inventory.InventoryResponse;
-import com.electronics.store.order_service.inventory.Item;
-import com.electronics.store.order_service.inventory.ItemService;
 import com.electronics.store.order_service.outbox.OutboxEventManager;
-import com.electronics.store.order_service.persistence.enums.OrderEventType;
+import com.electronics.store.order_service.persistence.enums.OutboxEventType;
 import com.electronics.store.order_service.persistence.enums.OrderStatus;
+import com.electronics.store.order_service.persistence.enums.PublishmentStatus;
 import com.electronics.store.order_service.persistence.model.Order;
-import com.electronics.store.order_service.persistence.model.OrderEvent;
+import com.electronics.store.order_service.persistence.model.OutboxEvent;
 import com.electronics.store.order_service.persistence.model.OrderItem;
-import com.electronics.store.order_service.persistence.repositories.OrderEventRepository;
+import com.electronics.store.order_service.persistence.repositories.OutboxEventRepository;
 import com.electronics.store.order_service.persistence.repositories.OrderRepository;
-import com.electronics.store.order_service.persistence.service.exceptions.InventoryNotAvailableException;
-import com.electronics.store.order_service.persistence.service.exceptions.OrderIsAlreadyCancelledException;
-import com.electronics.store.order_service.persistence.service.exceptions.OrderNotFoundException;
-import com.electronics.store.order_service.persistence.service.exceptions.UpdateRequestIsNotValidException;
+import com.electronics.store.order_service.persistence.service.exceptions.*;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
@@ -30,23 +27,20 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.electronics.store.order_service.persistence.enums.Currency.UAH;
+import static java.time.OffsetDateTime.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anySet;
-import static org.mockito.Mockito.when;
 
 @ActiveProfiles("test")
 @Testcontainers
@@ -54,8 +48,8 @@ import static org.mockito.Mockito.when;
         OrderServiceApplication.class,
         OrderRepository.class,
         OrderService.class,
-        OrderEventRepository.class,
-        OrderEventService.class,
+        OutboxEventRepository.class,
+        OutboxEventService.class,
         OrderServiceIntegrationalTest.TestPersistenceConfig.class,
         OutboxEventManager.class
 })
@@ -79,230 +73,196 @@ class OrderServiceIntegrationalTest {
     private OrderService orderService;
 
     @Autowired
-    private OrderEventService orderEventService;
+    private OutboxEventService outboxEventService;
+
     @Autowired
     private OrderRepository orderRepository;
 
-    @MockitoBean
-    private ItemService itemService;
-
-
-    private CreateOrderRequest buildRequest(UUID customerId, Item... items) {
-        Set<RequestItem> requestItems = Stream.of(items)
-                .map(item -> new RequestItem(item.id(), 2))
+    private CreateOrderRequest buildCreateRequest(UUID customerId, UUID... itemIds) {
+        Set<RequestItem> items = Stream.of(itemIds)
+                .map(id -> new RequestItem(id, 2))
                 .collect(Collectors.toSet());
-        return new CreateOrderRequest(UUID.randomUUID(), customerId, UAH, requestItems);
+        return new CreateOrderRequest(UUID.randomUUID(), customerId, UAH, items);
     }
 
-    private Item buildItem(BigDecimal price) {
-        return new Item(UUID.randomUUID(), "Test item", true, 10, price, null, "http://example.com/item.png");
-    }
-
-    @Test
-    void persist_shouldSaveOrderWithItemsAndCreateOrderEvent() {
-        Item item1 = buildItem(BigDecimal.valueOf(100));
-        Item item2 = buildItem(BigDecimal.valueOf(50));
-        Map<UUID, Item> itemsByIds = Map.of(item1.id(), item1, item2.id(), item2);
-        UUID customerId = UUID.randomUUID();
-        CreateOrderRequest request = buildRequest(customerId, item1, item2);
-        when(itemService.reserve(anySet())).thenReturn(new InventoryResponse(true, "Successfuly reserved", itemsByIds));
-
-        Order savedOrder = orderService.persist(request);
-
-        assertThat(savedOrder.getId()).isNotNull();
-        assertThat(savedOrder.getCustomerId()).isEqualTo(customerId);
-        assertThat(savedOrder.getCurrency()).isEqualTo(UAH);
-        assertThat(savedOrder.getStatus()).isEqualTo(OrderStatus.PENDING);
-        assertThat(savedOrder.getTotalPrice()).isEqualByComparingTo(BigDecimal.valueOf(150));
-        assertThat(savedOrder.getItems()).hasSize(2);
-
-        Optional<Order> persisted = orderService.findByOrderId(savedOrder.getId());
-        assertThat(persisted).isPresent();
-        assertThat(persisted.get().getItems()).hasSize(2);
-
-        assertThat(orderEventService.findByOrderId(savedOrder.getId())).isPresent();
-    }
-
-    @Test
-    void findByOrderId_shouldReturnOrder_whenOrderExists() {
-        Item item = buildItem(BigDecimal.valueOf(75));
-        CreateOrderRequest request = buildRequest(UUID.randomUUID(), item);
-        Map<UUID, Item> itemsById = Map.of(item.id(), item);
-        when(itemService.reserve(anySet())).thenReturn(new InventoryResponse(true, "Successfully reserved", itemsById));
-        Order savedOrder = orderService.persist(request);
-
-        Optional<Order> found = orderService.findByOrderId(savedOrder.getId());
-
-        assertThat(found).isPresent();
-        assertThat(found.get().getId()).isEqualTo(savedOrder.getId());
-    }
-
-    @Test
-    void findByOrderId_shouldReturnEmpty_whenOrderDoesNotExist() {
-        Optional<Order> found = orderService.findByOrderId(UUID.randomUUID());
-
-        assertThat(found).isEmpty();
-    }
-
-    @Test
-    void findByCustomerId_shouldReturnOnlyOrdersOfThatCustomer() {
-        UUID customerId = UUID.randomUUID();
-        Item item = buildItem(BigDecimal.valueOf(30));
-
-        Map<UUID, Item> itemsById = Map.of(item.id(), item);
-        when(itemService.reserve(anySet())).thenReturn(new InventoryResponse(true, "Successfully reserved", itemsById));
-        Order ownOrder = orderService.persist(buildRequest(customerId, item));
-        orderService.persist(buildRequest(UUID.randomUUID(), item));
-
-        List<Order> customerOrders = orderService.findByCustomerId(customerId);
-
-        assertThat(customerOrders)
-                .extracting(Order::getId)
-                .containsExactly(ownOrder.getId());
-    }
-
-    @Test
-    void findByCustomerId_shouldReturnEmptyList_whenCustomerHasNoOrders() {
-        List<Order> customerOrders = orderService.findByCustomerId(UUID.randomUUID());
-
-        assertThat(customerOrders).isEmpty();
-    }
-
-    @Test
-    void reservesItems_andSetsStatusReserved_whenReservationSucceeds() {
-        Item existingItem = buildItem(BigDecimal.valueOf(20), true);
-        when(itemService.reserve(anySet())).thenReturn(new InventoryResponse(true, "Successfully reserved", Map.of(existingItem.id(), existingItem)));
-        Order order = orderService.persist(buildRequest(UUID.randomUUID(), existingItem));
-
-        Item newItem = buildItem(BigDecimal.valueOf(40), true);
-        InventoryResponse reserveResponse = new InventoryResponse(true, "reserved", Map.of(newItem.id(), newItem));
-        when(itemService.reserve(anySet())).thenReturn(reserveResponse);
-
-        UpdateOrderRequest request = buildAddRequest(order.getId(), newItem);
-        Order patched = orderService.patch(request);
-
-        assertThat(patched.getStatus()).isEqualTo(OrderStatus.RESERVED);
-        assertThat(patched.getItems())
-                .extracting(OrderItem::getItemId)
-                .contains(newItem.id());
-
-        List<OrderEvent> events = orderEventService.findAllByOrderId(order.getId());
-        assertThat(events)
-                .extracting(OrderEvent::getEventType)
-                .contains(OrderEventType.INVENTORY_RESERVED);
-    }
-
-    @Test
-    void marksOrderReservationFailed_andSkipsUnreservedItems_whenReservationFails() {
-        Item existingItem = buildItem(BigDecimal.valueOf(20), true);
-        when(itemService.reserve(anySet())).thenReturn(new InventoryResponse(true, "Successfully reserved", Map.of(existingItem.id(), existingItem)));
-        Order order = orderService.persist(buildRequest(UUID.randomUUID(), existingItem));
-
-        Item unreservedItem = buildItem(BigDecimal.valueOf(40), false);
-        InventoryResponse reserveResponse = new InventoryResponse(
-                false, "not enough stock", Map.of(unreservedItem.id(), unreservedItem));
-        when(itemService.reserve(anySet())).thenReturn(reserveResponse);
-
-        UpdateOrderRequest request = buildAddRequest(order.getId(), unreservedItem);
-        Order patched = orderService.patch(request);
-
-        assertThat(patched.getStatus()).isEqualTo(OrderStatus.RESERVATION_FAILED);
-        // the not-reserved item must NOT have been added to the order
-        assertThat(patched.getItems())
-                .extracting(OrderItem::getItemId)
-                .doesNotContain(unreservedItem.id());
-
-        List<OrderEvent> events = orderEventService.findAllByOrderId(order.getId());
-        assertThat(events)
-                .extracting(OrderEvent::getEventType)
-                .contains(OrderEventType.INVENTORY_FAILED);
-    }
-
-    @Test
-    void removesItems_andReleasesInventory_whenRemovalSucceeds() {
-        Item item = buildItem(BigDecimal.valueOf(20), true);
-        when(itemService.reserve(anySet())).thenReturn(new InventoryResponse(true, "Successfully reserved", Map.of(item.id(), item)));
-        Order order = orderService.persist(buildRequest(UUID.randomUUID(), item));
-        assertThat(order.getItems()).hasSize(1);
-
-        when(itemService.release(anySet())).thenReturn(new InventoryResponse(true, "released", Map.of()));
-
-        UpdateOrderRequest request = buildRemoveRequest(order.getId(), Set.of(item.id()));
-        Order patched = orderService.patch(request);
-
-        assertThat(patched.getItems())
-                .extracting(OrderItem::getItemId)
-                .doesNotContain(item.id());
-    }
-
-    @Test
-    void throwsInventoryNotAvailable_whenReleaseCallFails() {
-        Item item = buildItem(BigDecimal.valueOf(20), true);
-        when(itemService.reserve(anySet())).thenReturn(new InventoryResponse(true, "Successfully reserved", Map.of(item.id(), item)));
-        Order order = orderService.persist(buildRequest(UUID.randomUUID(), item));
-
-        when(itemService.release(anySet()))
-                .thenReturn(new InventoryResponse(false, "inventory service unreachable", Map.of()));
-
-        UpdateOrderRequest request = buildRemoveRequest(order.getId(), Set.of(item.id()));
-
-        assertThatThrownBy(() -> orderService.patch(request))
-                .isInstanceOf(InventoryNotAvailableException.class);
-    }
-
-    @Test
-    void throwsOrderNotFound_whenOrderDoesNotExist() {
-        Item item = buildItem(BigDecimal.valueOf(20), true);
-        UpdateOrderRequest request = buildAddRequest(UUID.randomUUID(), item);
-
-        assertThatThrownBy(() -> orderService.patch(request))
-                .isInstanceOf(OrderNotFoundException.class);
-    }
-
-    @Test
-    void throwsUpdateRequestIsNotValid_whenBothItemSetsAreEmpty() {
-        UpdateOrderRequest request = new UpdateOrderRequest(UUID.randomUUID(), UUID.randomUUID(), Set.of(), Set.of());
-
-        assertThatThrownBy(() -> orderService.patch(request))
-                .isInstanceOf(UpdateRequestIsNotValidException.class);
-    }
-
-    @Test
-    void throwsOrderIsAlreadyCancelled_whenOrderStatusIsCancelled() {
-        Item item = buildItem(BigDecimal.valueOf(20), true);
-        when(itemService.reserve(anySet())).thenReturn(new InventoryResponse(true, "Successfully reserved", Map.of(item.id(), item)));
-        Order order = orderService.persist(buildRequest(UUID.randomUUID(), item));
-        forceStatus(order.getId(), OrderStatus.CANCELLED);
-
-        UpdateOrderRequest request = buildAddRequest(order.getId(), item);
-
-        assertThatThrownBy(() -> orderService.patch(request))
-                .isInstanceOf(OrderIsAlreadyCancelledException.class);
-    }
-
-    private Item buildItem(BigDecimal price, boolean reserved) {
-        return new Item(UUID.randomUUID(), "Test item", reserved, 10, price, null,
-                "http://example.com/item.png");
-    }
-
-    private UpdateOrderRequest buildAddRequest(UUID orderId, Item... items) {
-        Set<RequestItem> requestItems = Stream.of(items)
-                .map(item -> new RequestItem(item.id(), 2))
+    private UpdateOrderRequest buildUpdateRequest(UUID orderId, UUID... itemIds) {
+        Set<RequestItem> items = Stream.of(itemIds)
+                .map(id -> new RequestItem(id, 3))
                 .collect(Collectors.toSet());
-        return new UpdateOrderRequest(UUID.randomUUID(), orderId, requestItems, Set.of());
+        return new UpdateOrderRequest(UUID.randomUUID(), orderId, items);
     }
 
-    private UpdateOrderRequest buildRemoveRequest(UUID orderId, Set<UUID> itemIdsToRemove) {
-        Set<RequestItem> requestItems = itemIdsToRemove.stream()
-                .map(id -> new RequestItem(id, 1))
-                .collect(Collectors.toSet());
-        return new UpdateOrderRequest(UUID.randomUUID(), orderId, Set.of(), requestItems);
+    private void markOrderCreatedEventPublished(UUID orderId) {
+        OutboxEvent event = outboxEventService.findLastByOrderIdForUpdate(orderId).orElseThrow();
+        event.setStatus(PublishmentStatus.PUBLISHED);
+        outboxEventService.persist(event);
+    }
+
+    private void insertOutboxEvent(UUID orderId, OutboxEventType type, PublishmentStatus status) {
+        OutboxEvent event = new OutboxEvent();
+        event.setId(UUID.randomUUID());
+        event.setEventType(type);
+        event.setOrderId(orderId);
+        event.setCreatedAt(now());
+        event.setPayload("{}");
+        event.setStatus(status);
+        outboxEventService.persist(event);
     }
 
     private Order forceStatus(UUID orderId, OrderStatus status) {
         Order order = orderRepository.findById(orderId).orElseThrow();
         order.setStatus(status);
         return orderRepository.save(order);
+    }
+
+    @Test
+    void savesOrder_andCreatesOrderCreatedOutboxEvent() {
+        UUID customerId = UUID.randomUUID();
+        CreateOrderRequest request = buildCreateRequest(customerId, UUID.randomUUID(), UUID.randomUUID());
+
+        Order saved = orderService.persist(request);
+
+        assertThat(saved.getId()).isNotNull();
+        assertThat(saved.getCustomerId()).isEqualTo(customerId);
+        assertThat(orderService.findByOrderId(saved.getId())).isPresent();
+
+        Optional<OutboxEvent> event = outboxEventService.findLastByOrderIdForUpdate(saved.getId());
+        assertThat(event).isPresent();
+        assertThat(event.get().getEventType()).isEqualTo(OutboxEventType.ORDER_CREATED);
+        assertThat(event.get().getStatus()).isEqualTo(PublishmentStatus.NEW);
+    }
+
+    @Test
+    void findByOrderId_returnsEmpty_whenOrderDoesNotExist() {
+        assertThat(orderService.findByOrderId(UUID.randomUUID())).isEmpty();
+    }
+
+    @Test
+    void findByCustomerId_returnsOnlyThatCustomersOrders() {
+        UUID customerId = UUID.randomUUID();
+        Order own = orderService.persist(buildCreateRequest(customerId, UUID.randomUUID()));
+        orderService.persist(buildCreateRequest(UUID.randomUUID(), UUID.randomUUID()));
+
+        List<Order> result = orderService.findByCustomerId(customerId);
+
+        assertThat(result).extracting(Order::getId).containsExactly(own.getId());
+    }
+
+    @Test
+    void findByCustomerId_returnsEmptyList_whenCustomerHasNoOrders() {
+        assertThat(orderService.findByCustomerId(UUID.randomUUID())).isEmpty();
+    }
+
+    @Test
+    void hardDeletesOrderAndEvent_whenOrderCreatedEventIsStillNew() {
+        Order order = orderService.persist(buildCreateRequest(UUID.randomUUID(), UUID.randomUUID()));
+
+        orderService.cancelOrder(order.getId());
+
+        assertThat(orderService.findByOrderId(order.getId())).isEmpty();
+        assertThat(outboxEventService.findLastByOrderIdForUpdate(order.getId())).isEmpty();
+    }
+
+    @Test
+    void softCancels_marksOrderCancelledAndAddsCancelledEvent_whenOrderCreatedAlreadyPublished() {
+        Order order = orderService.persist(buildCreateRequest(UUID.randomUUID(), UUID.randomUUID()));
+        markOrderCreatedEventPublished(order.getId());
+
+        orderService.cancelOrder(order.getId());
+
+        Order reloaded = orderService.findByOrderId(order.getId()).orElseThrow();
+        assertThat(reloaded.getStatus()).isEqualTo(OrderStatus.CANCELLED);
+
+        OutboxEvent latest = outboxEventService.findLastByOrderIdForUpdate(order.getId()).orElseThrow();
+        assertThat(latest.getEventType()).isEqualTo(OutboxEventType.ORDER_CANCELLED);
+        assertThat(latest.getStatus()).isEqualTo(PublishmentStatus.NEW);
+    }
+
+    @Test
+    void throwsAlreadyCancelled_whenCancelledTwice() {
+        Order order = orderService.persist(buildCreateRequest(UUID.randomUUID(), UUID.randomUUID()));
+        markOrderCreatedEventPublished(order.getId());
+        orderService.cancelOrder(order.getId());
+
+        assertThatThrownBy(() -> orderService.cancelOrder(order.getId()))
+                .isInstanceOf(OrderIsAlreadyCancelledException.class);
+    }
+
+    @Test
+    void throwsCancellationNotAllowed_whenShipmentAlreadyStarted() {
+        Order order = orderService.persist(buildCreateRequest(UUID.randomUUID(), UUID.randomUUID()));
+        markOrderCreatedEventPublished(order.getId());
+        insertOutboxEvent(order.getId(), OutboxEventType.SHIPMENT_CREATED, PublishmentStatus.NEW);
+
+        assertThatThrownBy(() -> orderService.cancelOrder(order.getId()))
+                .isInstanceOf(OrderCancellationIsNotAllowedException.class);
+    }
+
+    @Test
+    void throwsOutboxEventNotFound_whenOrderNeverExisted() {
+        assertThatThrownBy(() -> orderService.cancelOrder(UUID.randomUUID()))
+                .isInstanceOf(OutboxEventNotFoundException.class);
+    }
+
+    @Test
+    void throwsUpdateRequestIsNotValid_whenItemsToUpdateIsEmpty() {
+        UpdateOrderRequest request = new UpdateOrderRequest(UUID.randomUUID(), UUID.randomUUID(), Set.of());
+
+        assertThatThrownBy(() -> orderService.patch(request))
+                .isInstanceOf(UpdateRequestIsNotValidException.class);
+    }
+
+    @Test
+    void throwsOrderNotFound_whenOrderDoesNotExist() {
+        UpdateOrderRequest request = buildUpdateRequest(UUID.randomUUID(), UUID.randomUUID());
+
+        assertThatThrownBy(() -> orderService.patch(request))
+                .isInstanceOf(OrderNotFoundException.class);
+    }
+
+    @Test
+    void throwsOrderIsAlreadyCancelled_whenOrderWasCancelled() {
+        Order order = orderService.persist(buildCreateRequest(UUID.randomUUID(), UUID.randomUUID()));
+        markOrderCreatedEventPublished(order.getId());
+        orderService.cancelOrder(order.getId()); // soft-cancel -> status becomes CANCELLED
+
+        UpdateOrderRequest request = buildUpdateRequest(order.getId(), UUID.randomUUID());
+
+        assertThatThrownBy(() -> orderService.patch(request))
+                .isInstanceOf(OrderIsAlreadyCancelledException.class);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = OrderStatus.class,
+            names = {"SHIPPED", "DELIVERED", "DELIVERY_FAILED", "PENDING_PAYMENT", "PAYMENT_STUCK", "PAID"})
+    void throwsOrderChangeRestricted_whenOrderIsPastModifiableStages(OrderStatus terminalStatus) {
+        Order order = orderService.persist(buildCreateRequest(UUID.randomUUID(), UUID.randomUUID()));
+        forceStatus(order.getId(), terminalStatus);
+
+        UpdateOrderRequest request = buildUpdateRequest(order.getId(), UUID.randomUUID());
+
+        assertThatThrownBy(() -> orderService.patch(request))
+                .isInstanceOf(OrderChangeRestrictedException.class);
+    }
+
+    @Test
+    void replacesItems_setsStatusModified_andCreatesOrderModifiedEvent() {
+        UUID originalItemId = UUID.randomUUID();
+        Order order = orderService.persist(buildCreateRequest(UUID.randomUUID(), originalItemId));
+
+        UUID newItemId = UUID.randomUUID();
+        UpdateOrderRequest request = buildUpdateRequest(order.getId(), newItemId);
+
+        Order patched = orderService.patch(request);
+
+        assertThat(patched.getStatus()).isEqualTo(OrderStatus.MODIFIED);
+        assertThat(patched.getItems())
+                .extracting(OrderItem::getItemId)
+                .containsExactly(newItemId);
+
+        OutboxEvent latest = outboxEventService.findLastByOrderIdForUpdate(order.getId()).orElseThrow();
+        assertThat(latest.getEventType()).isEqualTo(OutboxEventType.ORDER_MODIFIED);
+        assertThat(latest.getStatus()).isEqualTo(PublishmentStatus.NEW);
     }
 
 

@@ -1,7 +1,7 @@
 package com.electronics.store.order_service.persistence.model;
 
 import com.electronics.store.order_service.persistence.enums.PublishmentStatus;
-import com.electronics.store.order_service.persistence.enums.OrderEventType;
+import com.electronics.store.order_service.persistence.enums.OutboxEventType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -14,10 +14,10 @@ import java.util.UUID;
 @ToString
 @Getter
 @Setter
-@Table(name = "order_events")
+@Table(name = "outbox_events")
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderEvent {
+public class OutboxEvent {
 
     @Id
     @Column(columnDefinition = "uuid", updatable = false, nullable = false)
@@ -26,7 +26,7 @@ public class OrderEvent {
     @Column(name = "event_type", nullable = false, updatable = false)
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    private OrderEventType eventType;
+    private OutboxEventType eventType;
 
     @Column(updatable = false, nullable = false)
     private UUID orderId;

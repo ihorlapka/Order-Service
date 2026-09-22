@@ -48,7 +48,7 @@ public class Order {
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private Currency currency;
 
-    @Column(name = "total_price", nullable = false)
+    @Column(name = "total_price")
     private BigDecimal totalPrice;
 
     @OneToMany(mappedBy = "order",

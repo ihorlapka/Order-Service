@@ -11,6 +11,5 @@ import java.util.UUID;
 public record UpdateOrderRequest(
         @NonNull UUID requestId,
         @NonNull UUID orderId,
-        Set<RequestItem> orderItemsToBeAdded,
-        Set<RequestItem> orderItemsToBeRemoved) {
+        Set<RequestItem> itemsToUpdate) {
 }

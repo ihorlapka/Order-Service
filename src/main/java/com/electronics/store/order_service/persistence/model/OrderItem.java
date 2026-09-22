@@ -23,17 +23,11 @@ public class OrderItem {
     @Column(name = "item_id", nullable = false)
     private UUID itemId;
 
-    @Column(name = "description", nullable = false)
-    private String description;
-
     @Column(name = "quantity", nullable = false)
     private int quantity;
 
     @Column(name = "price", nullable = false)
     private BigDecimal price;
-
-    @Column(name = "image_data", columnDefinition = "BYTEA")
-    private byte[] imageData;
 
     @Column(name = "item_url", nullable = false)
     private String itemUrl;

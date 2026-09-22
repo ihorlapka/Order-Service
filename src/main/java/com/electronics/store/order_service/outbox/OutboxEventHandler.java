@@ -10,7 +10,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class OrderEventHandler {
+public class OutboxEventHandler {
 
     private final OutboxEventManager outboxEventManager;
 

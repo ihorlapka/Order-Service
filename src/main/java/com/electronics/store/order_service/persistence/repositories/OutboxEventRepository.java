@@ -1,6 +1,6 @@
 package com.electronics.store.order_service.persistence.repositories;
 
-import com.electronics.store.order_service.persistence.model.OrderEvent;
+import com.electronics.store.order_service.persistence.model.OutboxEvent;
 import jakarta.persistence.LockModeType;
 import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,26 +15,24 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface OrderEventRepository extends JpaRepository<OrderEvent, UUID> {
-
-    Optional<OrderEvent> findByOrderId(UUID orderId);
+public interface OutboxEventRepository extends JpaRepository<OutboxEvent, UUID> {
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("DELETE FROM OrderEvent oe WHERE oe.orderId = :orderId")
+    @Query("DELETE FROM OutboxEvent oe WHERE oe.orderId = :orderId")
     int removeByOrderId(@NonNull @Param("orderId") UUID orderId);
 
     @Query(value = """
-            SELECT * FROM order_events
+            SELECT * FROM outbox_events
             WHERE status = 'NEW'
             ORDER BY created_at
             LIMIT :batchSize
             FOR UPDATE SKIP LOCKED
             """, nativeQuery = true)
-    List<OrderEvent> findFreshEvents(@Param("batchSize") int batchSize);
+    List<OutboxEvent> findFreshEventsForUpdate(@Param("batchSize") int batchSize);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = """
-            UPDATE order_events
+            UPDATE outbox_events
             SET status = 'PUBLISHED'
             WHERE id IN (:publishedIds)
             """, nativeQuery = true)
@@ -42,12 +40,10 @@ public interface OrderEventRepository extends JpaRepository<OrderEvent, UUID> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
-            SELECT e FROM OrderEvent e
+            SELECT e FROM OutboxEvent e
             WHERE e.orderId = :orderId
             ORDER BY e.createdAt DESC
             LIMIT 1
             """)
-    Optional<OrderEvent> findLastByOrderIdForUpdate(@Param("orderId") UUID orderId);
-
-    List<OrderEvent> findAllByOrderId(UUID orderId);
+    Optional<OutboxEvent> findLastByOrderIdForUpdate(@Param("orderId") UUID orderId);
 }

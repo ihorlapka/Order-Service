@@ -2,10 +2,10 @@ package com.electronics.store.order_service.outbox;
 
 import com.electronics.store.order_service.OrderServiceApplication;
 import com.electronics.store.order_service.persistence.enums.PublishmentStatus;
-import com.electronics.store.order_service.persistence.enums.OrderEventType;
-import com.electronics.store.order_service.persistence.model.OrderEvent;
-import com.electronics.store.order_service.persistence.repositories.OrderEventRepository;
-import com.electronics.store.order_service.persistence.service.OrderEventService;
+import com.electronics.store.order_service.persistence.enums.OutboxEventType;
+import com.electronics.store.order_service.persistence.model.OutboxEvent;
+import com.electronics.store.order_service.persistence.repositories.OutboxEventRepository;
+import com.electronics.store.order_service.persistence.service.OutboxEventService;
 import com.electronics.store.order_service.rabbit.RabbitMqPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,10 +13,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.amqp.AmqpException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
-import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -41,11 +38,9 @@ import static org.mockito.Mockito.*;
 @SpringBootTest(classes = {
         OrderServiceApplication.class,
         OutboxProcessor.class,
-        OrderEventRepository.class,
         RabbitMqPublisher.class,
-        OrderEventService.class,
-        OrderEventRepository.class,
-        OutboxProcessorTest.TestPersistenceConfig.class
+        OutboxEventService.class,
+        OutboxEventRepository.class
 })
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestPropertySource("classpath:application-test.yaml")
@@ -66,20 +61,20 @@ class OutboxProcessorTest {
     private OutboxProcessor outboxProcessor;
 
     @Autowired
-    private OrderEventRepository orderEventRepository;
+    private OutboxEventRepository outboxEventRepository;
 
     @MockitoBean
     private RabbitMqPublisher rabbitMqPublisher;
 
     @BeforeEach
     void cleanUp() {
-        orderEventRepository.deleteAll();
+        outboxEventRepository.deleteAll();
     }
 
     @Test
     void processBatch_publishesAllNewEvents_andMarksThemPublished() {
-        OrderEvent event1 = saveNewEvent();
-        OrderEvent event2 = saveNewEvent();
+        saveNewEvent();
+        saveNewEvent();
 
         OutboxProcessor.ProcessingResult result = outboxProcessor.processBatch();
 
@@ -88,8 +83,8 @@ class OutboxProcessorTest {
 
         verify(rabbitMqPublisher, times(2)).publish(any(UUID.class), anyString());
 
-        assertThat(orderEventRepository.findAll())
-                .extracting(OrderEvent::getStatus)
+        assertThat(outboxEventRepository.findAll())
+                .extracting(OutboxEvent::getStatus)
                 .containsOnly(PublishmentStatus.PUBLISHED);
     }
 
@@ -104,7 +99,7 @@ class OutboxProcessorTest {
 
     @Test
     void processBatch_leavesEventAsNew_whenPublishFails() {
-        OrderEvent event = saveNewEvent();
+        OutboxEvent event = saveNewEvent();
         doThrow(new AmqpException("broker unavailable"))
                 .when(rabbitMqPublisher).publish(any(UUID.class), anyString());
 
@@ -113,15 +108,15 @@ class OutboxProcessorTest {
         assertThat(result.hasMore()).isTrue();
         assertThat(result.hasError()).isTrue();
 
-        OrderEvent reloaded = orderEventRepository.findById(event.getId()).orElseThrow();
+        OutboxEvent reloaded = outboxEventRepository.findById(event.getId()).orElseThrow();
         assertThat(reloaded.getStatus()).isEqualTo(PublishmentStatus.NEW);
     }
 
     @Test
     void processBatch_publishesSuccessfulEventsOnly_whenOneEventFailsInBatch() {
-        OrderEvent ok1 = saveNewEvent();
-        OrderEvent failing = saveNewEvent();
-        OrderEvent ok2 = saveNewEvent();
+        OutboxEvent ok1 = saveNewEvent();
+        OutboxEvent failing = saveNewEvent();
+        OutboxEvent ok2 = saveNewEvent();
 
         doAnswer(invocation -> {
             UUID orderId = invocation.getArgument(0);
@@ -134,11 +129,11 @@ class OutboxProcessorTest {
         OutboxProcessor.ProcessingResult result = outboxProcessor.processBatch();
 
         assertThat(result.hasError()).isTrue();
-        assertThat(orderEventRepository.findById(ok1.getId()).orElseThrow().getStatus())
+        assertThat(outboxEventRepository.findById(ok1.getId()).orElseThrow().getStatus())
                 .isEqualTo(PublishmentStatus.PUBLISHED);
-        assertThat(orderEventRepository.findById(ok2.getId()).orElseThrow().getStatus())
+        assertThat(outboxEventRepository.findById(ok2.getId()).orElseThrow().getStatus())
                 .isEqualTo(PublishmentStatus.PUBLISHED);
-        assertThat(orderEventRepository.findById(failing.getId()).orElseThrow().getStatus())
+        assertThat(outboxEventRepository.findById(failing.getId()).orElseThrow().getStatus())
                 .isEqualTo(PublishmentStatus.NEW);
     }
 
@@ -183,24 +178,19 @@ class OutboxProcessorTest {
         assertThat(publishedOrderIds.getAllValues())
                 .containsExactlyInAnyOrderElementsOf(expectedOrderIds);
 
-        assertThat(orderEventRepository.findAll())
-                .extracting(OrderEvent::getStatus)
+        assertThat(outboxEventRepository.findAll())
+                .extracting(OutboxEvent::getStatus)
                 .containsOnly(PublishmentStatus.PUBLISHED);
     }
 
-    private OrderEvent saveNewEvent() {
-        OrderEvent event = new OrderEvent();
+    private OutboxEvent saveNewEvent() {
+        OutboxEvent event = new OutboxEvent();
         event.setId(UUID.randomUUID());
         event.setOrderId(UUID.randomUUID());
-        event.setEventType(OrderEventType.ORDER_CREATED);
+        event.setEventType(OutboxEventType.ORDER_CREATED);
         event.setPayload("{\"message\":\"hello\"}");
         event.setStatus(PublishmentStatus.NEW);
-        return orderEventRepository.save(event);
+        return outboxEventRepository.save(event);
     }
-
-    @Configuration
-    @EnableJpaRepositories(basePackages = "com.electronics.store.order_service.persistence.repositories")
-    @EntityScan(basePackages = "com.electronics.store.order_service.persistence.model")
-    static class TestPersistenceConfig {}
 
 }

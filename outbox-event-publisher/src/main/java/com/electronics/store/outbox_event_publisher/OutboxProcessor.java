@@ -1,11 +1,11 @@
-package com.electronics.store.order_service.outbox;
+package com.electronics.store.outbox_event_publisher;
 
-import com.electronics.store.order_service.persistence.model.OutboxEvent;
-import com.electronics.store.order_service.persistence.service.OutboxEventService;
-import com.electronics.store.order_service.rabbit.RabbitMqPublisher;
+import com.electronics.store.outbox_event_publisher.event.Event;
+import com.electronics.store.outbox_event_publisher.event.EventService;
+import com.electronics.store.outbox_event_publisher.rabbit.RabbitMqPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -14,14 +14,13 @@ import java.util.UUID;
 
 
 @Slf4j
-@Component
 public class OutboxProcessor {
 
     private final RabbitMqPublisher publisher;
-    private final OutboxEventService eventService;
+    private final EventService<Event> eventService;
     private final int eventsBatchSize;
 
-    public OutboxProcessor(RabbitMqPublisher publisher, OutboxEventService eventService,
+    public OutboxProcessor(RabbitMqPublisher publisher, EventService<Event> eventService,
                            @Value("${outbox.events.batch.size}") int eventsBatchSize) {
         this.publisher = publisher;
         this.eventService = eventService;
@@ -31,19 +30,19 @@ public class OutboxProcessor {
 
     @Transactional
     public ProcessingResult processBatch() {
-        final List<OutboxEvent> freshEvents = eventService.findFreshEventsForUpdate(eventsBatchSize);
+        final List<Event> freshEvents = eventService.findFreshEventsForUpdate(eventsBatchSize);
         if (freshEvents.isEmpty()) {
             return new ProcessingResult(false, false);
         }
         final List<UUID> publishedIds = new ArrayList<>();
         boolean hasError = false;
-        for (OutboxEvent event : freshEvents) {
+        for (Event event : freshEvents) {
             log.info("Sending outbox event msg: {}", event);
             try {
-                publisher.publish(event.getOrderId(), event.getPayload());
-                publishedIds.add(event.getId());
+                publisher.publish(event.orderId(), event.payload());
+                publishedIds.add(event.id());
             } catch (Exception e) {
-                log.error("Error sending outbox event msg with eventId: {}", event.getId(), e);
+                log.error("Error sending outbox event msg with eventId: {}", event.id(), e);
                 hasError = true;
             }
         }

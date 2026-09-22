@@ -8,10 +8,8 @@ import java.util.UUID;
 public record OrderItemDto(
         UUID id,
         @NonNull UUID itemId,
-        @NonNull String description,
         int quantity,
         @NonNull BigDecimal price,
-        byte[] image,
         @NonNull String url
 ) {
 }

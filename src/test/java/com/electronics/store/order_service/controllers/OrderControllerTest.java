@@ -10,7 +10,7 @@ import com.electronics.store.order_service.persistence.model.OrderItem;
 import com.electronics.store.order_service.persistence.service.OrderService;
 import com.electronics.store.order_service.persistence.service.exceptions.NotEnoughItemsException;
 import com.electronics.store.order_service.persistence.service.exceptions.OrderCancellationIsNotAllowedException;
-import com.electronics.store.order_service.persistence.service.exceptions.OrderEventNotFoundException;
+import com.electronics.store.order_service.persistence.service.exceptions.OutboxEventNotFoundException;
 import com.electronics.store.order_service.persistence.service.exceptions.OrderIsAlreadyCancelledException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,10 +53,8 @@ class OrderControllerTest {
         OrderItem orderItem = new OrderItem();
         orderItem.setId(UUID.randomUUID());
         orderItem.setItemId(ITEM_ID);
-        orderItem.setDescription("Test item");
         orderItem.setQuantity(2);
         orderItem.setPrice(BigDecimal.valueOf(100));
-        orderItem.setImageData(null);
         orderItem.setItemUrl("http://example.com/item.png");
 
         Order order = new Order();
@@ -184,20 +182,20 @@ class OrderControllerTest {
     }
 
     @Test
-    void returns404_whenOrderEventNotFound() throws Exception {
-        doThrow(new OrderEventNotFoundException("Order event with orderId: " + ORDER_ID + " not found!"))
+    void returns404_whenOutboxEventNotFound() throws Exception {
+        doThrow(new OutboxEventNotFoundException("Outbox event with orderId: " + ORDER_ID + " not found!"))
                 .when(orderService).cancelOrder(ORDER_ID);
 
         mockMvc.perform(delete("/api/v1/orders/{id}", ORDER_ID))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message").value(
-                        "Order event with orderId: " + ORDER_ID + " not found!"));
+                        "Outbox event with orderId: " + ORDER_ID + " not found!"));
     }
 
     @Test
     void returns409_whenOrderIsAlreadyCancelled() throws Exception {
-        doThrow(new OrderIsAlreadyCancelledException("Order event with orderId: " + ORDER_ID + " is cancelled"))
+        doThrow(new OrderIsAlreadyCancelledException("Outbox event with orderId: " + ORDER_ID + " is cancelled"))
                 .when(orderService).cancelOrder(ORDER_ID);
 
         mockMvc.perform(delete("/api/v1/orders/{id}", ORDER_ID))
@@ -208,14 +206,14 @@ class OrderControllerTest {
     @Test
     void returns422_whenCancellationNotAllowedBecauseAlreadyShipped() throws Exception {
         doThrow(new OrderCancellationIsNotAllowedException(
-                "Unable to cancel order event with orderId: " + ORDER_ID + " because shipment has already been started"))
+                "Unable to cancel outbox event with orderId: " + ORDER_ID + " because shipment has already been started"))
                 .when(orderService).cancelOrder(ORDER_ID);
 
         mockMvc.perform(delete("/api/v1/orders/{id}", ORDER_ID))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.status").value(403))
                 .andExpect(jsonPath("$.message").value(
-                        "Unable to cancel order event with orderId: " + ORDER_ID +
+                        "Unable to cancel outbox event with orderId: " + ORDER_ID +
                                 " because shipment has already been started"));
     }
 

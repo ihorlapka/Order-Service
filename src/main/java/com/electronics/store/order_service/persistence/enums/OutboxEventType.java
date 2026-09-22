@@ -1,8 +1,9 @@
 package com.electronics.store.order_service.persistence.enums;
 
-public enum OrderEventType {
+public enum OutboxEventType {
     ORDER_CREATED,
     ORDER_CANCELLED,
+    ORDER_MODIFIED,
     INVENTORY_RESERVED,
     INVENTORY_FAILED,
     PAYMENT_COMPLETED,

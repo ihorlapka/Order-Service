@@ -19,10 +19,4 @@ public class PayloadPatcher {
             throw new RuntimeException(e);
         }
     }
-
-    public MessageEvent deserialize(String payload) {
-        //todo: implement!
-        return OBJECT_MAPPER.readValue(payload, MessageEvent.class);
-    }
-
 }

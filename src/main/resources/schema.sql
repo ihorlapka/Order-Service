@@ -1,6 +1,7 @@
 CREATE TYPE order_status AS ENUM (
     'PENDING',
     'RESERVED',
+    'MODIFIED',
     'RESERVATION_FAILED',
     'PENDING_PAYMENT',
     'PAID',
@@ -13,9 +14,10 @@ CREATE TYPE order_status AS ENUM (
 
 CREATE TYPE currency AS ENUM ('EUR', 'USD', 'UAH');
 
-CREATE TYPE order_event_type AS ENUM (
+CREATE TYPE outbox_event_type AS ENUM (
     'ORDER_CREATED',
-    'ORDER_CANCELED',
+    'ORDER_CANCELLED',
+    'ORDER_MODIFIED',
     'INVENTORY_RESERVED',
     'INVENTORY_FAILED',
     'PAYMENT_COMPLETED',
@@ -52,11 +54,13 @@ CREATE TABLE order_items (
         ON UPDATE CASCADE
 );
 
-CREATE TABLE order_events (
+CREATE TABLE outbox_events (
     id UUID PRIMARY KEY NOT NULL,
-    event_type order_event_type,
+    event_type outbox_event_type,
     order_id UUID NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    payload JSONB NOT NULL,
-    status event_status
+    payload JSONB,
+    status event_status,
+    published_at TIMESTAMP WITH TIME ZONE,
+    attempt_count INTEGER NOT NULL DEFAULT 0
 );

@@ -1,5 +1,5 @@
-package com.electronics.store.order_service.outbox;
-
+import com.electronics.store.outbox_event_publisher.OutboxEventManager;
+import com.electronics.store.outbox_event_publisher.OutboxProcessor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

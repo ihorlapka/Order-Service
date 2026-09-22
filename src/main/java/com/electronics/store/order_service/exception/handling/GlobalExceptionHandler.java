@@ -2,7 +2,7 @@ package com.electronics.store.order_service.exception.handling;
 
 import com.electronics.store.order_service.persistence.service.exceptions.NotEnoughItemsException;
 import com.electronics.store.order_service.persistence.service.exceptions.OrderCancellationIsNotAllowedException;
-import com.electronics.store.order_service.persistence.service.exceptions.OrderEventNotFoundException;
+import com.electronics.store.order_service.persistence.service.exceptions.OutboxEventNotFoundException;
 import com.electronics.store.order_service.persistence.service.exceptions.OrderIsAlreadyCancelledException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -28,9 +28,9 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage(), request, null);
     }
 
-    @ExceptionHandler(OrderEventNotFoundException.class)
-    public ResponseEntity<ApiError> handleOrderEventNotFound(OrderEventNotFoundException ex, HttpServletRequest request) {
-        log.warn("Order event not found: {}", ex.getMessage());
+    @ExceptionHandler(OutboxEventNotFoundException.class)
+    public ResponseEntity<ApiError> handleOutboxEventNotFound(OutboxEventNotFoundException ex, HttpServletRequest request) {
+        log.warn("Outbox event not found: {}", ex.getMessage());
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request, null);
     }
 
