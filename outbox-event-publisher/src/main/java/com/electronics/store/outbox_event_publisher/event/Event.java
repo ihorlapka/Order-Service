@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public interface Event {
 
-    UUID id();
-    String payload();
-    UUID orderId();
+    UUID getId();
+    String getPayload();
+    UUID getOrderId();
 }

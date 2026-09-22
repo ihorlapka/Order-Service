@@ -2,6 +2,7 @@ package com.electronics.store.order_service.persistence.service;
 
 import com.electronics.store.order_service.persistence.model.OutboxEvent;
 import com.electronics.store.order_service.persistence.repositories.OutboxEventRepository;
+import com.electronics.store.outbox_event_publisher.event.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +12,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class OutboxEventService {
+public class OutboxEventService implements EventService<OutboxEvent> {
 
     private final OutboxEventRepository eventRepository;
 

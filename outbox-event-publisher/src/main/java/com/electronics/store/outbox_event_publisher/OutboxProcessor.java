@@ -3,8 +3,8 @@ package com.electronics.store.outbox_event_publisher;
 import com.electronics.store.outbox_event_publisher.event.Event;
 import com.electronics.store.outbox_event_publisher.event.EventService;
 import com.electronics.store.outbox_event_publisher.rabbit.RabbitMqPublisher;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,23 +14,17 @@ import java.util.UUID;
 
 
 @Slf4j
-public class OutboxProcessor {
+@RequiredArgsConstructor
+public class OutboxProcessor<E extends Event> {
 
     private final RabbitMqPublisher publisher;
-    private final EventService<Event> eventService;
+    private final EventService<E> eventService;
     private final int eventsBatchSize;
-
-    public OutboxProcessor(RabbitMqPublisher publisher, EventService<Event> eventService,
-                           @Value("${outbox.events.batch.size}") int eventsBatchSize) {
-        this.publisher = publisher;
-        this.eventService = eventService;
-        this.eventsBatchSize = eventsBatchSize;
-    }
 
 
     @Transactional
     public ProcessingResult processBatch() {
-        final List<Event> freshEvents = eventService.findFreshEventsForUpdate(eventsBatchSize);
+        final List<E> freshEvents = eventService.findFreshEventsForUpdate(eventsBatchSize);
         if (freshEvents.isEmpty()) {
             return new ProcessingResult(false, false);
         }
@@ -39,10 +33,10 @@ public class OutboxProcessor {
         for (Event event : freshEvents) {
             log.info("Sending outbox event msg: {}", event);
             try {
-                publisher.publish(event.orderId(), event.payload());
-                publishedIds.add(event.id());
+                publisher.publish(event.getOrderId(), event.getPayload());
+                publishedIds.add(event.getId());
             } catch (Exception e) {
-                log.error("Error sending outbox event msg with eventId: {}", event.id(), e);
+                log.error("Error sending outbox event msg with eventId: {}", event.getId(), e);
                 hasError = true;
             }
         }

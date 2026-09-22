@@ -1,8 +1,9 @@
 package com.electronics.store.outbox_event_publisher;
 
+import com.electronics.store.outbox_event_publisher.event.Event;
 import jakarta.annotation.PreDestroy;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -11,19 +12,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Slf4j
-public class OutboxEventManager {
+@RequiredArgsConstructor
+public class OutboxEventManager<E extends Event> {
 
     private final AtomicBoolean processing = new AtomicBoolean(false);
     private final ExecutorService executorService = Executors.newSingleThreadExecutor(r -> new Thread(r, "outbox-processor"));
 
-    private final OutboxProcessor outboxProcessor;
+    private final OutboxProcessor<E> outboxProcessor;
     private final int timeoutAfterFailure;
-
-    public OutboxEventManager(OutboxProcessor outboxProcessor,
-                              @Value("${outbox.timeout.after.failure.ms:5000}") Integer timeoutAfterFailureMs) {
-        this.outboxProcessor = outboxProcessor;
-        this.timeoutAfterFailure = timeoutAfterFailureMs;
-    }
 
 
     public void publishAndUpdate() {

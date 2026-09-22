@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.46/a5cfe99fdf320e84955ef653f2ce1bf789d11385/lombok-1.18.46.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-configuration-processor/4.1.0/c3e27f93b579220e4e18fe941321525200eb36b/spring-boot-configuration-processor-4.1.0.jar" />
+        </processorPath>
+        <module name="order-service.main" />
+      </profile>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.46/a5cfe99fdf320e84955ef653f2ce1bf789d11385/lombok-1.18.46.jar" />
+        </processorPath>
+        <module name="order-service.outbox-event-publisher.main" />
+        <module name="order-service.test" />
+        <module name="order-service.outbox-event-publisher.test" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel target="25" />
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_STRING" value="-parameters" />
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="outbox-event-publisher" options="" />
+      <module name="outbox-event-publisher.main" options="" />
+      <module name="outbox-event-publisher.test" options="" />
+      <module name="outbox-events-publisher" options="" />
+      <module name="outbox-events-publisher.main" options="" />
+      <module name="outbox-events-publisher.test" options="" />
+    </option>
+  </component>
+</project>

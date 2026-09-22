@@ -6,7 +6,8 @@ import com.electronics.store.order_service.persistence.enums.OutboxEventType;
 import com.electronics.store.order_service.persistence.model.OutboxEvent;
 import com.electronics.store.order_service.persistence.repositories.OutboxEventRepository;
 import com.electronics.store.order_service.persistence.service.OutboxEventService;
-import com.electronics.store.order_service.rabbit.RabbitMqPublisher;
+import com.electronics.store.outbox_event_publisher.OutboxProcessor;
+import com.electronics.store.outbox_event_publisher.rabbit.RabbitMqPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -37,8 +38,7 @@ import static org.mockito.Mockito.*;
 @Testcontainers
 @SpringBootTest(classes = {
         OrderServiceApplication.class,
-        OutboxProcessor.class,
-        RabbitMqPublisher.class,
+        OutboxConfig.class,
         OutboxEventService.class,
         OutboxEventRepository.class
 })
@@ -58,7 +58,7 @@ class OutboxProcessorTest {
     }
 
     @Autowired
-    private OutboxProcessor outboxProcessor;
+    private OutboxProcessor<OutboxEvent> outboxProcessor;
 
     @Autowired
     private OutboxEventRepository outboxEventRepository;

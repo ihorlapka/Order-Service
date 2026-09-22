@@ -2,13 +2,13 @@ package com.electronics.store.order_service.persistence.service;
 
 import com.electronics.store.order_service.controllers.misc.CreateOrderRequest;
 import com.electronics.store.order_service.controllers.misc.UpdateOrderRequest;
-import com.electronics.store.order_service.events.PublishmentTriggerEvent;
 import com.electronics.store.order_service.persistence.enums.OrderStatus;
 import com.electronics.store.order_service.persistence.model.Order;
 import com.electronics.store.order_service.persistence.model.OutboxEvent;
 import com.electronics.store.order_service.persistence.model.OrderItem;
 import com.electronics.store.order_service.persistence.repositories.OrderRepository;
 import com.electronics.store.order_service.persistence.service.exceptions.*;
+import com.electronics.store.outbox_event_publisher.PublishmentTriggerEvent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
