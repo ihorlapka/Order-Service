@@ -4,6 +4,7 @@ import com.electronics.store.order_service.OrderServiceApplication;
 import com.electronics.store.order_service.controllers.dto.RequestItem;
 import com.electronics.store.order_service.controllers.misc.CreateOrderRequest;
 import com.electronics.store.order_service.controllers.misc.UpdateOrderRequest;
+import com.electronics.store.order_service.outbox.OutboxConfig;
 import com.electronics.store.order_service.persistence.enums.OutboxEventType;
 import com.electronics.store.order_service.persistence.enums.OrderStatus;
 import com.electronics.store.order_service.persistence.enums.PublishmentStatus;
@@ -48,10 +49,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
         OrderServiceApplication.class,
         OrderRepository.class,
         OrderService.class,
-        OutboxEventRepository.class,
-        OutboxEventService.class,
-        OrderServiceIntegrationalTest.TestPersistenceConfig.class,
-        OutboxEventManager.class
+        OutboxConfig.class,
+        OrderServiceIntegrationalTest.TestPersistenceConfig.class
 })
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Transactional
