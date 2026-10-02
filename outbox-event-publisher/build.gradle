@@ -37,7 +37,7 @@ publishing {
         mavenJava(MavenPublication) {
             groupId = 'com.electronics.store.outbox_event_publisher'
             artifactId = 'outbox-event-publisher'
-            version = '0.0.1-SNAPSHOT'
+            version = '0.0.2-SNAPSHOT'
 
             from components.java
 
