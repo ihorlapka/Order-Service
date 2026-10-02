@@ -12,17 +12,17 @@ import java.util.UUID;
 public class RabbitMqPublisher {
 
     private final RabbitTemplate rabbitTemplate;
-    private final RabbitMqProperties rabbitMqProperties;
+    private final String exchangeName;
+    private final String routingKeyName;
 
 
     public void publish(UUID orderId, String payload) {
         try {
             log.info("Sending message for orderId: {}, {}", orderId, payload);
-            rabbitTemplate.convertAndSend(rabbitMqProperties.getExchange(), rabbitMqProperties.getRoutingKey(), payload);
+            rabbitTemplate.convertAndSend(exchangeName, routingKeyName, payload);
             log.info("Message sent for orderId: {}", orderId);
         } catch (AmqpException e) {
-            log.error("Failed to send message to exchange={}, routingKey={}, queue={}",
-                    rabbitMqProperties.getExchange(), rabbitMqProperties.getRoutingKey(), rabbitMqProperties.getQueueName(), e);
+            log.error("Failed to send message to exchange={}, routingKey={}", exchangeName, routingKeyName, e);
             throw e;
         }
     }

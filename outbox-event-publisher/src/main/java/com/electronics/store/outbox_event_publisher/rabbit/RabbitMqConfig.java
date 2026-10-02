@@ -35,6 +35,6 @@ public class RabbitMqConfig {
 
     @Bean
     public RabbitMqPublisher rabbitMqPublisher(RabbitTemplate rabbitTemplate, RabbitMqProperties rabbitMqProperties) {
-        return new RabbitMqPublisher(rabbitTemplate, rabbitMqProperties);
+        return new RabbitMqPublisher(rabbitTemplate, rabbitMqProperties.getExchange(), rabbitMqProperties.getRoutingKey());
     }
 }
