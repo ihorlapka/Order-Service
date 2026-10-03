@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class RabbitMqConsumer {
 
     @RabbitListener(id = "orders-updated",
-            queues = "#{@rabbitMqProperties.getInventoriesQueueName()}",
+            queues = "#{@rabbitMqProperties.getSagaEventsQueue()}",
             concurrency = "${app.rabbit.orders.concurrency:2-8}",
             ackMode = "AUTO")
     public void handleMessage(MessageEvent event,

@@ -2,7 +2,6 @@ package com.electronics.store.order_service.rabbit;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.core.*;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
@@ -14,45 +13,57 @@ import org.springframework.context.annotation.Import;
 @RequiredArgsConstructor
 public class RabbitMqConfig {
 
-    private final RabbitMqProperties rabbitMqProperties;
+    private final RabbitMqProperties rabbitProps;
 
+
+    //publish
     @Bean
-    public Queue ordersQueue() {
-        return QueueBuilder.durable(rabbitMqProperties.getOrdersQueueName())
+    public TopicExchange createdOrdersExchange() {
+        return new TopicExchange(rabbitProps.getOrdersExchange());
+    }
+
+    //listen
+    @Bean
+    public Queue sagaEventsQueue() {
+        return QueueBuilder.durable(rabbitProps.getSagaEventsQueue())
                 .quorum()
                 .build();
     }
 
     @Bean
-    public Queue inventoriesQueue() {
-        return QueueBuilder.durable(rabbitMqProperties.getInventoriesQueueName())
-                .quorum()
-                .build();
+    public TopicExchange inventoryEventsExchange() {
+        return new TopicExchange(rabbitProps.getInventoryEventsExchange());
     }
 
     @Bean
-    public TopicExchange ordersExchange() {
-        return new TopicExchange(rabbitMqProperties.getExchange());
+    public TopicExchange paymentEventsExchange() {
+        return new TopicExchange(rabbitProps.getPaymentEventsExchange());
     }
 
     @Bean
-    public Binding ordersBinding() {
-        return BindingBuilder.bind(ordersQueue())
-                .to(ordersExchange())
-                .with(rabbitMqProperties.getOrdersRoutingKey());
+    public TopicExchange shipmentEventsExchange() {
+        return new TopicExchange(rabbitProps.getShipmentEventsExchange());
     }
 
     @Bean
-    public Binding inventoriesBinding() {
-        return BindingBuilder.bind(inventoriesQueue())
-                .to(ordersExchange())
-                .with(rabbitMqProperties.getInventoriesRoutingKey());
+    public Binding inventoryBinding(Queue sagaEventsQueue, TopicExchange inventoryEventsExchange) {
+        return BindingBuilder.bind(sagaEventsQueue)
+                .to(inventoryEventsExchange)
+                .with(rabbitProps.getInventoryRoutingKey());
     }
 
     @Bean
-    public RabbitMqPublisher rabbitMqPublisher(RabbitTemplate rabbitTemplate) {
-        return new RabbitMqPublisher(rabbitTemplate, rabbitMqProperties.getExchange(),
-                rabbitMqProperties.getInventoriesQueueName());
+    public Binding paymentBinding(Queue sagaEventsQueue, TopicExchange paymentEventsExchange) {
+        return BindingBuilder.bind(sagaEventsQueue)
+                .to(paymentEventsExchange)
+                .with(rabbitProps.getPaymentRoutingKey());
+    }
+
+    @Bean
+    public Binding shipmentBinding(Queue sagaEventsQueue, TopicExchange shipmentEventsExchange) {
+        return BindingBuilder.bind(sagaEventsQueue)
+                .to(shipmentEventsExchange)
+                .with(rabbitProps.getShipmentRoutingKey());
     }
 
     @Bean

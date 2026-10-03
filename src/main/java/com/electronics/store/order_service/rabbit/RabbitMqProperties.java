@@ -20,18 +20,33 @@ public class RabbitMqProperties {
 
     final static String PROPERTIES_PREFIX = "rabbit";
 
-    @Value("${" + PROPERTIES_PREFIX + ".orders.queue.name}")
-    private String ordersQueueName;
-
-    @Value("${" + PROPERTIES_PREFIX + ".inventories.queue.name}")
-    private String inventoriesQueueName;
-
-    @Value("${" + PROPERTIES_PREFIX + ".exchange.name}")
-    private String exchange;
+    //publish
+    @Value("${" + PROPERTIES_PREFIX + ".orders.exchange.name}")
+    private String ordersExchange;
 
     @Value("${" + PROPERTIES_PREFIX + ".orders.routing.key}")
     private String ordersRoutingKey;
 
-    @Value("${" + PROPERTIES_PREFIX + ".inventories.routing.key}")
-    private String inventoriesRoutingKey;
+
+    //listen
+    @Value("${" + PROPERTIES_PREFIX + ".saga.queue.name}")
+    private String sagaEventsQueue;
+
+    @Value("${" + PROPERTIES_PREFIX + ".inventory.exchange.name}")
+    private String inventoryEventsExchange;
+
+    @Value("${" + PROPERTIES_PREFIX + ".payment.exchange.name}")
+    private String paymentEventsExchange;
+
+    @Value("${" + PROPERTIES_PREFIX + ".shipment.exchange.name}")
+    private String shipmentEventsExchange;
+
+    @Value("${" + PROPERTIES_PREFIX + ".inventory.routing.key}")
+    private String inventoryRoutingKey;
+
+    @Value("${" + PROPERTIES_PREFIX + ".payment.routing.key}")
+    private String paymentRoutingKey;
+
+    @Value("${" + PROPERTIES_PREFIX + ".shipment.routing.key}")
+    private String shipmentRoutingKey;
 }
