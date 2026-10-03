@@ -1,5 +1,6 @@
-package com.electronics.store.outbox_event_publisher.rabbit;
+package com.electronics.store.order_service.rabbit;
 
+import com.electronics.store.outbox_event_publisher.EventPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpException;
@@ -9,13 +10,14 @@ import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
-public class RabbitMqPublisher {
+public class RabbitMqPublisher implements EventPublisher {
 
     private final RabbitTemplate rabbitTemplate;
     private final String exchangeName;
     private final String routingKeyName;
 
 
+    @Override
     public void publish(UUID orderId, String payload) {
         try {
             log.info("Sending message for orderId: {}, {}", orderId, payload);

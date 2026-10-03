@@ -17,7 +17,6 @@
         </processorPath>
         <module name="order-service.outbox-event-publisher.main" />
         <module name="order-service.test" />
-        <module name="order-service.outbox-event-publisher.test" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="25" />

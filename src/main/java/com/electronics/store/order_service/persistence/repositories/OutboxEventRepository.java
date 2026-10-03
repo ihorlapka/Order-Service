@@ -33,7 +33,7 @@ public interface OutboxEventRepository extends JpaRepository<OutboxEvent, UUID> 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = """
             UPDATE outbox_events
-            SET status = 'PUBLISHED'
+            SET status = 'PUBLISHED', published_at = NOW(), attempt_count = (attempt_count + 1)
             WHERE id IN (:publishedIds)
             """, nativeQuery = true)
     int updatePublishedEvents(@Param("publishedIds") List<UUID> publishedIds);
@@ -46,4 +46,12 @@ public interface OutboxEventRepository extends JpaRepository<OutboxEvent, UUID> 
             LIMIT 1
             """)
     Optional<OutboxEvent> findLastByOrderIdForUpdate(@Param("orderId") UUID orderId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = """
+            UPDATE outbox_events
+            SET attempt_count = (attempt_count + 1)
+            WHERE id = :eventId
+            """, nativeQuery = true)
+    void incrementTryCount(@Param("eventId") UUID eventId);
 }

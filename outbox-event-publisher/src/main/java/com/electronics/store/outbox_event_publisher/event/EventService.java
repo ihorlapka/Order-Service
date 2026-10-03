@@ -7,4 +7,5 @@ public interface EventService<E extends Event> {
 
     List<E> findFreshEventsForUpdate(int eventsBatchSize);
     int updatePublishedEvents(List<UUID> publishedIds);
+    void incrementTryCount(UUID eventId);
 }

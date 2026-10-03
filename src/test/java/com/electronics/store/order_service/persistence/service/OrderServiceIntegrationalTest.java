@@ -11,10 +11,8 @@ import com.electronics.store.order_service.persistence.enums.PublishmentStatus;
 import com.electronics.store.order_service.persistence.model.Order;
 import com.electronics.store.order_service.persistence.model.OutboxEvent;
 import com.electronics.store.order_service.persistence.model.OrderItem;
-import com.electronics.store.order_service.persistence.repositories.OutboxEventRepository;
 import com.electronics.store.order_service.persistence.repositories.OrderRepository;
 import com.electronics.store.order_service.persistence.service.exceptions.*;
-import com.electronics.store.outbox_event_publisher.OutboxEventManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -29,7 +27,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
@@ -58,7 +56,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 class OrderServiceIntegrationalTest {
 
     @Container
-    static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:17.5"))
+    static final PostgreSQLContainer postgres = new PostgreSQLContainer(DockerImageName.parse("postgres:17.5"))
             .withInitScript("schema.sql");
 
     @DynamicPropertySource

@@ -28,6 +28,11 @@ public class OutboxEventService implements EventService<OutboxEvent> {
         return eventRepository.findFreshEventsForUpdate(batchSize);
     }
 
+    @Override
+    public void incrementTryCount(UUID eventId) {
+        eventRepository.incrementTryCount(eventId);
+    }
+
     public int updatePublishedEvents(List<UUID> publishedIds) {
         return eventRepository.updatePublishedEvents(publishedIds);
     }

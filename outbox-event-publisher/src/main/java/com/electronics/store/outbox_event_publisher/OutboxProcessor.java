@@ -2,10 +2,8 @@ package com.electronics.store.outbox_event_publisher;
 
 import com.electronics.store.outbox_event_publisher.event.Event;
 import com.electronics.store.outbox_event_publisher.event.EventService;
-import com.electronics.store.outbox_event_publisher.rabbit.RabbitMqPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -17,7 +15,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OutboxProcessor<E extends Event> {
 
-    private final RabbitMqPublisher publisher;
+    private final EventPublisher publisher;
     private final EventService<E> eventService;
     private final int eventsBatchSize;
 
@@ -36,8 +34,9 @@ public class OutboxProcessor<E extends Event> {
                 publisher.publish(event.getOrderId(), event.getPayload());
                 publishedIds.add(event.getId());
             } catch (Exception e) {
-                log.error("Error sending outbox event msg with eventId: {}", event.getId(), e);
+                log.error("Error sending outbox event msg with eventId: {}, incrementing attemptCount", event.getId(), e);
                 hasError = true;
+                eventService.incrementTryCount(event.getId());
             }
         }
         log.info("Finished processing outbox events with orderIds: {}", publishedIds);

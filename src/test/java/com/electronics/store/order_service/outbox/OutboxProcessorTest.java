@@ -7,7 +7,7 @@ import com.electronics.store.order_service.persistence.model.OutboxEvent;
 import com.electronics.store.order_service.persistence.repositories.OutboxEventRepository;
 import com.electronics.store.order_service.persistence.service.OutboxEventService;
 import com.electronics.store.outbox_event_publisher.OutboxProcessor;
-import com.electronics.store.outbox_event_publisher.rabbit.RabbitMqPublisher;
+import com.electronics.store.order_service.rabbit.RabbitMqPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -20,7 +20,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
@@ -47,7 +47,7 @@ import static org.mockito.Mockito.*;
 class OutboxProcessorTest {
 
     @Container
-    static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:17.5"))
+    static final PostgreSQLContainer postgres = new PostgreSQLContainer(DockerImageName.parse("postgres:17.5"))
             .withInitScript("schema.sql");
 
     @DynamicPropertySource
@@ -84,6 +84,8 @@ class OutboxProcessorTest {
         verify(rabbitMqPublisher, times(2)).publish(any(UUID.class), anyString());
 
         assertThat(outboxEventRepository.findAll())
+                .allMatch(outboxEvent -> outboxEvent.getPublishedAt() != null)
+                .allMatch(outboxEvent -> outboxEvent.getAttemptCount() > 0)
                 .extracting(OutboxEvent::getStatus)
                 .containsOnly(PublishmentStatus.PUBLISHED);
     }
@@ -110,6 +112,7 @@ class OutboxProcessorTest {
 
         OutboxEvent reloaded = outboxEventRepository.findById(event.getId()).orElseThrow();
         assertThat(reloaded.getStatus()).isEqualTo(PublishmentStatus.NEW);
+        assertThat(reloaded.getAttemptCount()).isEqualTo(1);
     }
 
     @Test
@@ -129,12 +132,16 @@ class OutboxProcessorTest {
         OutboxProcessor.ProcessingResult result = outboxProcessor.processBatch();
 
         assertThat(result.hasError()).isTrue();
-        assertThat(outboxEventRepository.findById(ok1.getId()).orElseThrow().getStatus())
-                .isEqualTo(PublishmentStatus.PUBLISHED);
-        assertThat(outboxEventRepository.findById(ok2.getId()).orElseThrow().getStatus())
-                .isEqualTo(PublishmentStatus.PUBLISHED);
-        assertThat(outboxEventRepository.findById(failing.getId()).orElseThrow().getStatus())
-                .isEqualTo(PublishmentStatus.NEW);
+        OutboxEvent updatedOk1 = outboxEventRepository.findById(ok1.getId()).orElseThrow();
+        OutboxEvent updatedOk2 = outboxEventRepository.findById(ok2.getId()).orElseThrow();
+        OutboxEvent updatedFailing = outboxEventRepository.findById(failing.getId()).orElseThrow();
+
+        assertThat(updatedOk1.getStatus()).isEqualTo(PublishmentStatus.PUBLISHED);
+        assertThat(updatedOk1.getAttemptCount()).isEqualTo(1);
+        assertThat(updatedOk2.getStatus()).isEqualTo(PublishmentStatus.PUBLISHED);
+        assertThat(updatedOk2.getAttemptCount()).isEqualTo(1);
+        assertThat(updatedFailing.getStatus()).isEqualTo(PublishmentStatus.NEW);
+        assertThat(updatedFailing.getAttemptCount()).isEqualTo(1);
     }
 
     /**
@@ -179,6 +186,8 @@ class OutboxProcessorTest {
                 .containsExactlyInAnyOrderElementsOf(expectedOrderIds);
 
         assertThat(outboxEventRepository.findAll())
+                .allMatch(outboxEvent -> outboxEvent.getPublishedAt() != null)
+                .allMatch(outboxEvent -> outboxEvent.getAttemptCount() > 0)
                 .extracting(OutboxEvent::getStatus)
                 .containsOnly(PublishmentStatus.PUBLISHED);
     }

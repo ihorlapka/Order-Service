@@ -18,13 +18,13 @@ import static org.mockito.Mockito.*;
 class OutboxEventManagerTest {
 
     @Mock
-    private OutboxProcessor outboxProcessor;
+    private OutboxProcessor<?> outboxProcessor;
 
-    private OutboxEventManager outboxEventManager;
+    private OutboxEventManager<?> outboxEventManager;
 
     @BeforeEach
     void setUp() {
-        outboxEventManager = new OutboxEventManager(outboxProcessor, 1000);
+        outboxEventManager = new OutboxEventManager<>(outboxProcessor, 1000);
     }
 
     @AfterEach

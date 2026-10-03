@@ -43,4 +43,10 @@ public class OutboxEvent implements Event {
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private PublishmentStatus status;
+
+    @Column(name = "published_at", columnDefinition = "TIMESTAMP WITH TIME ZONE", updatable = false)
+    private OffsetDateTime publishedAt;
+
+    @Column(name = "attempt_count", nullable = false)
+    private int attemptCount;
 }
