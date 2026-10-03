@@ -40,9 +40,17 @@ spring:
     publisher-confirm-type: correlated
     publisher-returns: true
 rabbit:
-  queue.name: es-orders-queue
   exchange.name: es-orders-exchange
-  routing.key: order.#
+  orders:
+    queue:
+      name: es.orders.queue
+    routing:
+      key: orders.created
+  inventories:
+    queue:
+      name: es.inventories.queue
+    routing:
+      key: inventories.events
 outbox:
   timeout.after.failure.ms: 5000
   events.batch.size: 100

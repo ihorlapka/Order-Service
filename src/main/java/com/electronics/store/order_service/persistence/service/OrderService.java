@@ -21,7 +21,7 @@ import java.util.*;
 
 import static com.electronics.store.order_service.persistence.enums.OrderStatus.*;
 import static com.electronics.store.order_service.persistence.enums.PublishmentStatus.*;
-import static com.electronics.store.order_service.persistence.enums.OutboxEventType.*;
+import static com.electronics.store.order_service.persistence.enums.EventType.*;
 import static com.electronics.store.order_service.persistence.mapping.EntityCreator.*;
 
 @Slf4j

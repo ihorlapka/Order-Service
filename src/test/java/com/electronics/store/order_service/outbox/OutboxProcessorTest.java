@@ -2,7 +2,7 @@ package com.electronics.store.order_service.outbox;
 
 import com.electronics.store.order_service.OrderServiceApplication;
 import com.electronics.store.order_service.persistence.enums.PublishmentStatus;
-import com.electronics.store.order_service.persistence.enums.OutboxEventType;
+import com.electronics.store.order_service.persistence.enums.EventType;
 import com.electronics.store.order_service.persistence.model.OutboxEvent;
 import com.electronics.store.order_service.persistence.repositories.OutboxEventRepository;
 import com.electronics.store.order_service.persistence.service.OutboxEventService;
@@ -196,7 +196,7 @@ class OutboxProcessorTest {
         OutboxEvent event = new OutboxEvent();
         event.setId(UUID.randomUUID());
         event.setOrderId(UUID.randomUUID());
-        event.setEventType(OutboxEventType.ORDER_CREATED);
+        event.setEventType(EventType.ORDER_CREATED);
         event.setPayload("{\"message\":\"hello\"}");
         event.setStatus(PublishmentStatus.NEW);
         return outboxEventRepository.save(event);

@@ -1,7 +1,7 @@
 package com.electronics.store.order_service.persistence.model;
 
 import com.electronics.store.order_service.persistence.enums.PublishmentStatus;
-import com.electronics.store.order_service.persistence.enums.OutboxEventType;
+import com.electronics.store.order_service.persistence.enums.EventType;
 import com.electronics.store.outbox_event_publisher.event.Event;
 import jakarta.persistence.*;
 import lombok.*;
@@ -27,7 +27,7 @@ public class OutboxEvent implements Event {
     @Column(name = "event_type", nullable = false, updatable = false)
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    private OutboxEventType eventType;
+    private EventType eventType;
 
     @Column(updatable = false, nullable = false)
     private UUID orderId;

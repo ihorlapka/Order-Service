@@ -5,7 +5,7 @@ import com.electronics.store.order_service.controllers.dto.RequestItem;
 import com.electronics.store.order_service.controllers.misc.CreateOrderRequest;
 import com.electronics.store.order_service.controllers.misc.UpdateOrderRequest;
 import com.electronics.store.order_service.outbox.OutboxConfig;
-import com.electronics.store.order_service.persistence.enums.OutboxEventType;
+import com.electronics.store.order_service.persistence.enums.EventType;
 import com.electronics.store.order_service.persistence.enums.OrderStatus;
 import com.electronics.store.order_service.persistence.enums.PublishmentStatus;
 import com.electronics.store.order_service.persistence.model.Order;
@@ -95,7 +95,7 @@ class OrderServiceIntegrationalTest {
         outboxEventService.persist(event);
     }
 
-    private void insertOutboxEvent(UUID orderId, OutboxEventType type, PublishmentStatus status) {
+    private void insertOutboxEvent(UUID orderId, EventType type, PublishmentStatus status) {
         OutboxEvent event = new OutboxEvent();
         event.setId(UUID.randomUUID());
         event.setEventType(type);
@@ -125,7 +125,7 @@ class OrderServiceIntegrationalTest {
 
         Optional<OutboxEvent> event = outboxEventService.findLastByOrderIdForUpdate(saved.getId());
         assertThat(event).isPresent();
-        assertThat(event.get().getEventType()).isEqualTo(OutboxEventType.ORDER_CREATED);
+        assertThat(event.get().getEventType()).isEqualTo(EventType.ORDER_CREATED);
         assertThat(event.get().getStatus()).isEqualTo(PublishmentStatus.NEW);
     }
 
@@ -171,7 +171,7 @@ class OrderServiceIntegrationalTest {
         assertThat(reloaded.getStatus()).isEqualTo(OrderStatus.CANCELLED);
 
         OutboxEvent latest = outboxEventService.findLastByOrderIdForUpdate(order.getId()).orElseThrow();
-        assertThat(latest.getEventType()).isEqualTo(OutboxEventType.ORDER_CANCELLED);
+        assertThat(latest.getEventType()).isEqualTo(EventType.ORDER_CANCELLED);
         assertThat(latest.getStatus()).isEqualTo(PublishmentStatus.NEW);
     }
 
@@ -189,7 +189,7 @@ class OrderServiceIntegrationalTest {
     void throwsCancellationNotAllowed_whenShipmentAlreadyStarted() {
         Order order = orderService.persist(buildCreateRequest(UUID.randomUUID(), UUID.randomUUID()));
         markOrderCreatedEventPublished(order.getId());
-        insertOutboxEvent(order.getId(), OutboxEventType.SHIPMENT_CREATED, PublishmentStatus.NEW);
+        insertOutboxEvent(order.getId(), EventType.SHIPMENT_CREATED, PublishmentStatus.NEW);
 
         assertThatThrownBy(() -> orderService.cancelOrder(order.getId()))
                 .isInstanceOf(OrderCancellationIsNotAllowedException.class);
@@ -258,7 +258,7 @@ class OrderServiceIntegrationalTest {
                 .containsExactly(newItemId);
 
         OutboxEvent latest = outboxEventService.findLastByOrderIdForUpdate(order.getId()).orElseThrow();
-        assertThat(latest.getEventType()).isEqualTo(OutboxEventType.ORDER_MODIFIED);
+        assertThat(latest.getEventType()).isEqualTo(EventType.ORDER_MODIFIED);
         assertThat(latest.getStatus()).isEqualTo(PublishmentStatus.NEW);
     }
 

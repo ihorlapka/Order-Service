@@ -4,7 +4,7 @@ import com.electronics.store.order_service.controllers.dto.RequestItem;
 import com.electronics.store.order_service.controllers.misc.CreateOrderRequest;
 import com.electronics.store.order_service.persistence.enums.OrderStatus;
 import com.electronics.store.order_service.persistence.enums.PublishmentStatus;
-import com.electronics.store.order_service.persistence.enums.OutboxEventType;
+import com.electronics.store.order_service.persistence.enums.EventType;
 import com.electronics.store.order_service.persistence.model.Order;
 import com.electronics.store.order_service.persistence.model.OutboxEvent;
 import com.electronics.store.order_service.persistence.model.OrderItem;
@@ -17,8 +17,8 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.electronics.store.order_service.persistence.enums.OrderStatus.PENDING;
-import static com.electronics.store.order_service.persistence.enums.OutboxEventType.ORDER_CANCELLED;
-import static com.electronics.store.order_service.persistence.enums.OutboxEventType.ORDER_CREATED;
+import static com.electronics.store.order_service.persistence.enums.EventType.ORDER_CANCELLED;
+import static com.electronics.store.order_service.persistence.enums.EventType.ORDER_CREATED;
 import static com.electronics.store.order_service.persistence.enums.PublishmentStatus.NEW;
 import static com.electronics.store.order_service.rabbit.message.EventDataResolver.resolveEventData;
 import static java.time.OffsetDateTime.now;
@@ -56,7 +56,7 @@ public class EntityCreator {
     }
 
     public static OutboxEvent createOutboxEvent(Order order, Set<OrderItem> itemsToUpdate,
-                                                OutboxEventType eventType, PublishmentStatus status) {
+                                                EventType eventType, PublishmentStatus status) {
         final OutboxEvent outboxEvent = new OutboxEvent();
         outboxEvent.setId(UUID.randomUUID());
         outboxEvent.setEventType(eventType);

@@ -38,9 +38,17 @@ spring:
     username: guest
     password: guest
 rabbit:
-  queue.name: es-orders
   exchange.name: es-orders-exchange
-  routing.key: order
+  orders:
+    queue:
+      name: es.orders.queue
+    routing:
+      key: orders.created
+  inventories:
+    queue:
+      name: es.inventories.queue
+    routing:
+      key: inventories.events
 outbox:
   timeout.after.failure.ms: 5000
   events.batch.size: 100

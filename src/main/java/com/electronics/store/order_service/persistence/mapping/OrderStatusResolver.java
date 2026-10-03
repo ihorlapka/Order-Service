@@ -1,11 +1,11 @@
 package com.electronics.store.order_service.persistence.mapping;
 
-import com.electronics.store.order_service.persistence.enums.OutboxEventType;
+import com.electronics.store.order_service.persistence.enums.EventType;
 import com.electronics.store.order_service.persistence.enums.OrderStatus;
 
 public class OrderStatusResolver {
 
-    public static OrderStatus resolve(OutboxEventType eventType, OrderStatus currentStatus) {
+    public static OrderStatus resolve(EventType eventType, OrderStatus currentStatus) {
         return switch (eventType) {
             case ORDER_CREATED -> OrderStatus.PENDING;
             case INVENTORY_RESERVED -> OrderStatus.RESERVED;
