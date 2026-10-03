@@ -39,19 +39,19 @@ spring:
     password: guest
 rabbit:
   orders:
-    exchange.name: es.orders.exchange
-    routing.key: orders.created
+    exchange.name: es.order.events.exchange
+    routing.key: order.created
   saga:
     queue.name: es.saga.events.queue
   inventory:
-    exchange.name: es.inventories.exchange
-    routing.key: inventories.#
+    exchange.name: es.inventory.events.exchange
+    routing.key: inventory.#
   payment:
-    exchange.name: es.payments.exchange
-    routing.key: payments.#
+    exchange.name: es.payment.events.exchange
+    routing.key: payment.#
   shipment:
-    exchange.name: es.shipments.exchange
-    routing.key: shipments.#
+    exchange.name: es.shipment.events.exchange
+    routing.key: shipment.#
 outbox:
   timeout.after.failure.ms: 5000
   events.batch.size: 100

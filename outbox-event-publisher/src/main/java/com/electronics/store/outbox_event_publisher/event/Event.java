@@ -7,4 +7,5 @@ public interface Event {
     UUID getId();
     String getPayload();
     UUID getOrderId();
+    String getEventTypeName();
 }

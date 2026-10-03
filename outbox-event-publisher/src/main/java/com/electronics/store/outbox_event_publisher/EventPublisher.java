@@ -4,5 +4,5 @@ import java.util.UUID;
 
 public interface EventPublisher {
 
-    void publish(UUID orderId, String payload);
+    void publish(UUID orderId, UUID eventId, String eventType, String payload);
 }

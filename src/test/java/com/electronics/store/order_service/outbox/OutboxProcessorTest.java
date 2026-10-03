@@ -81,7 +81,7 @@ class OutboxProcessorTest {
         assertThat(result.hasMore()).isTrue();
         assertThat(result.hasError()).isFalse();
 
-        verify(rabbitMqPublisher, times(2)).publish(any(UUID.class), anyString());
+        verify(rabbitMqPublisher, times(2)).publish(any(UUID.class), any(UUID.class), anyString(), anyString());
 
         assertThat(outboxEventRepository.findAll())
                 .allMatch(outboxEvent -> outboxEvent.getPublishedAt() != null)
@@ -103,7 +103,7 @@ class OutboxProcessorTest {
     void processBatch_leavesEventAsNew_whenPublishFails() {
         OutboxEvent event = saveNewEvent();
         doThrow(new AmqpException("broker unavailable"))
-                .when(rabbitMqPublisher).publish(any(UUID.class), anyString());
+                .when(rabbitMqPublisher).publish(any(UUID.class), eq(event.getId()), anyString(), anyString());
 
         OutboxProcessor.ProcessingResult result = outboxProcessor.processBatch();
 
@@ -127,7 +127,7 @@ class OutboxProcessorTest {
                 throw new AmqpException("simulated failure for one event");
             }
             return null;
-        }).when(rabbitMqPublisher).publish(any(UUID.class), anyString());
+        }).when(rabbitMqPublisher).publish(any(UUID.class), any(UUID.class), anyString(), anyString());
 
         OutboxProcessor.ProcessingResult result = outboxProcessor.processBatch();
 
@@ -179,7 +179,7 @@ class OutboxProcessorTest {
         pool.shutdown();
 
         ArgumentCaptor<UUID> publishedOrderIds = ArgumentCaptor.forClass(UUID.class);
-        verify(rabbitMqPublisher, times(totalEvents)).publish(publishedOrderIds.capture(), anyString());
+        verify(rabbitMqPublisher, times(totalEvents)).publish(publishedOrderIds.capture(), any(UUID.class), anyString(), anyString());
 
         // every event published exactly once, none skipped, none duplicated
         assertThat(publishedOrderIds.getAllValues())

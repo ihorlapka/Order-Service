@@ -31,7 +31,7 @@ public class OutboxProcessor<E extends Event> {
         for (Event event : freshEvents) {
             log.info("Sending outbox event msg: {}", event);
             try {
-                publisher.publish(event.getOrderId(), event.getPayload());
+                publisher.publish(event.getOrderId(), event.getId(), event.getEventTypeName(), event.getPayload());
                 publishedIds.add(event.getId());
             } catch (Exception e) {
                 log.error("Error sending outbox event msg with eventId: {}, incrementing attemptCount", event.getId(), e);
