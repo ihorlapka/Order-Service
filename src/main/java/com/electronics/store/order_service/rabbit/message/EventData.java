@@ -1,6 +1,4 @@
 package com.electronics.store.order_service.rabbit.message;
 
-public sealed interface EventData permits OrderCreatedData, OrderCancelledData, InventoryReservedData,
-        InventoryFailedData, PaymentCompletedData, PaymentFailedData,
-        ShipmentCreatedData, ShipmentCompletedData, ShipmentFailedData, OrderModifiedData {
+public sealed interface EventData permits InventoryFailedData, InventoryReservedData, OrderCancelledData, OrderCreatedData, OrderModifiedData, PaymentCompletedData, PaymentFailedData, PaymentPending, ShipmentCompletedData, ShipmentCreatedData, ShipmentFailedData {
 }

@@ -45,7 +45,6 @@ CREATE TABLE order_items (
     description VARCHAR(255),
     quantity INTEGER,
     price DECIMAL(9,6),
-    image_data BYTEA,
     item_url VARCHAR(255),
     CONSTRAINT fk_order
         FOREIGN KEY (order_id)

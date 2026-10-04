@@ -1,5 +1,6 @@
 package com.electronics.store.order_service.rabbit;
 
+import com.electronics.store.order_service.persistence.enums.EventType;
 import com.electronics.store.order_service.rabbit.message.MessageEvent;
 import com.electronics.store.outbox_event_publisher.EventPublisher;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RabbitMqPublisher implements EventPublisher {
 
+    private static final String TYPE_ID = "__TypeId__";
+
     private final RabbitTemplate rabbitTemplate;
     private final RabbitMqProperties rabbitMqProperties;
 
@@ -30,18 +33,34 @@ public class RabbitMqPublisher implements EventPublisher {
             log.info("Sending message for orderId: {}, eventId: {}, {}, {}", orderId, eventId, eventType, payload);
             final MessageProperties properties = MessagePropertiesBuilder.newInstance()
                     .setContentType(MessageProperties.CONTENT_TYPE_JSON)
-                    .setHeader("__TypeId__", MessageEvent.class.getName())
+                    .setHeader(TYPE_ID, MessageEvent.class.getName())
                     .setMessageId(eventId.toString())
                     .setCorrelationId(orderId.toString())
                     .setTimestamp(new Date())
                     .build();
             final Message message = new Message(payload.getBytes(StandardCharsets.UTF_8), properties);
-            rabbitTemplate.send(rabbitMqProperties.getOrdersExchange(), rabbitMqProperties.getOrdersRoutingKey(), message);
+            rabbitTemplate.send(rabbitMqProperties.getOrdersExchange(), getRoutingKey(eventType), message);
             log.info("Message sent for orderId: {}, eventId: {}, {}", orderId, eventId, eventType);
         } catch (AmqpException e) {
             log.error("Failed to send message to exchange={}, routingKey={}, orderId: {}, eventId: {}, {}",
-                    rabbitMqProperties.getOrdersExchange(), rabbitMqProperties.getOrdersRoutingKey(), orderId, eventId, eventType, e);
+                    rabbitMqProperties.getOrdersExchange(), getRoutingKey(eventType), orderId, eventId, eventType, e);
             throw e;
         }
+    }
+
+    private String getRoutingKey(String eventTypeName) {
+        final EventType eventType = EventType.valueOf(eventTypeName);
+        return switch (eventType) {
+            case ORDER_CREATED -> rabbitMqProperties.getOrdersRoutingKey();
+            case ORDER_CANCELLED -> "order.cancelled";
+            case ORDER_MODIFIED -> "order.modified";
+            case INVENTORY_RESERVED -> "order.reserved";
+            case INVENTORY_FAILED -> "order.not_reserved";
+            case PAYMENT_COMPLETED -> "order.paid";
+            case PAYMENT_FAILED -> "order.not_paid";
+            case SHIPMENT_CREATED -> "order.shipment_created";
+            case SHIPMENT_FAILED -> "order.not_shipped";
+            case SHIPMENT_COMPLETED -> "order.shipment_completed";
+        };
     }
 }

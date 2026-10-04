@@ -6,7 +6,6 @@ import com.electronics.store.order_service.controllers.misc.CreateOrderRequest;
 import com.electronics.store.order_service.controllers.misc.UpdateOrderRequest;
 import com.electronics.store.order_service.persistence.model.Order;
 import com.electronics.store.order_service.persistence.service.OrderService;
-import com.electronics.store.order_service.persistence.service.exceptions.NotEnoughItemsException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +17,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static com.electronics.store.order_service.controllers.dto.DtoMapper.mapToOrderDto;
-import static com.electronics.store.order_service.persistence.enums.OrderStatus.RESERVATION_FAILED;
 import static org.springframework.http.HttpStatus.CREATED;
 
 @Slf4j
@@ -49,9 +47,6 @@ public class OrderController {
     public ResponseEntity<OrderDto> updateOrder(@Valid @RequestBody UpdateOrderRequest request) {
         log.info("Received request to update order {}", request);
         final Order order = orderService.patch(request);
-        if (RESERVATION_FAILED.equals(order.getStatus())) {
-            throw new NotEnoughItemsException("Not enough items in inventory {" + request + "}!");
-        }
         return ResponseEntity.ok(mapToOrderDto(order));
     }
 

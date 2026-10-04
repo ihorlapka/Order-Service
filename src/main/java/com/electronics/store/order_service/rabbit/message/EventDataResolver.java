@@ -6,10 +6,8 @@ import com.electronics.store.order_service.persistence.model.OrderItem;
 import lombok.experimental.UtilityClass;
 
 import java.time.OffsetDateTime;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
@@ -23,7 +21,7 @@ public class EventDataResolver {
             case ORDER_CREATED -> new OrderCreatedData(order.getCustomerId(), order.getCurrency(), order.getTotalPrice(), mapToEventItems(order.getItems()));
             case ORDER_CANCELLED -> new OrderCancelledData(order.getStatus(), "cancellation reason");
             case ORDER_MODIFIED -> new OrderModifiedData(mapToEventItems(itemsToUpdate));
-            case INVENTORY_RESERVED -> new InventoryReservedData(mapToReservedItems(order.getItems()));
+            case INVENTORY_RESERVED -> new PaymentPending(order.getCurrency(), order.getTotalPrice());
             case INVENTORY_FAILED -> new InventoryFailedData(emptySet(), "reason");
             case PAYMENT_COMPLETED -> new PaymentCompletedData(UUID.randomUUID(), order.getCurrency(), order.getTotalPrice(), "payment_method");
             case PAYMENT_FAILED -> new PaymentFailedData("reason", "payment failed");
@@ -36,12 +34,6 @@ public class EventDataResolver {
     private static Set<EventItem> mapToEventItems(Set<OrderItem> items) {
         return items.stream()
                 .map(oi -> new EventItem(oi.getId(), oi.getItemId(), oi.getQuantity()))
-                .collect(toSet());
-    }
-
-    private static Set<ReservedItem> mapToReservedItems(Set<OrderItem> items) {
-        return items.stream()
-                .map(oi -> new ReservedItem(oi.getItemId(), oi.getQuantity()))
                 .collect(toSet());
     }
 }

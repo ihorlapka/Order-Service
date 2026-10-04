@@ -26,8 +26,11 @@ public class OrderItem {
     @Column(name = "quantity", nullable = false)
     private int quantity;
 
-    @Column(name = "price", nullable = false)
+    @Column(name = "price", length = 20)
     private BigDecimal price;
+
+    @Column(name = "description")
+    private String description;
 
     @Column(name = "item_url", nullable = false)
     private String itemUrl;

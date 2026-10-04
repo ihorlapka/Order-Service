@@ -42,7 +42,7 @@ public class EntityCreator {
     public static Set<OrderItem> createOrderItems(Set<RequestItem> requestItems, Order order) {
         final Set<OrderItem> orderItems = new HashSet<>(requestItems.size());
         for (RequestItem requestItem : requestItems) {
-            orderItems.add(new OrderItem(null, requestItem.itemId(), requestItem.quantity(), null, null, order));
+            orderItems.add(new OrderItem(null, requestItem.itemId(), requestItem.quantity(), null, null,null, order));
         }
         return orderItems;
     }

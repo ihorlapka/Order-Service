@@ -8,6 +8,9 @@ import com.electronics.store.order_service.persistence.model.OutboxEvent;
 import com.electronics.store.order_service.persistence.model.OrderItem;
 import com.electronics.store.order_service.persistence.repositories.OrderRepository;
 import com.electronics.store.order_service.persistence.service.exceptions.*;
+import com.electronics.store.order_service.rabbit.message.InventoryFailedData;
+import com.electronics.store.order_service.rabbit.message.InventoryReservedData;
+import com.electronics.store.order_service.rabbit.message.ReservedItem;
 import com.electronics.store.outbox_event_publisher.PublishmentTriggerEvent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +20,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.Function;
 
 import static com.electronics.store.order_service.persistence.enums.OrderStatus.*;
 import static com.electronics.store.order_service.persistence.enums.PublishmentStatus.*;
 import static com.electronics.store.order_service.persistence.enums.EventType.*;
 import static com.electronics.store.order_service.persistence.mapping.EntityCreator.*;
+import static java.util.stream.Collectors.toMap;
 
 @Slf4j
 @Service
@@ -99,17 +105,54 @@ public class OrderService {
         order.setStatus(MODIFIED);
         outboxEventService.persist(createOutboxEvent(order, itemsToUpdate, ORDER_MODIFIED, NEW));
         publishTriggerEvent(new PublishmentTriggerEvent(request.orderId()));
-        log.info("Order updated: {}", order);
+        log.info("Order patched: {}", order);
         return order;
+    }
+
+    @Transactional
+    public void updateReserved(UUID orderId, InventoryReservedData inventoryReserved) {
+        log.info("Processing inventory Reserved orderId: {}", orderId);
+        final Order order = orderRepository.findOrderByIdForUpdate(orderId)
+                .orElseThrow(() -> new OrderNotFoundException("Order with orderId: " + orderId + " not found!"));
+        order.setStatus(RESERVED);
+        order.setTotalPrice(calculateTotalPrice(inventoryReserved));
+        final Map<UUID, ReservedItem> reservedItemByItemId = inventoryReserved.reservedItems().stream()
+                .collect(toMap(ReservedItem::itemId, Function.identity()));
+        order.getItems().forEach(item -> {
+            final ReservedItem reservedItem = reservedItemByItemId.get(item.getItemId());
+            if (reservedItem == null) {
+                throw new RuntimeException("Reserved Item with id " + item.getItemId() + " not found!");
+            }
+            item.setPrice(reservedItem.price());
+            item.setItemUrl(reservedItem.itemUrl());
+            item.setDescription(reservedItem.description());
+        });
+        outboxEventService.persist(createOutboxEvent(order, order.getItems(), INVENTORY_RESERVED, NEW));
+        publishTriggerEvent(new PublishmentTriggerEvent(orderId));
+        log.info("Order updated with reserved items: {} {}", orderId, reservedItemByItemId);
+    }
+
+    @Transactional
+    public void updateReservationFailed(UUID orderId, InventoryFailedData inventoryFailedData) {
+        log.info("Processing inventory reservation failed, orderId: {}", orderId);
+        orderRepository.updateStatus(orderId, RESERVATION_FAILED);
+        log.info("Order updated with reservation failed, orderId: {} {}", orderId, inventoryFailedData);
     }
 
     private boolean canNotBeModified(OrderStatus status) {
         return SHIPPED.equals(status) || DELIVERED.equals(status) || DELIVERY_FAILED.equals(status)
-                || PENDING_PAYMENT.equals(status) || PAYMENT_STUCK.equals(status) || PAID.equals(status);
+                || PAYMENT_STUCK.equals(status) || PAID.equals(status);
     }
 
     private void publishTriggerEvent(PublishmentTriggerEvent applicationEvent) {
         log.info("Sending application event: {}", applicationEvent);
         eventPublisher.publishEvent(applicationEvent);
+    }
+
+    private BigDecimal calculateTotalPrice(InventoryReservedData inventoryReserved) {
+        return inventoryReserved.reservedItems().stream()
+                .map(ReservedItem::price)
+                .reduce(BigDecimal::add)
+                .orElseThrow(() -> new RuntimeException("Price not found"));
     }
 }

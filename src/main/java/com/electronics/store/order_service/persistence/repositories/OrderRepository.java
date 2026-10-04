@@ -1,5 +1,6 @@
 package com.electronics.store.order_service.persistence.repositories;
 
+import com.electronics.store.order_service.persistence.enums.OrderStatus;
 import com.electronics.store.order_service.persistence.model.Order;
 import jakarta.persistence.LockModeType;
 import lombok.NonNull;
@@ -28,5 +29,12 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
             SELECT o FROM Order o
             WHERE o.id = :orderId
             """)
-    Optional<Order> findOrderByIdForUpdate(@Param("orderId") UUID orderId);
+    Optional<Order> findOrderByIdForUpdate(@NonNull @Param("orderId") UUID orderId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+            UPDATE Order o SET o.status = :status
+            WHERE o.id = :orderId
+            """)
+    void updateStatus(@Param("orderId") UUID orderId, @NonNull @Param("status") OrderStatus status);
 }

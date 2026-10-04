@@ -1,5 +1,6 @@
 package com.electronics.store.order_service.rabbit;
 
+import com.electronics.store.order_service.processor.SagaProcessor;
 import com.electronics.store.order_service.rabbit.message.MessageEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,17 +15,19 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class RabbitMqConsumer {
 
+    private final SagaProcessor sagaProcessor;
+
     @RabbitListener(id = "orders-updated",
             queues = "#{@rabbitMqProperties.getSagaEventsQueue()}",
             concurrency = "${app.rabbit.orders.concurrency:2-8}",
             ackMode = "AUTO")
     public void handleMessage(MessageEvent event,
-                              @Header(value = AmqpHeaders.MESSAGE_ID) String messageId,
-                              @Header(value = AmqpHeaders.CORRELATION_ID) String correlationId,
+                              @Header(value = AmqpHeaders.MESSAGE_ID) String eventId,
+                              @Header(value = AmqpHeaders.CORRELATION_ID) String orderId,
                               @Header(value = AmqpHeaders.TIMESTAMP) long sentTimestamp) {
         try {
-            log.info("Received: {}, msgId: {}, correlationId: {}, sentTime: {}", event, messageId, correlationId, sentTimestamp);
-            //todo: do something here!
+            log.info("Received: {}, msgId: {}, orderId: {}, sentTime: {}", event, eventId, orderId, sentTimestamp);
+            sagaProcessor.process(event);
         } catch (NullPointerException | IllegalArgumentException | IllegalStateException | ArrayIndexOutOfBoundsException e) {
             throw new AmqpRejectAndDontRequeueException("Invalid event " + event, e); // straight to Dead Letter Queue
         }
