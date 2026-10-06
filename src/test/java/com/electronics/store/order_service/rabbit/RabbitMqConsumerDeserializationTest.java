@@ -121,8 +121,8 @@ class RabbitMqConsumerDeserializationTest {
                 "createdAt": "2024-01-15T10:30:00Z",
                 "eventData": {
                     "reservedItems": [
-                        {"itemId": "e5f6a7b8-c9d0-1234-efab-567890123456", "quantity": 2},
-                        {"itemId": "a7b8c9d0-e1f2-3456-abcd-789012345678", "quantity": 1}
+                        {"itemId": "e5f6a7b8-c9d0-1234-efab-567890123456", "quantity": 2, "price": 100.4, "description": "some description", "itemUrl": "http://localhost:8080"},
+                        {"itemId": "a7b8c9d0-e1f2-3456-abcd-789012345678", "quantity": 1, "price": 2.8, "description": "some description", "itemUrl": "http://localhost:8080"}
                     ]
                 }
             }

@@ -177,8 +177,8 @@ class OrderControllerTest {
     void returns204_whenCancelledSuccessfully() throws Exception {
         doNothing().when(orderService).cancelOrder(ORDER_ID);
 
-        mockMvc.perform(delete("/api/v1/orders/{id}", ORDER_ID))
-                .andExpect(status().isNoContent());
+        mockMvc.perform(get("/api/v1/orders/cancel/{id}", ORDER_ID))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -186,7 +186,7 @@ class OrderControllerTest {
         doThrow(new OutboxEventNotFoundException("Outbox event with orderId: " + ORDER_ID + " not found!"))
                 .when(orderService).cancelOrder(ORDER_ID);
 
-        mockMvc.perform(delete("/api/v1/orders/{id}", ORDER_ID))
+        mockMvc.perform(get("/api/v1/orders/cancel/{id}", ORDER_ID))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message").value(
@@ -198,7 +198,7 @@ class OrderControllerTest {
         doThrow(new OrderIsAlreadyCancelledException("Outbox event with orderId: " + ORDER_ID + " is cancelled"))
                 .when(orderService).cancelOrder(ORDER_ID);
 
-        mockMvc.perform(delete("/api/v1/orders/{id}", ORDER_ID))
+        mockMvc.perform(get("/api/v1/orders/cancel/{id}", ORDER_ID))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.status").value(409));
     }
@@ -209,7 +209,7 @@ class OrderControllerTest {
                 "Unable to cancel outbox event with orderId: " + ORDER_ID + " because shipment has already been started"))
                 .when(orderService).cancelOrder(ORDER_ID);
 
-        mockMvc.perform(delete("/api/v1/orders/{id}", ORDER_ID))
+        mockMvc.perform(get("/api/v1/orders/cancel/{id}", ORDER_ID))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.status").value(403))
                 .andExpect(jsonPath("$.message").value(
@@ -263,20 +263,6 @@ class OrderControllerTest {
 
         mockMvc.perform(get("/api/v1/orders/{id}", orderId))
                 .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void deleteOrder_shouldReturn204_whenOrderDeleted() throws Exception {
-        UUID orderId = UUID.randomUUID();
-        mockMvc.perform(delete("/api/v1/orders/{id}", orderId))
-                .andExpect(status().isNoContent());
-    }
-
-    @Test
-    void deleteOrder_shouldReturn204_evenWhenNoRowsDeleted() throws Exception {
-        UUID orderId = UUID.randomUUID();
-        mockMvc.perform(delete("/api/v1/orders/{id}", orderId))
-                .andExpect(status().isNoContent());
     }
 
     private String validCreateOrderRequestJson() throws Exception {

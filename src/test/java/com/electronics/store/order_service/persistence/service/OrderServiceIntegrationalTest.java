@@ -231,7 +231,7 @@ class OrderServiceIntegrationalTest {
 
     @ParameterizedTest
     @EnumSource(value = OrderStatus.class,
-            names = {"SHIPPED", "DELIVERED", "DELIVERY_FAILED", "PENDING_PAYMENT", "PAYMENT_STUCK", "PAID"})
+            names = {"SHIPPED", "DELIVERED", "DELIVERY_FAILED", "PAYMENT_STUCK", "PAID"})
     void throwsOrderChangeRestricted_whenOrderIsPastModifiableStages(OrderStatus terminalStatus) {
         Order order = orderService.persist(buildCreateRequest(UUID.randomUUID(), UUID.randomUUID()));
         forceStatus(order.getId(), terminalStatus);

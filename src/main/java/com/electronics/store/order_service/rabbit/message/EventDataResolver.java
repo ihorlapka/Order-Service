@@ -19,7 +19,7 @@ public class EventDataResolver {
     public static EventData resolveEventData(Order order, Set<OrderItem> itemsToUpdate, OutboxEvent outboxEvent) {
         return switch (outboxEvent.getEventType()) {
             case ORDER_CREATED -> new OrderCreatedData(order.getCustomerId(), order.getCurrency(), mapToEventItems(order.getItems()));
-            case ORDER_CANCELLED -> new OrderCancelledData(order.getStatus(), "cancellation reason");
+            case ORDER_CANCELLED -> new OrderCancelledData("cancellation reason");
             case ORDER_MODIFIED -> new OrderModifiedData(mapToEventItems(itemsToUpdate));
             case INVENTORY_RESERVED -> new PaymentPending(order.getCurrency(), order.getTotalPrice());
             case INVENTORY_FAILED -> new InventoryFailedData(emptySet(), "reason");
