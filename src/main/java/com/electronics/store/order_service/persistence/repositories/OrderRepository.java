@@ -4,10 +4,7 @@ import com.electronics.store.order_service.persistence.enums.OrderStatus;
 import com.electronics.store.order_service.persistence.model.Order;
 import jakarta.persistence.LockModeType;
 import lombok.NonNull;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -18,6 +15,15 @@ import java.util.UUID;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, UUID> {
 
+    @Query("""
+            SELECT o
+            FROM Order o
+            JOIN FETCH o.items
+            WHERE o.id = :id
+            """)
+    Optional<Order> findOrderWithItemsById(UUID id);
+
+    @EntityGraph(attributePaths = "items")
     List<Order> findOrdersByCustomerId(UUID customerId);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
@@ -27,9 +33,10 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
             SELECT o FROM Order o
+            JOIN FETCH o.items
             WHERE o.id = :orderId
             """)
-    Optional<Order> findOrderByIdForUpdate(@NonNull @Param("orderId") UUID orderId);
+    Optional<Order> findOrderWithItemsByIdForUpdate(@NonNull @Param("orderId") UUID orderId);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""

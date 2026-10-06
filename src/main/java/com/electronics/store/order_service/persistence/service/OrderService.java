@@ -1,5 +1,6 @@
 package com.electronics.store.order_service.persistence.service;
 
+import com.electronics.store.order_service.controllers.dto.RequestItem;
 import com.electronics.store.order_service.controllers.misc.CreateOrderRequest;
 import com.electronics.store.order_service.controllers.misc.UpdateOrderRequest;
 import com.electronics.store.order_service.persistence.enums.OrderStatus;
@@ -15,6 +16,7 @@ import com.electronics.store.outbox_event_publisher.PublishmentTriggerEvent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +31,7 @@ import static com.electronics.store.order_service.persistence.enums.PublishmentS
 import static com.electronics.store.order_service.persistence.enums.EventType.*;
 import static com.electronics.store.order_service.persistence.mapping.EntityCreator.*;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 @Slf4j
 @Service
@@ -40,8 +43,8 @@ public class OrderService {
     private final OutboxEventService outboxEventService;
     private final ApplicationEventPublisher eventPublisher;
 
-    public Optional<Order> findByOrderId(UUID orderId) {
-        return orderRepository.findById(orderId);
+    public Optional<Order> findByOrderWithItemsById(UUID orderId) {
+        return orderRepository.findOrderWithItemsById(orderId);
     }
 
     @Transactional
@@ -88,22 +91,41 @@ public class OrderService {
 
     @Transactional
     public Order patch(@Valid UpdateOrderRequest request) {
-        if (CollectionUtils.isEmpty(request.itemsToUpdate())) {
+        final Set<RequestItem> newItems = request.itemsToUpdate();
+        if (CollectionUtils.isEmpty(newItems)) {
             throw new UpdateRequestIsNotValidException("Items to update should be present, orderId: " + request.orderId() + "!");
         }
-        final Order order = orderRepository.findOrderByIdForUpdate(request.orderId())
+        final Order order = orderRepository.findOrderWithItemsByIdForUpdate(request.orderId())
                 .orElseThrow(() -> new OrderNotFoundException("Order with orderId: " + request.orderId() + " not found!"));
         if (CANCELLED.equals(order.getStatus())) {
             throw new OrderIsAlreadyCancelledException("Order: " + request.orderId() + " has already been cancelled");
         } else if (canNotBeModified(order.getStatus())) {
             throw new OrderChangeRestrictedException("Order: " + request.orderId() + " cannot be modified anymore!");
         }
-        final Set<OrderItem> itemsToUpdate = new HashSet<>(createOrderItems(request.itemsToUpdate(), order));
-        order.getItems().clear();
-        order.getItems().addAll(itemsToUpdate);
-        log.info("Items were updated successfully: {}, requestId: {}", request.itemsToUpdate(), request.requestId());
+        order.getItems().removeIf(existingItem -> {
+            boolean noSuchItem = noSuchItem(newItems, existingItem.getItemId());
+            if (noSuchItem) {
+                existingItem.setOrder(null);
+            }
+            return noSuchItem;
+        });
+        final Map<UUID, OrderItem> orderItemsByIds = order.getItems().stream()
+                .collect(toMap(OrderItem::getItemId, Function.identity()));
+        for (RequestItem requestItem : newItems) {
+            orderItemsByIds.compute(requestItem.itemId(), (k, v) -> {
+                if (v == null) {
+                    final OrderItem orderItem = new OrderItem(requestItem.itemId(), requestItem.quantity(), order);
+                    order.getItems().add(orderItem);
+                    return orderItem;
+                } else {
+                    v.setQuantity(requestItem.quantity());
+                    return v;
+                }
+            });
+        }
+        log.info("Items were updated successfully: {}, requestId: {}", newItems, request.requestId());
         order.setStatus(MODIFIED);
-        outboxEventService.persist(createOutboxEvent(order, itemsToUpdate, ORDER_MODIFIED, NEW));
+        outboxEventService.persist(createOutboxEvent(order, order.getItems(), ORDER_MODIFIED, NEW));
         publishTriggerEvent(new PublishmentTriggerEvent(request.orderId()));
         log.info("Order patched: {}", order);
         return order;
@@ -112,7 +134,7 @@ public class OrderService {
     @Transactional
     public void updateReserved(UUID orderId, InventoryReservedData inventoryReserved) {
         log.info("Processing inventory Reserved orderId: {}", orderId);
-        final Order order = orderRepository.findOrderByIdForUpdate(orderId)
+        final Order order = orderRepository.findOrderWithItemsByIdForUpdate(orderId)
                 .orElseThrow(() -> new OrderNotFoundException("Order with orderId: " + orderId + " not found!"));
         order.setStatus(RESERVED);
         order.setTotalPrice(calculateTotalPrice(inventoryReserved));
@@ -154,5 +176,17 @@ public class OrderService {
                 .map(ReservedItem::price)
                 .reduce(BigDecimal::add)
                 .orElseThrow(() -> new RuntimeException("Price not found"));
+    }
+
+    private boolean noSuchItem(Set<RequestItem> items, UUID itemIdToCheck) {
+        return items.stream()
+                .map(RequestItem::itemId)
+                .noneMatch(itemIdToCheck::equals);
+    }
+
+    private Set<UUID> getItemIds(Order order) {
+        return order.getItems().stream()
+                .map(OrderItem::getItemId)
+                .collect(toSet());
     }
 }

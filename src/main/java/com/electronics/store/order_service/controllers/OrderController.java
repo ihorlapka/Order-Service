@@ -53,7 +53,7 @@ public class OrderController {
     @GetMapping("/{id}")
     public ResponseEntity<OrderDto> getOrder(@PathVariable UUID id) {
         log.info("Received request to get order: {}", id);
-        final Optional<Order> order = orderService.findByOrderId(id);
+        final Optional<Order> order = orderService.findByOrderWithItemsById(id);
         log.info("Found order {}", order);
         return order.map(o -> ResponseEntity.ok(mapToOrderDto(o)))
                 .orElse(ResponseEntity.notFound().build());

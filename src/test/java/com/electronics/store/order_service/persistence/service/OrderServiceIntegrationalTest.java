@@ -121,7 +121,7 @@ class OrderServiceIntegrationalTest {
 
         assertThat(saved.getId()).isNotNull();
         assertThat(saved.getCustomerId()).isEqualTo(customerId);
-        assertThat(orderService.findByOrderId(saved.getId())).isPresent();
+        assertThat(orderService.findByOrderWithItemsById(saved.getId())).isPresent();
 
         Optional<OutboxEvent> event = outboxEventService.findLastByOrderIdForUpdate(saved.getId());
         assertThat(event).isPresent();
@@ -130,8 +130,8 @@ class OrderServiceIntegrationalTest {
     }
 
     @Test
-    void findByOrderId_returnsEmpty_whenOrderDoesNotExist() {
-        assertThat(orderService.findByOrderId(UUID.randomUUID())).isEmpty();
+    void findByOrderId_returnsEmpty_whenOrderWithItemsByDoesNotExist() {
+        assertThat(orderService.findByOrderWithItemsById(UUID.randomUUID())).isEmpty();
     }
 
     @Test
@@ -156,7 +156,7 @@ class OrderServiceIntegrationalTest {
 
         orderService.cancelOrder(order.getId());
 
-        assertThat(orderService.findByOrderId(order.getId())).isEmpty();
+        assertThat(orderService.findByOrderWithItemsById(order.getId())).isEmpty();
         assertThat(outboxEventService.findLastByOrderIdForUpdate(order.getId())).isEmpty();
     }
 
@@ -167,7 +167,7 @@ class OrderServiceIntegrationalTest {
 
         orderService.cancelOrder(order.getId());
 
-        Order reloaded = orderService.findByOrderId(order.getId()).orElseThrow();
+        Order reloaded = orderService.findByOrderWithItemsById(order.getId()).orElseThrow();
         assertThat(reloaded.getStatus()).isEqualTo(OrderStatus.CANCELLED);
 
         OutboxEvent latest = outboxEventService.findLastByOrderIdForUpdate(order.getId()).orElseThrow();

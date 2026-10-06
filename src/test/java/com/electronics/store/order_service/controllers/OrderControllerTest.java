@@ -150,7 +150,7 @@ class OrderControllerTest {
     void returns200_whenOrderExists() throws Exception {
         Order order = buildOrder();
         order.setId(ORDER_ID);
-        when(orderService.findByOrderId(ORDER_ID)).thenReturn(Optional.of(order));
+        when(orderService.findByOrderWithItemsById(ORDER_ID)).thenReturn(Optional.of(order));
 
         mockMvc.perform(get("/api/v1/orders/{id}", ORDER_ID))
                 .andExpect(status().isOk());
@@ -158,7 +158,7 @@ class OrderControllerTest {
 
     @Test
     void returns404_whenOrderDoesNotExist() throws Exception {
-        when(orderService.findByOrderId(ORDER_ID)).thenReturn(Optional.empty());
+        when(orderService.findByOrderWithItemsById(ORDER_ID)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/api/v1/orders/{id}", ORDER_ID))
                 .andExpect(status().isNotFound());
@@ -249,7 +249,7 @@ class OrderControllerTest {
     void getOrder_shouldReturn200_whenOrderExists() throws Exception {
         Order order = buildOrder();
         OrderDto expectedDto = DtoMapper.mapToOrderDto(order);
-        when(orderService.findByOrderId(order.getId())).thenReturn(Optional.of(order));
+        when(orderService.findByOrderWithItemsById(order.getId())).thenReturn(Optional.of(order));
 
         mockMvc.perform(get("/api/v1/orders/{id}", order.getId()))
                 .andExpect(status().isOk())
@@ -259,7 +259,7 @@ class OrderControllerTest {
     @Test
     void getOrder_shouldReturn404_whenOrderNotFound() throws Exception {
         UUID orderId = UUID.randomUUID();
-        when(orderService.findByOrderId(orderId)).thenReturn(Optional.empty());
+        when(orderService.findByOrderWithItemsById(orderId)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/api/v1/orders/{id}", orderId))
                 .andExpect(status().isNotFound());

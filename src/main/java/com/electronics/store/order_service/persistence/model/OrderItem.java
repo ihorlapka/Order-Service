@@ -35,8 +35,14 @@ public class OrderItem {
     @Column(name = "item_url", nullable = false)
     private String itemUrl;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
+
+    public OrderItem(UUID itemId, int quantity, Order order) {
+        this.itemId = itemId;
+        this.quantity = quantity;
+        this.order = order;
+    }
 }

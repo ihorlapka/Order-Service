@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@ToString
+@ToString(exclude = "items")
 @Getter
 @Setter
 @Table(
@@ -53,7 +53,7 @@ public class Order {
 
     @OneToMany(mappedBy = "order",
             cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER,
+            fetch = FetchType.LAZY,
             orphanRemoval = true)
     private Set<OrderItem> items = new HashSet<>();
 
