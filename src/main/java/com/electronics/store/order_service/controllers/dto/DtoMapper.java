@@ -19,7 +19,7 @@ public class DtoMapper {
     private static Set<OrderItemDto> mapToOrderItemDtos(Order order) {
         final Set<OrderItemDto> itemDtos = new HashSet<>(order.getItems().size());
         for (OrderItem item : order.getItems()) {
-            itemDtos.add(new OrderItemDto(null, item.getItemId(),
+            itemDtos.add(new OrderItemDto(item.getId(), item.getItemId(),
                     item.getQuantity(), item.getPrice(), item.getItemUrl()));
         }
         return itemDtos;

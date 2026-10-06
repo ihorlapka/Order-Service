@@ -1,8 +1,7 @@
 package com.electronics.store.order_service.rabbit.message;
 
-import com.electronics.store.order_service.persistence.enums.OrderStatus;
+import lombok.NonNull;
 
 public record OrderCancelledData(
-        OrderStatus previousStatus,
-        String reason) implements EventData {
+        @NonNull String reason) implements EventData {
 }

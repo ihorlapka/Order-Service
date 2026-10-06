@@ -9,7 +9,7 @@ public record OrderItemDto(
         UUID id,
         @NonNull UUID itemId,
         int quantity,
-        @NonNull BigDecimal price,
-        @NonNull String url
+        BigDecimal price,
+        String url
 ) {
 }

@@ -35,7 +35,7 @@ CREATE TABLE orders (
     status order_status NOT NULL DEFAULT 'PENDING',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     currency currency,
-    total_price DECIMAL(9,6)
+    total_price DECIMAL(12,3)
 );
 
 CREATE TABLE order_items (
@@ -44,7 +44,7 @@ CREATE TABLE order_items (
     order_id UUID NOT NULL,
     description VARCHAR(255),
     quantity INTEGER,
-    price DECIMAL(9,6),
+    price DECIMAL(12,3),
     item_url VARCHAR(255),
     CONSTRAINT fk_order
         FOREIGN KEY (order_id)

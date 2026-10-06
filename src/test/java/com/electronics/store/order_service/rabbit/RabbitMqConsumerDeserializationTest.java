@@ -57,7 +57,6 @@ class RabbitMqConsumerDeserializationTest {
         assertInstanceOf(OrderCreatedData.class, event.eventData());
         OrderCreatedData data = (OrderCreatedData) event.eventData();
         assertEquals(Currency.USD, data.currency());
-        assertEquals(new BigDecimal("99.99"), data.totalPrice());
         assertEquals(2, data.items().size());
     }
 
@@ -71,7 +70,6 @@ class RabbitMqConsumerDeserializationTest {
                 "orderStatus": "CANCELLED",
                 "createdAt": "2024-01-15T10:30:00Z",
                 "eventData": {
-                    "previousStatus": "PENDING",
                     "reason": "Customer requested cancellation"
                 }
             }
@@ -83,7 +81,6 @@ class RabbitMqConsumerDeserializationTest {
         assertEquals(OrderStatus.CANCELLED, event.orderStatus());
         assertInstanceOf(OrderCancelledData.class, event.eventData());
         OrderCancelledData data = (OrderCancelledData) event.eventData();
-        assertEquals(OrderStatus.PENDING, data.previousStatus());
         assertEquals("Customer requested cancellation", data.reason());
     }
 

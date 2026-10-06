@@ -6,6 +6,5 @@ import java.util.UUID;
 
 public record RequestItem(
         @NonNull UUID itemId,
-        int quantity
-) {
+        int quantity) {
 }

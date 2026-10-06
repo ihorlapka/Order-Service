@@ -15,7 +15,7 @@ public record OrderDto(
         @NonNull OrderStatus status,
         @NonNull OffsetDateTime createdAt,
         @NonNull Currency currency,
-        @NonNull BigDecimal totalPrice,
+        BigDecimal totalPrice,
         @NonNull Set<OrderItemDto> orderItems
 ) {
 }

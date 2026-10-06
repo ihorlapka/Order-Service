@@ -59,10 +59,10 @@ public class OrderController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/{id}")
+    @GetMapping("/cancel/{id}")
     public ResponseEntity<Void> cancelOrder(@PathVariable UUID id) {
         log.info("Received request to cancel order {}", id);
         orderService.cancelOrder(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 }

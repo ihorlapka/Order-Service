@@ -11,6 +11,5 @@ public record CreateOrderRequest(
         @NonNull UUID requestId,
         @NonNull UUID customerId,
         @NonNull Currency currency,
-        @NonNull Set<RequestItem> requestItems
-) {
+        @NonNull Set<RequestItem> requestItems) {
 }

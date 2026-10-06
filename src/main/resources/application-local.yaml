@@ -36,7 +36,7 @@ spring:
     host: localhost
     port: 5672
     username: ihor
-    password: admin
+    password: root
     publisher-confirm-type: correlated
     publisher-returns: true
 rabbit:

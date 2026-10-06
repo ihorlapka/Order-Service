@@ -79,7 +79,7 @@ public class OrderService {
         order.setStatus(CANCELLED);
         outboxEventService.persist(createOutboxEventForCancelledOrder(order));
         publishTriggerEvent(new PublishmentTriggerEvent(orderId));
-        log.info("Outbox event with orderId: {} is being cancelled", orderId);
+        log.info("Order orderId: {} is being cancelled", orderId);
     }
 
     public List<Order> findByCustomerId(UUID customerId) {

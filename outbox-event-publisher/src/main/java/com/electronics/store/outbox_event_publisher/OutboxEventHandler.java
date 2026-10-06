@@ -13,7 +13,7 @@ public class OutboxEventHandler<E extends Event> {
 
     @TransactionalEventListener
     public void handleCreatedEvents(PublishmentTriggerEvent event) {
-        log.info("Received application OrderCreatedEvent: {}", event);
+        log.info("Received application outbox event trigger: {}", event);
         outboxEventManager.publishAndUpdate();
     }
 }
