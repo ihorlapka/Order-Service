@@ -16,7 +16,6 @@ import com.electronics.store.outbox_event_publisher.PublishmentTriggerEvent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NonNull;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,7 +51,7 @@ public class OrderService {
         final Order order = orderRepository.save(createOrder(request));
         outboxEventService.persist(createOutboxEventForNewOrder(order));
         publishTriggerEvent(new PublishmentTriggerEvent(order.getId()));
-        log.info("Order stored: {}", order);
+        log.info("Order stored orderId: {}", order.getId());
         return order;
     }
 
@@ -133,7 +132,7 @@ public class OrderService {
 
     @Transactional
     public void updateReserved(UUID orderId, InventoryReservedData inventoryReserved) {
-        log.info("Processing inventory Reserved orderId: {}", orderId);
+        log.info("Processing inventory reserved orderId: {}", orderId);
         final Order order = orderRepository.findOrderWithItemsByIdForUpdate(orderId)
                 .orElseThrow(() -> new OrderNotFoundException("Order with orderId: " + orderId + " not found!"));
         order.setStatus(RESERVED);
@@ -149,8 +148,6 @@ public class OrderService {
             item.setItemUrl(reservedItem.itemUrl());
             item.setDescription(reservedItem.description());
         });
-        outboxEventService.persist(createOutboxEvent(order, order.getItems(), INVENTORY_RESERVED, NEW));
-        publishTriggerEvent(new PublishmentTriggerEvent(orderId));
         log.info("Order updated with reserved items: {} {}", orderId, reservedItemByItemId);
     }
 

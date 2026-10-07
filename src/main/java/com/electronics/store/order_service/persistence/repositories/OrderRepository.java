@@ -18,7 +18,7 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     @Query("""
             SELECT o
             FROM Order o
-            JOIN FETCH o.items
+            LEFT JOIN FETCH o.items
             WHERE o.id = :id
             """)
     Optional<Order> findOrderWithItemsById(UUID id);
@@ -33,7 +33,7 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
             SELECT o FROM Order o
-            JOIN FETCH o.items
+            LEFT JOIN FETCH o.items
             WHERE o.id = :orderId
             """)
     Optional<Order> findOrderWithItemsByIdForUpdate(@NonNull @Param("orderId") UUID orderId);

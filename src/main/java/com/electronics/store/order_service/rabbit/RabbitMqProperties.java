@@ -24,8 +24,14 @@ public class RabbitMqProperties {
     @Value("${" + PROPERTIES_PREFIX + ".orders.exchange.name}")
     private String ordersExchange;
 
-    @Value("${" + PROPERTIES_PREFIX + ".orders.routing.key}")
-    private String ordersRoutingKey;
+    @Value("${" + PROPERTIES_PREFIX + ".orders.routing.key.created}")
+    private String orderCreatedRoutingKey;
+
+    @Value("${" + PROPERTIES_PREFIX + ".orders.routing.key.modified}")
+    private String orderModifiedRoutingKey;
+
+    @Value("${" + PROPERTIES_PREFIX + ".orders.routing.key.cancelled}")
+    private String orderCancelledRoutingKey;
 
 
     //listen

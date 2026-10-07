@@ -17,7 +17,7 @@ public class RabbitMqConsumer {
 
     private final SagaProcessor sagaProcessor;
 
-    @RabbitListener(id = "orders-updated",
+    @RabbitListener(id = "orders-status",
             queues = "#{@rabbitMqProperties.getSagaEventsQueue()}",
             concurrency = "${app.rabbit.orders.concurrency:2-8}",
             ackMode = "AUTO")

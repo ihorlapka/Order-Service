@@ -29,7 +29,7 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<OrderDto> createOrder(@Valid @RequestBody CreateOrderRequest request) {
-        log.info("Received request to create order {}", request);
+        log.info("Received {}", request);
         final Order order = orderService.persist(request);
         log.info("Created order {}", order);
         return ResponseEntity.status(CREATED).body(mapToOrderDto(order));

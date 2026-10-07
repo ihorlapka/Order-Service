@@ -40,7 +40,10 @@ spring:
 rabbit:
   orders:
     exchange.name: es.order.events.exchange
-    routing.key: order.created
+    routing.key:
+      created: order.created
+      modified: order.modified
+      cancelled: order.cancelled
   saga:
     queue.name: es.saga.events.queue
   inventory:

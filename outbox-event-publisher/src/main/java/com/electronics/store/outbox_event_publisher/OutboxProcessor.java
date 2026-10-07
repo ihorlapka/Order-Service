@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-
 @Slf4j
 @RequiredArgsConstructor
 public class OutboxProcessor<E extends Event> {
@@ -29,7 +28,6 @@ public class OutboxProcessor<E extends Event> {
         final List<UUID> publishedIds = new ArrayList<>();
         boolean hasError = false;
         for (Event event : freshEvents) {
-            log.info("Sending outbox event msg: {}", event);
             try {
                 publisher.publish(event.getOrderId(), event.getId(), event.getEventTypeName(), event.getPayload());
                 publishedIds.add(event.getId());
