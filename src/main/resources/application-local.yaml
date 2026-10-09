@@ -60,3 +60,7 @@ rabbit:
 outbox:
   timeout.after.failure.ms: 5000
   events.batch.size: 100
+orders:
+  health:
+    pending-outbox-events-threshold: 1000
+    stale-outbox-events-threshold-minutes: 30
