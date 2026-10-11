@@ -1,5 +1,6 @@
 import com.electronics.store.outbox_event_publisher.OutboxEventManager;
 import com.electronics.store.outbox_event_publisher.OutboxProcessor;
+import com.electronics.store.outbox_event_publisher.metrics.OutboxMetrics;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,11 +21,14 @@ class OutboxEventManagerTest {
     @Mock
     private OutboxProcessor<?> outboxProcessor;
 
+    @Mock
+    private OutboxMetrics outboxMetrics;
+
     private OutboxEventManager<?> outboxEventManager;
 
     @BeforeEach
     void setUp() {
-        outboxEventManager = new OutboxEventManager<>(outboxProcessor, 1000);
+        outboxEventManager = new OutboxEventManager<>(outboxProcessor, 1000, outboxMetrics);
     }
 
     @AfterEach

@@ -3,7 +3,6 @@ package com.electronics.store.order_service.metrics;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
@@ -25,15 +24,10 @@ public class OrderServiceMetrics {
     private final Counter ordersPaymentStuck;
     private final Counter outboxEventsPublished;
     private final Counter outboxEventsFailed;
-    private final Counter rabbitMessagesPublished;
-    private final Counter rabbitMessagesFailed;
-    private final Counter rabbitMessagesConsumed;
-    private final Counter rabbitMessagesRejected;
     private final Timer orderCreationTimer;
     private final Timer orderCancellationTimer;
     private final Timer orderModificationTimer;
     private final Timer outboxProcessingTimer;
-    private final Timer sagaProcessingTimer;
 
     public OrderServiceMetrics(MeterRegistry meterRegistry) {
         this.meterRegistry = meterRegistry;
@@ -86,22 +80,6 @@ public class OrderServiceMetrics {
                 .description("Total number of outbox events failed to publish")
                 .register(meterRegistry);
 
-        this.rabbitMessagesPublished = Counter.builder("rabbit.messages.published.total")
-                .description("Total number of RabbitMQ messages published")
-                .register(meterRegistry);
-
-        this.rabbitMessagesFailed = Counter.builder("rabbit.messages.failed.total")
-                .description("Total number of RabbitMQ messages failed to publish")
-                .register(meterRegistry);
-
-        this.rabbitMessagesConsumed = Counter.builder("rabbit.messages.consumed.total")
-                .description("Total number of RabbitMQ messages consumed")
-                .register(meterRegistry);
-
-        this.rabbitMessagesRejected = Counter.builder("rabbit.messages.rejected.total")
-                .description("Total number of RabbitMQ messages rejected")
-                .register(meterRegistry);
-
         this.orderCreationTimer = Timer.builder("orders.creation.duration")
                 .description("Time taken to create an order")
                 .publishPercentileHistogram(true)
@@ -119,11 +97,6 @@ public class OrderServiceMetrics {
 
         this.outboxProcessingTimer = Timer.builder("outbox.processing.duration")
                 .description("Time taken to process outbox events batch")
-                .publishPercentileHistogram(true)
-                .register(meterRegistry);
-
-        this.sagaProcessingTimer = Timer.builder("saga.processing.duration")
-                .description("Time taken to process saga event")
                 .publishPercentileHistogram(true)
                 .register(meterRegistry);
     }
@@ -176,22 +149,6 @@ public class OrderServiceMetrics {
         outboxEventsFailed.increment();
     }
 
-    public void incrementRabbitMessagesPublished() {
-        rabbitMessagesPublished.increment();
-    }
-
-    public void incrementRabbitMessagesFailed() {
-        rabbitMessagesFailed.increment();
-    }
-
-    public void incrementRabbitMessagesConsumed() {
-        rabbitMessagesConsumed.increment();
-    }
-
-    public void incrementRabbitMessagesRejected() {
-        rabbitMessagesRejected.increment();
-    }
-
     public Timer.Sample startOrderCreationTimer() {
         return Timer.start(meterRegistry);
     }
@@ -222,22 +179,6 @@ public class OrderServiceMetrics {
 
     public void stopOutboxProcessingTimer(Timer.Sample sample) {
         sample.stop(outboxProcessingTimer);
-    }
-
-    public Timer.Sample startSagaProcessingTimer() {
-        return Timer.start(meterRegistry);
-    }
-
-    public void stopSagaProcessingTimer(Timer.Sample sample) {
-        sample.stop(sagaProcessingTimer);
-    }
-
-    public double getRabbitQueueSize() {
-        return meterRegistry.get("rabbitmq.queue.size").gauge().value();
-    }
-
-    public double getRabbitConnectionCount() {
-        return meterRegistry.get("rabbitmq.connections.open").gauge().value();
     }
 
     public double getHibernateSessionCount() {

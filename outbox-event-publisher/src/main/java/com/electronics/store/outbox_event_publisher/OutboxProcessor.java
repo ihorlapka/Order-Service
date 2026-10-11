@@ -2,6 +2,8 @@ package com.electronics.store.outbox_event_publisher;
 
 import com.electronics.store.outbox_event_publisher.event.Event;
 import com.electronics.store.outbox_event_publisher.event.EventService;
+import com.electronics.store.outbox_event_publisher.metrics.OutboxMetrics;
+import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,34 +19,42 @@ public class OutboxProcessor<E extends Event> {
     private final EventPublisher publisher;
     private final EventService<E> eventService;
     private final int eventsBatchSize;
+    private final OutboxMetrics metrics;
 
 
     @Transactional
     public ProcessingResult processBatch() {
-        final List<E> freshEvents = eventService.findFreshEventsForUpdate(eventsBatchSize);
-        if (freshEvents.isEmpty()) {
-            return new ProcessingResult(false, false);
-        }
-        final List<UUID> publishedIds = new ArrayList<>();
-        boolean hasError = false;
-        for (Event event : freshEvents) {
-            try {
-                publisher.publish(event.getOrderId(), event.getId(), event.getEventTypeName(), event.getPayload());
-                publishedIds.add(event.getId());
-            } catch (Exception e) {
-                log.error("Error sending outbox event msg with eventId: {}, incrementing attemptCount", event.getId(), e);
-                hasError = true;
-                eventService.incrementTryCount(event.getId());
+        Timer.Sample sample = metrics.startOutboxProcessingTimer();
+        try {
+            final List<E> freshEvents = eventService.findFreshEventsForUpdate(eventsBatchSize);
+            if (freshEvents.isEmpty()) {
+                return new ProcessingResult(false, false);
             }
+            final List<UUID> publishedIds = new ArrayList<>();
+            boolean hasError = false;
+            for (Event event : freshEvents) {
+                try {
+                    publisher.publish(event.getOrderId(), event.getId(), event.getEventTypeName(), event.getPayload());
+                    publishedIds.add(event.getId());
+                    metrics.incrementOutboxEventsPublished();
+                } catch (Exception e) {
+                    log.error("Error sending outbox event msg with eventId: {}, incrementing attemptCount", event.getId(), e);
+                    hasError = true;
+                    metrics.incrementOutboxEventsFailed();
+                    eventService.incrementTryCount(event.getId());
+                }
+            }
+            log.info("Finished processing outbox events with orderIds: {}", publishedIds);
+            int updatedRows = eventService.updatePublishedEvents(publishedIds);
+            if (updatedRows != publishedIds.size()) {
+                log.warn("Expected to be updated: {} outbox events but were {}, missed events will " +
+                        "be retried in next iteration", publishedIds, updatedRows);
+            }
+            log.info("Updated event status to PUBLISHED for events with eventIds: {}", publishedIds);
+            return new ProcessingResult(true, hasError);
+        } finally {
+            metrics.stopOutboxProcessingTimer(sample);
         }
-        log.info("Finished processing outbox events with orderIds: {}", publishedIds);
-        int updatedRows = eventService.updatePublishedEvents(publishedIds);
-        if (updatedRows != publishedIds.size()) {
-            log.warn("Expected to be updated: {} outbox events but were {}, missed events will " +
-                    "be retried in next iteration", publishedIds, updatedRows);
-        }
-        log.info("Updated event status to PUBLISHED for events with eventIds: {}", publishedIds);
-        return new ProcessingResult(true, hasError);
     }
 
     public record ProcessingResult(boolean hasMore, boolean hasError) {}

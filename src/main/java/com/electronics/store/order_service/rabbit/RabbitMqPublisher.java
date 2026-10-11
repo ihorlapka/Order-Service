@@ -1,6 +1,6 @@
 package com.electronics.store.order_service.rabbit;
 
-import com.electronics.store.order_service.metrics.OrderServiceMetrics;
+import com.electronics.store.order_service.metrics.RabbitMetrics;
 import com.electronics.store.order_service.persistence.enums.EventType;
 import com.electronics.store.order_service.rabbit.message.MessageEvent;
 import com.electronics.store.outbox_event_publisher.EventPublisher;
@@ -26,7 +26,7 @@ public class RabbitMqPublisher implements EventPublisher {
 
     private final RabbitTemplate rabbitTemplate;
     private final RabbitMqProperties rabbitMqProperties;
-    private final OrderServiceMetrics metrics;
+    private final RabbitMetrics metrics;
 
 
     @Override

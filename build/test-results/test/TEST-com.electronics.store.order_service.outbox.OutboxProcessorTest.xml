@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.electronics.store.order_service.outbox.OutboxProcessorTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-11T05:13:49.953Z" hostname="runnervmmprz5" time="15.517">
+  <properties/>
+  <testcase name="processBatch_neverPublishesTheSameEventTwice_whenRunConcurrently()" classname="com.electronics.store.order_service.outbox.OutboxProcessorTest" time="0.814"/>
+  <testcase name="processBatch_leavesEventAsNew_whenPublishFails()" classname="com.electronics.store.order_service.outbox.OutboxProcessorTest" time="0.095"/>
+  <testcase name="processBatch_publishesAllNewEvents_andMarksThemPublished()" classname="com.electronics.store.order_service.outbox.OutboxProcessorTest" time="0.021"/>
+  <testcase name="processBatch_returnsNoMore_whenTableHasNoNewEvents()" classname="com.electronics.store.order_service.outbox.OutboxProcessorTest" time="0.011"/>
+  <testcase name="processBatch_publishesSuccessfulEventsOnly_whenOneEventFailsInBatch()" classname="com.electronics.store.order_service.outbox.OutboxProcessorTest" time="0.031"/>
+  <system-out><![CDATA[2026-10-11T05:13:49.982Z  INFO 4272 --- [    Test worker] org.testcontainers.images.PullPolicy     : Image pull policy will be performed by: DefaultPullPolicy()
+2026-10-11T05:13:49.984Z  INFO 4272 --- [    Test worker] o.t.utility.ImageNameSubstitutor         : Image name substitution will be performed by: DefaultImageNameSubstitutor (composite of 'ConfigurationFileImageNameSubstitutor' and 'PrefixingImageNameSubstitutor')
+2026-10-11T05:13:49.992Z  INFO 4272 --- [    Test worker] org.testcontainers.DockerClientFactory   : Testcontainers version: 2.0.5
+2026-10-11T05:13:50.984Z  INFO 4272 --- [    Test worker] o.t.d.DockerClientProviderStrategy       : Found Docker environment with local Unix socket (unix:///var/run/docker.sock)
+2026-10-11T05:13:50.993Z  INFO 4272 --- [    Test worker] org.testcontainers.DockerClientFactory   : Docker host IP address is localhost
+2026-10-11T05:13:51.010Z  INFO 4272 --- [    Test worker] org.testcontainers.DockerClientFactory   : Connected to docker: 
+  Server Version: 28.0.4
+  API Version: 1.48
+  Operating System: Ubuntu 24.04.5 LTS
+  Total Memory: 15989 MB
+2026-10-11T05:13:51.047Z  INFO 4272 --- [    Test worker] tc.testcontainers/ryuk:0.14.0            : Pulling docker image: testcontainers/ryuk:0.14.0. Please be patient; this may take some time but only needs to be done once.
+2026-10-11T05:13:51.480Z  INFO 4272 --- [tream-379213951] tc.testcontainers/ryuk:0.14.0            : Starting to pull image
+2026-10-11T05:13:51.497Z  INFO 4272 --- [tream-379213951] tc.testcontainers/ryuk:0.14.0            : Pulling image layers:  0 pending,  0 downloaded,  0 extracted, (0 bytes/0 bytes)
+2026-10-11T05:13:51.696Z  INFO 4272 --- [tream-379213951] tc.testcontainers/ryuk:0.14.0            : Pulling image layers:  1 pending,  1 downloaded,  0 extracted, (34 KB/? MB)
+2026-10-11T05:13:51.705Z  INFO 4272 --- [tream-379213951] tc.testcontainers/ryuk:0.14.0            : Pulling image layers:  1 pending,  1 downloaded,  1 extracted, (242 KB/? MB)
+2026-10-11T05:13:51.712Z  INFO 4272 --- [tream-379213951] tc.testcontainers/ryuk:0.14.0            : Pulling image layers:  0 pending,  2 downloaded,  1 extracted, (2 MB/2 MB)
+2026-10-11T05:13:51.769Z  INFO 4272 --- [tream-379213951] tc.testcontainers/ryuk:0.14.0            : Pulling image layers:  0 pending,  2 downloaded,  2 extracted, (2 MB/2 MB)
+2026-10-11T05:13:51.775Z  INFO 4272 --- [    Test worker] tc.testcontainers/ryuk:0.14.0            : Image testcontainers/ryuk:0.14.0 pull took PT0.728088899S
+2026-10-11T05:13:51.799Z  INFO 4272 --- [    Test worker] tc.testcontainers/ryuk:0.14.0            : Creating container for image: testcontainers/ryuk:0.14.0
+2026-10-11T05:13:51.873Z  INFO 4272 --- [    Test worker] tc.testcontainers/ryuk:0.14.0            : Container testcontainers/ryuk:0.14.0 is starting: d2a233346778d29bb87aa25fdcede073e111143f4ec219f74c5aabdddc3ee7d5
+2026-10-11T05:13:52.260Z  INFO 4272 --- [    Test worker] tc.testcontainers/ryuk:0.14.0            : Container testcontainers/ryuk:0.14.0 started in PT0.460807106S
+2026-10-11T05:13:52.267Z  INFO 4272 --- [    Test worker] o.t.utility.RyukResourceReaper           : Ryuk started - will monitor and terminate Testcontainers containers on JVM exit
+2026-10-11T05:13:52.267Z  INFO 4272 --- [    Test worker] org.testcontainers.DockerClientFactory   : Checking the system...
+2026-10-11T05:13:52.267Z  INFO 4272 --- [    Test worker] org.testcontainers.DockerClientFactory   : ✔︎ Docker server version should be at least 1.6.0
+2026-10-11T05:13:52.271Z  INFO 4272 --- [    Test worker] tc.postgres:17.5                         : Pulling docker image: postgres:17.5. Please be patient; this may take some time but only needs to be done once.
+2026-10-11T05:13:52.638Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Starting to pull image
+2026-10-11T05:13:52.639Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  0 pending,  0 downloaded,  0 extracted, (0 bytes/0 bytes)
+2026-10-11T05:13:52.835Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers: 13 pending,  1 downloaded,  0 extracted, (1 KB/? MB)
+2026-10-11T05:13:52.889Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers: 12 pending,  2 downloaded,  0 extracted, (382 KB/? MB)
+2026-10-11T05:13:52.926Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers: 11 pending,  3 downloaded,  0 extracted, (398 KB/? MB)
+2026-10-11T05:13:52.954Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers: 10 pending,  4 downloaded,  0 extracted, (398 KB/? MB)
+2026-10-11T05:13:53.008Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  9 pending,  5 downloaded,  0 extracted, (527 KB/? MB)
+2026-10-11T05:13:53.020Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  8 pending,  6 downloaded,  0 extracted, (527 KB/? MB)
+2026-10-11T05:13:53.036Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  7 pending,  7 downloaded,  0 extracted, (527 KB/? MB)
+2026-10-11T05:13:53.087Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  6 pending,  8 downloaded,  0 extracted, (530 KB/? MB)
+2026-10-11T05:13:53.120Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  5 pending,  9 downloaded,  0 extracted, (6 MB/? MB)
+2026-10-11T05:13:53.160Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  4 pending, 10 downloaded,  0 extracted, (6 MB/? MB)
+2026-10-11T05:13:53.198Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  3 pending, 11 downloaded,  0 extracted, (6 MB/? MB)
+2026-10-11T05:13:53.235Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  2 pending, 12 downloaded,  0 extracted, (32 MB/? MB)
+2026-10-11T05:13:53.273Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  1 pending, 13 downloaded,  0 extracted, (32 MB/? MB)
+2026-10-11T05:13:53.502Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  0 pending, 14 downloaded,  0 extracted, (97 MB/153 MB)
+2026-10-11T05:13:54.088Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  0 pending, 14 downloaded,  1 extracted, (109 MB/153 MB)
+2026-10-11T05:13:54.359Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  0 pending, 14 downloaded,  2 extracted, (109 MB/153 MB)
+2026-10-11T05:13:54.534Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  0 pending, 14 downloaded,  3 extracted, (115 MB/153 MB)
+2026-10-11T05:13:54.573Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  0 pending, 14 downloaded,  4 extracted, (116 MB/153 MB)
+2026-10-11T05:13:54.874Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  0 pending, 14 downloaded,  5 extracted, (124 MB/153 MB)
+2026-10-11T05:13:54.944Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  0 pending, 14 downloaded,  6 extracted, (125 MB/153 MB)
+2026-10-11T05:13:54.952Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  0 pending, 14 downloaded,  7 extracted, (125 MB/153 MB)
+2026-10-11T05:13:54.960Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  0 pending, 14 downloaded,  8 extracted, (125 MB/153 MB)
+2026-10-11T05:13:58.040Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  0 pending, 14 downloaded,  9 extracted, (153 MB/153 MB)
+2026-10-11T05:13:58.056Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  0 pending, 14 downloaded, 10 extracted, (153 MB/153 MB)
+2026-10-11T05:13:58.068Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  0 pending, 14 downloaded, 11 extracted, (153 MB/153 MB)
+2026-10-11T05:13:58.079Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  0 pending, 14 downloaded, 12 extracted, (153 MB/153 MB)
+2026-10-11T05:13:58.089Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  0 pending, 14 downloaded, 13 extracted, (153 MB/153 MB)
+2026-10-11T05:13:58.099Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pulling image layers:  0 pending, 14 downloaded, 14 extracted, (153 MB/153 MB)
+2026-10-11T05:13:58.105Z  INFO 4272 --- [ream-2056957500] tc.postgres:17.5                         : Pull complete. 14 layers, pulled in 5s (downloaded 153 MB at 30 MB/s)
+2026-10-11T05:13:58.105Z  INFO 4272 --- [    Test worker] tc.postgres:17.5                         : Image postgres:17.5 pull took PT5.832925428S
+2026-10-11T05:13:58.108Z  INFO 4272 --- [    Test worker] tc.postgres:17.5                         : Creating container for image: postgres:17.5
+2026-10-11T05:13:58.123Z  INFO 4272 --- [    Test worker] tc.postgres:17.5                         : Container postgres:17.5 is starting: 74e082a98068ea06ff750529a5d053cbc6b675c67148c0b1f3741b0a0d52016b
+2026-10-11T05:13:59.196Z  INFO 4272 --- [    Test worker] tc.postgres:17.5                         : Container postgres:17.5 started in PT1.088117768S
+2026-10-11T05:13:59.197Z  INFO 4272 --- [    Test worker] tc.postgres:17.5                         : Container is started (JDBC URL: jdbc:postgresql://localhost:32769/test?loggerLevel=OFF)
+2026-10-11T05:13:59.211Z  INFO 4272 --- [    Test worker] org.testcontainers.ext.ScriptUtils       : Executing database script from schema.sql
+2026-10-11T05:13:59.512Z  INFO 4272 --- [    Test worker] org.testcontainers.ext.ScriptUtils       : Executed database script from schema.sql in 300 ms.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.1.0)
+
+2026-10-11T05:13:59.646Z  INFO 4272 --- [order-service] [    Test worker] c.e.s.o.outbox.OutboxProcessorTest       : Starting OutboxProcessorTest using Java 25.0.4.1 with PID 4272 (started by runner in /home/runner/work/Order-Service/Order-Service)
+2026-10-11T05:13:59.646Z  INFO 4272 --- [order-service] [    Test worker] c.e.s.o.outbox.OutboxProcessorTest       : The following 1 profile is active: "test"
+2026-10-11T05:14:00.206Z  INFO 4272 --- [order-service] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-11T05:14:00.267Z  INFO 4272 --- [order-service] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 49 ms. Found 2 JPA repository interfaces.
+2026-10-11T05:14:00.734Z  INFO 4272 --- [order-service] [    Test worker] com.zaxxer.hikari.HikariDataSource       : RegistryServiceHikariCP - Starting...
+2026-10-11T05:14:00.768Z  INFO 4272 --- [order-service] [    Test worker] com.zaxxer.hikari.pool.HikariPool        : RegistryServiceHikariCP - Added connection org.postgresql.jdbc.PgConnection@4c0d7878
+2026-10-11T05:14:00.770Z  INFO 4272 --- [order-service] [    Test worker] com.zaxxer.hikari.HikariDataSource       : RegistryServiceHikariCP - Start completed.
+2026-10-11T05:14:00.870Z  INFO 4272 --- [order-service] [    Test worker] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-10-11T05:14:00.939Z  INFO 4272 --- [order-service] [    Test worker] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.1.Final
+2026-10-11T05:14:01.270Z  INFO 4272 --- [order-service] [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-11T05:14:01.330Z  WARN 4272 --- [order-service] [    Test worker] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-10-11T05:14:01.346Z  INFO 4272 --- [order-service] [    Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:32769/test?loggerLevel=OFF]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 17.5
+	Default catalog/schema: test/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-11T05:14:02.180Z  INFO 4272 --- [order-service] [    Test worker] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-11T05:14:02.184Z  INFO 4272 --- [order-service] [    Test worker] org.hibernate.orm.jdbc.batch             : HHH100501: Automatic JDBC statement batching enabled (maximum batch size 50)
+2026-10-11T05:14:02.229Z  INFO 4272 --- [order-service] [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-11T05:14:02.310Z  INFO 4272 --- [order-service] [    Test worker] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-11T05:14:04.090Z  INFO 4272 --- [order-service] [    Test worker] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-10-11T05:14:04.186Z  INFO 4272 --- [order-service] [    Test worker] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
+2026-10-11T05:14:04.189Z  INFO 4272 --- [order-service] [    Test worker] o.s.a.r.l.SimpleMessageListenerContainer : Broker not available; cannot force queue declarations during start: java.net.ConnectException: Connection refused (connect failed)
+2026-10-11T05:14:04.197Z  INFO 4272 --- [order-service] [orders-status-1] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
+2026-10-11T05:14:04.198Z ERROR 4272 --- [order-service] [orders-status-1] o.s.a.r.l.SimpleMessageListenerContainer : Failed to check/redeclare auto-delete queue(s).
+
+org.springframework.amqp.AmqpConnectException: java.net.ConnectException: Connection refused (connect failed)
+	at org.springframework.amqp.rabbit.support.RabbitExceptionTranslator.convertRabbitAccessException(RabbitExceptionTranslator.java:60) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.createBareConnection(AbstractConnectionFactory.java:629) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.connection.CachingConnectionFactory.createConnection(CachingConnectionFactory.java:746) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.connection.ConnectionFactoryUtils.createConnection(ConnectionFactoryUtils.java:256) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.core.RabbitTemplate.doExecute(RabbitTemplate.java:2239) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.core.RabbitTemplate.execute(RabbitTemplate.java:2211) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.core.RabbitTemplate.execute(RabbitTemplate.java:2191) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.core.RabbitAdmin.getQueueInfo(RabbitAdmin.java:472) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.core.RabbitAdmin.getQueueProperties(RabbitAdmin.java:456) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.attemptDeclarations(AbstractMessageListenerContainer.java:1972) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.redeclareElementsIfNecessary(AbstractMessageListenerContainer.java:1935) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.initialize(SimpleMessageListenerContainer.java:1602) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.run(SimpleMessageListenerContainer.java:1400) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[na:na]
+Caused by: java.net.ConnectException: Connection refused (connect failed)
+	at java.base/sun.nio.ch.Net.pollConnect(Native Method) ~[na:na]
+	at java.base/sun.nio.ch.Net.pollConnectNow(Net.java:639) ~[na:na]
+	at java.base/sun.nio.ch.NioSocketImpl.timedFinishConnect(NioSocketImpl.java:543) ~[na:na]
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:594) ~[na:na]
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:284) ~[na:na]
+	at java.base/java.net.Socket.connect(Socket.java:659) ~[na:na]
+	at com.rabbitmq.client.impl.SocketFrameHandlerFactory.create(SocketFrameHandlerFactory.java:61) ~[amqp-client-5.30.0.jar:5.30.0]
+	at com.rabbitmq.client.ConnectionFactory.newConnection(ConnectionFactory.java:1355) ~[amqp-client-5.30.0.jar:5.30.0]
+	at com.rabbitmq.client.ConnectionFactory.newConnection(ConnectionFactory.java:1297) ~[amqp-client-5.30.0.jar:5.30.0]
+	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.connectAddresses(AbstractConnectionFactory.java:676) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.connect(AbstractConnectionFactory.java:644) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.createBareConnection(AbstractConnectionFactory.java:590) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	... 12 common frames omitted
+
+2026-10-11T05:14:04.200Z  INFO 4272 --- [order-service] [orders-status-2] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
+2026-10-11T05:14:04.201Z ERROR 4272 --- [order-service] [orders-status-2] o.s.a.r.l.SimpleMessageListenerContainer : Failed to check/redeclare auto-delete queue(s).
+2026-10-11T05:14:04.201Z  INFO 4272 --- [order-service] [orders-status-1] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
+2026-10-11T05:14:04.202Z  INFO 4272 --- [order-service] [orders-status-2] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
+2026-10-11T05:14:04.209Z  INFO 4272 --- [order-service] [    Test worker] c.e.s.o.outbox.OutboxProcessorTest       : Started OutboxProcessorTest in 4.661 seconds (process running for 19.049)
+2026-10-11T05:14:05.155Z  INFO 4272 --- [order-service] [pool-3-thread-1] c.e.s.o.OutboxProcessor                  : Finished processing outbox events with orderIds: [891e67d2-82b1-415d-ba44-b9922dcd7e6f, 27fbf295-b31c-4885-9672-697dde7624ed, b9c74dcf-5099-43f8-a01d-42725ca12c33, 637fae3e-2d9e-4d5a-ab12-7ae284d18b81, 6e6c4303-b30a-4721-9834-6e76e72d7377, 636ff297-8c18-4261-a1e2-f5361776041c, 551ba0fa-16d1-4783-a7da-608cabce04ee, b4feb1f5-85ed-46c3-af52-f4e67413be5e, 670862b1-ec88-4238-8655-f99c2f2287ce, 1d10ab83-2086-4f71-b051-719d9fb53dbd, 076df4c7-1924-4d5b-ba55-43a4740ea952, 2affcc07-3a7c-480c-a26d-ed0cec2180cc, a094f1d2-6b2b-41b0-b449-85e91e41cf56, 09372ecf-ca29-4777-81ac-d7e642be491d, 5a222794-c013-4200-bc3d-e1ab316119c7, 8f07aed3-5242-4d1e-b0eb-9c899bf1e000, 849bb8c4-ce73-42dc-9b41-91d795a52c29, bb260938-0fda-4732-81e3-44941cb102bd, 281321ee-cb1e-491c-ba46-ec0d23dcbd4e, cf5d5041-33ac-4a83-bbec-97a5032f3487, 0d506bd2-7744-4666-8221-1246810e8ecd, 86d1e565-0a60-4a2e-be5b-04af9a5664b7, a149eff8-eefa-4b19-872d-3c43090ea2c3, d1a87b26-9189-49fe-bcdc-bfb62c34834f, 5adccdd7-2628-4de5-8e97-69a3c8c754f9, 2326893a-040f-4602-b666-c7eecd549e1d, 4cdcd492-2377-4ca7-bcda-51db79fd2469, e55b857f-12f4-46d8-afe3-7e4359f05bd9, 52ee22a9-d76c-4162-b17f-d1a49ab4d3b9, 845836a8-6ca1-47c2-99b6-13fd5772b50c, 47d64acf-1cb5-4f83-ae52-8a9c123b45c1, 6ac229a4-e3c4-4527-8838-cb9018350af5, 67af45cf-561b-4e3d-b7e6-ced2eea4c510, 58e0e7a8-ce3b-4178-aeb0-34d0c2a4470c, 7c86c069-7963-4534-a1de-35be100aea95, c5ea54d6-7d33-4769-86bb-a7965fe0e499, 271069f6-e4ab-41ee-96da-178a06043c3a, 424a7214-6bf3-4104-9542-64b21abffaf1, ec33f02d-4531-4ce5-a951-0ab8f040d357, 28b2c17e-2c06-4772-a66b-fc8e513ef4c8, 3426f31d-536b-4c58-a2ff-4d3d63b87232, 533f15fe-4ca5-44ca-9220-4ed8f31520dd, 2f16ecd3-35af-4822-a113-ccdf71328392, a2d161d5-362c-4118-b7c1-19f9c4d74fd4, f0a6bdfd-b62a-4d53-8d79-c56cf5ec60db, 4a60c946-a300-44c1-8d47-710a4d215697, 193afe5d-e245-4d1f-bef4-0ad9a1b61bae, 8437f1a3-1481-4580-be30-baadf45ad442, 90100c5e-55db-46a2-84d2-fd040d24e95c, 3ef8a0c8-40ee-43e3-afda-55be00e87549, 3cbd5d23-2a06-4706-b9e7-d13efa75994f, c56367a4-5d0c-4b6c-9f48-e318c6691291, 651c511b-027f-468e-be25-e7a9532ad82b, 1497b0e6-9f29-4960-89e3-2ec198cfb114, de714c99-1a3d-4acb-9613-156c24da8e46, 023a9aa5-18c6-4648-b635-1bcc92472798, 583f7f1f-6585-4807-a433-e734587e442b, 9b9bea8a-be9f-412d-b993-8b2af39c60b7, 8d5b6433-cdec-4db2-a8e3-b997f32f8db0, bdf2b4c1-90ee-4af4-88a7-38f0a7997a0b, 89a4a0eb-8a01-423c-acaf-843f6202a678, e42b67b4-58e0-4047-b624-e421bf6f5ee9, 5409f4e1-50a2-4026-ba4e-1272baa62177, 4b782fbc-b59b-4ad4-9ec3-daa366921f33, 8eda7b4a-4825-404f-ad4c-5a44c4c50574, 5a876edb-7295-42a6-85f2-eafeb170a89a, ddc0357e-e8cd-41d1-802f-82bfe0157652, 1a20a6a2-fa49-4b1e-93f6-00d68e1c06f4, 741a2814-d666-474b-83b6-06834594b5db, 0e9a6698-eccd-4a01-89ce-5a2254caa00b, e4da7aff-00fc-48e7-a0cf-fff5eb4ade22, d7d97e4d-7729-4140-8748-71575ebdaf21, 02b1f299-2446-4ee3-85ad-61a13b503c3f, 7df6e2cd-ba3f-4166-b918-d8869e210576, 5eb78e76-747b-41d1-9528-818916545e49, dcb89307-4782-4690-911b-a58b53eab32b, 9e739bc8-f1b6-4ad5-8152-be8a21e543cc, 8e3fa9b1-01ce-4e6c-914b-7f4b0acbb725, 3fd4059d-9024-4512-9484-65f8bbda483b, af633081-84ec-4bce-baf7-d18e24ea7204, 8cc7825b-22e2-430a-bb6c-de7c303d9d5e, 9f89f1f1-89ac-4eb5-b3ab-0678520da953, d8dbe498-32b9-4de6-9227-d6c00426396b, 3dd4ba87-e160-4166-bdc9-10588f975009, f796729c-daec-4633-9639-f0233a695f79, 845bc987-527c-483f-a14a-1de04dfe5213, 1dc5052b-39cd-4f4c-901e-7f9b2a2e7651, 07642b6a-afb8-4dcb-9e05-36ac68058361, 4f4c21dd-f19f-4386-9e83-0bd98dff3a8e, f0eb4962-3df7-47f5-b18b-d91e62182a51, 4b3fcfa9-6bd1-429d-b3d1-525e93e876fc, a569d50d-c294-4380-a922-c5fd69204b2e, 4723efe0-3b9f-49cc-8485-1b8459baae44, ab2315fb-761a-4b05-9453-d7bd244fcc72, 8346f089-3f9e-43b7-abce-2dded7075af2, 42e0986f-e332-471e-837e-885ac5185e46, 0caec602-523c-41b5-8e51-c63a8d6ec9de, e24e1544-aff5-4314-92cb-39eb1fbfb5c5, cbc7097d-506f-4045-b02a-ebe6996097a6, 001247ff-9086-40dd-b62e-0441476605eb]
+2026-10-11T05:14:05.170Z  INFO 4272 --- [order-service] [pool-3-thread-1] c.e.s.o.OutboxProcessor                  : Updated event status to PUBLISHED for events with eventIds: [891e67d2-82b1-415d-ba44-b9922dcd7e6f, 27fbf295-b31c-4885-9672-697dde7624ed, b9c74dcf-5099-43f8-a01d-42725ca12c33, 637fae3e-2d9e-4d5a-ab12-7ae284d18b81, 6e6c4303-b30a-4721-9834-6e76e72d7377, 636ff297-8c18-4261-a1e2-f5361776041c, 551ba0fa-16d1-4783-a7da-608cabce04ee, b4feb1f5-85ed-46c3-af52-f4e67413be5e, 670862b1-ec88-4238-8655-f99c2f2287ce, 1d10ab83-2086-4f71-b051-719d9fb53dbd, 076df4c7-1924-4d5b-ba55-43a4740ea952, 2affcc07-3a7c-480c-a26d-ed0cec2180cc, a094f1d2-6b2b-41b0-b449-85e91e41cf56, 09372ecf-ca29-4777-81ac-d7e642be491d, 5a222794-c013-4200-bc3d-e1ab316119c7, 8f07aed3-5242-4d1e-b0eb-9c899bf1e000, 849bb8c4-ce73-42dc-9b41-91d795a52c29, bb260938-0fda-4732-81e3-44941cb102bd, 281321ee-cb1e-491c-ba46-ec0d23dcbd4e, cf5d5041-33ac-4a83-bbec-97a5032f3487, 0d506bd2-7744-4666-8221-1246810e8ecd, 86d1e565-0a60-4a2e-be5b-04af9a5664b7, a149eff8-eefa-4b19-872d-3c43090ea2c3, d1a87b26-9189-49fe-bcdc-bfb62c34834f, 5adccdd7-2628-4de5-8e97-69a3c8c754f9, 2326893a-040f-4602-b666-c7eecd549e1d, 4cdcd492-2377-4ca7-bcda-51db79fd2469, e55b857f-12f4-46d8-afe3-7e4359f05bd9, 52ee22a9-d76c-4162-b17f-d1a49ab4d3b9, 845836a8-6ca1-47c2-99b6-13fd5772b50c, 47d64acf-1cb5-4f83-ae52-8a9c123b45c1, 6ac229a4-e3c4-4527-8838-cb9018350af5, 67af45cf-561b-4e3d-b7e6-ced2eea4c510, 58e0e7a8-ce3b-4178-aeb0-34d0c2a4470c, 7c86c069-7963-4534-a1de-35be100aea95, c5ea54d6-7d33-4769-86bb-a7965fe0e499, 271069f6-e4ab-41ee-96da-178a06043c3a, 424a7214-6bf3-4104-9542-64b21abffaf1, ec33f02d-4531-4ce5-a951-0ab8f040d357, 28b2c17e-2c06-4772-a66b-fc8e513ef4c8, 3426f31d-536b-4c58-a2ff-4d3d63b87232, 533f15fe-4ca5-44ca-9220-4ed8f31520dd, 2f16ecd3-35af-4822-a113-ccdf71328392, a2d161d5-362c-4118-b7c1-19f9c4d74fd4, f0a6bdfd-b62a-4d53-8d79-c56cf5ec60db, 4a60c946-a300-44c1-8d47-710a4d215697, 193afe5d-e245-4d1f-bef4-0ad9a1b61bae, 8437f1a3-1481-4580-be30-baadf45ad442, 90100c5e-55db-46a2-84d2-fd040d24e95c, 3ef8a0c8-40ee-43e3-afda-55be00e87549, 3cbd5d23-2a06-4706-b9e7-d13efa75994f, c56367a4-5d0c-4b6c-9f48-e318c6691291, 651c511b-027f-468e-be25-e7a9532ad82b, 1497b0e6-9f29-4960-89e3-2ec198cfb114, de714c99-1a3d-4acb-9613-156c24da8e46, 023a9aa5-18c6-4648-b635-1bcc92472798, 583f7f1f-6585-4807-a433-e734587e442b, 9b9bea8a-be9f-412d-b993-8b2af39c60b7, 8d5b6433-cdec-4db2-a8e3-b997f32f8db0, bdf2b4c1-90ee-4af4-88a7-38f0a7997a0b, 89a4a0eb-8a01-423c-acaf-843f6202a678, e42b67b4-58e0-4047-b624-e421bf6f5ee9, 5409f4e1-50a2-4026-ba4e-1272baa62177, 4b782fbc-b59b-4ad4-9ec3-daa366921f33, 8eda7b4a-4825-404f-ad4c-5a44c4c50574, 5a876edb-7295-42a6-85f2-eafeb170a89a, ddc0357e-e8cd-41d1-802f-82bfe0157652, 1a20a6a2-fa49-4b1e-93f6-00d68e1c06f4, 741a2814-d666-474b-83b6-06834594b5db, 0e9a6698-eccd-4a01-89ce-5a2254caa00b, e4da7aff-00fc-48e7-a0cf-fff5eb4ade22, d7d97e4d-7729-4140-8748-71575ebdaf21, 02b1f299-2446-4ee3-85ad-61a13b503c3f, 7df6e2cd-ba3f-4166-b918-d8869e210576, 5eb78e76-747b-41d1-9528-818916545e49, dcb89307-4782-4690-911b-a58b53eab32b, 9e739bc8-f1b6-4ad5-8152-be8a21e543cc, 8e3fa9b1-01ce-4e6c-914b-7f4b0acbb725, 3fd4059d-9024-4512-9484-65f8bbda483b, af633081-84ec-4bce-baf7-d18e24ea7204, 8cc7825b-22e2-430a-bb6c-de7c303d9d5e, 9f89f1f1-89ac-4eb5-b3ab-0678520da953, d8dbe498-32b9-4de6-9227-d6c00426396b, 3dd4ba87-e160-4166-bdc9-10588f975009, f796729c-daec-4633-9639-f0233a695f79, 845bc987-527c-483f-a14a-1de04dfe5213, 1dc5052b-39cd-4f4c-901e-7f9b2a2e7651, 07642b6a-afb8-4dcb-9e05-36ac68058361, 4f4c21dd-f19f-4386-9e83-0bd98dff3a8e, f0eb4962-3df7-47f5-b18b-d91e62182a51, 4b3fcfa9-6bd1-429d-b3d1-525e93e876fc, a569d50d-c294-4380-a922-c5fd69204b2e, 4723efe0-3b9f-49cc-8485-1b8459baae44, ab2315fb-761a-4b05-9453-d7bd244fcc72, 8346f089-3f9e-43b7-abce-2dded7075af2, 42e0986f-e332-471e-837e-885ac5185e46, 0caec602-523c-41b5-8e51-c63a8d6ec9de, e24e1544-aff5-4314-92cb-39eb1fbfb5c5, cbc7097d-506f-4045-b02a-ebe6996097a6, 001247ff-9086-40dd-b62e-0441476605eb]
+2026-10-11T05:14:05.175Z  INFO 4272 --- [order-service] [pool-3-thread-2] c.e.s.o.OutboxProcessor                  : Finished processing outbox events with orderIds: [4d148fa9-310f-454c-bfc2-4f4cb09c81d8, f3c6c34e-8499-4965-979d-a689664a6368, 2d8b5c1b-f3e2-4c16-b988-ca571a1895d5, 2475752f-b21c-4e66-8a51-279b708469d8, 3496a58b-8433-49c0-9c29-c8a6d05f1f0c, 46c49ef3-7505-43f2-8915-baf19a27fa42, 423f9e1b-4ad5-4475-94e1-dc60e6b4aab4, 903e0b9e-c1cb-4285-9919-1c45206c0ab7, 96ab71de-2aaf-43f7-bae0-5a2c49807dfd, 73fa76a4-5bc2-4ad0-bf78-ed9f29d20e3b, 99c7c5fa-4c58-497e-87cc-f1d440808e42, 234ed8b1-e6e4-4d3b-8179-51977fde5295, 8e715a7e-844c-4a7e-8df2-7a3d7495a19c, b09d44c3-5181-48bd-b86f-1852a923d46f, f730359f-0435-44c2-b9cb-55b170205372, e4bdccad-080d-45d4-9fea-deaa80bfe5dd, a45bb85c-cad3-4da5-bb58-983c6ff3ab4b, fe99850e-c21d-4d3b-bafc-1a5dce8fa27d, 5353e7f9-4a84-4f05-b4ce-ebf6733c71c2, 16ee5bf1-4d1f-402e-84b5-4a9615ed6585, ef19c81d-d718-4c50-97ae-32ffa49d7325, ea2da56f-13ec-4b4d-893d-582dacb65648, 1fb0cbf8-7253-49f2-893d-8a35a9dad491, 8e4aa4f0-002f-410b-a6d7-6fab29861f95, cb928845-4bbe-46f8-827b-ec733d34dfef, a6cb1489-e4f9-4b83-9973-713f3e42dd96, a4fb060f-8392-40fd-bc8f-577786919d50, 76019a3d-612c-426e-98c3-41d61060b4ac, 33ed278c-aaed-442a-9196-25c66c110328, 894c5a88-25a5-4c1f-9dc6-9d26662c8c05, 3de7bade-12fa-4da5-8a33-812fcdd1f0c5, 0cb0d86e-0b44-4e3b-8ff8-6f4146763a19, 233f2e81-d512-498a-861d-317927a7aa81, 7b1d2306-a8b6-4a1e-88e3-fb364dc77c1f, 039ecfeb-cf5b-4ff8-ab42-65db020c13f2, ee232273-2281-462d-904b-d2e605cee9ee, 879d0f7f-cccf-4b77-b350-2f7e944dfcec, f09ef37e-a9f9-4794-ba45-d64daa743eaf, 7445e178-323d-4cca-a8d1-757e916d24f5, b57582a1-116e-474a-beab-09efa9b4f9a0, f3007ba7-a5f6-4a55-b4e1-9064ca3eca89, cf7650e5-a4e9-4121-9e8f-8f910507516b, 755b4c80-36ce-4128-a45a-0097a593f821, 648fe651-3d94-4e65-a767-ab37c646bc75, ecb0cd28-3f79-49d2-90f1-4ece9bee2e6a, 9426023f-1df6-46b6-bc11-7b39bb606fbd, ce36ee5d-e66b-4bd1-a0cf-1a67c797008a, 8c84ee5e-e738-4061-8b0e-c3d503396e69, cac6fdf7-4395-491d-b409-9a8a44f1f838, 417199e0-b7b8-46f9-94d5-b9ab7382b831, bf1ba3e0-cb61-4c1f-975b-7729aa796441, c23f417b-94b0-4458-8fdc-6b3480c4fefb, 484c30fd-b629-41c9-be3e-f1aecb58c2fe, f3fc6771-4bfd-4f22-bb83-7876a19653b3, 72e8f696-d9c6-4ea0-b7ed-c368ea3dab78, e590a6fb-df47-42a0-830f-4d20b96cb635, 32950703-9e9f-4a5c-ae7b-ce278309a638, 853c09eb-c0d6-4df4-b35e-da3c5af743a9, 46e91e40-ad7d-4ddb-a02a-656a9333b0d0, bbc8a2ac-956b-4284-912d-84038b774dfc, 2956c83e-4ca7-4a9e-b376-72f3bcf69d37, 5da4e27b-d26d-49f9-b4a7-dbacab11d225, b2e201c6-fc29-485d-af0d-bc69aeb8b051, 5422c93e-f803-4593-83f0-36b601eeb769, 7c21c312-f41e-446e-aca4-6c5cdc02d463, 6871fd34-20f5-4e2c-8446-193c6b85bb39, 81774d27-d897-403b-9bae-53dbec3d4f43, c7b1337a-7673-4cda-bf02-0395a3a38f5d, c7abd8be-0bae-4db7-82b1-794bebd7eeb1, b1a38fab-5551-4e12-8317-7b408cecf9d3, ddb29bcc-ecc5-4d4f-b037-a60b5ce1bc58, 8bc8e83c-3358-4b91-a236-9b71af33cee2, 32ccf448-7d45-4ef9-b642-a7362fa6e3ec, 52aa919b-168f-480f-aaa4-517bfa1ff9b7, 51b48774-4fc0-44d7-b854-9dd3851bbb69, 8cd3bd67-a46a-47db-897b-620764eee0dd, 1d8c0362-8c31-4552-b5c7-396643dfd1aa, e00a4731-f6ca-405e-83d0-dc9702560bab, 8e69710a-6ad0-45b5-9861-ae6d33f49a3d, d663b73f-e678-4aa5-b010-5b25f9e5ab86, da425aef-a219-4d63-acda-1373b755d6f4, db9f3700-d75f-441b-b3b0-0115f61e16e7, 2788233a-423d-4527-a0ac-8ba31c6a80e3, 3566a7fb-f242-4f1c-b433-cf49e72ff58c, ac54afc7-991a-49fb-b9db-f756264b4b84, 5a234f17-46ab-4c2d-9dcc-ce5df828cdc4, aa9274f9-5dbb-4b06-bd94-dadbdd4bfc16, f2ed1c02-233d-4392-b623-c8281470de81, d3893de0-61be-4724-a866-cd3f22c62187, 011398b1-bb6d-424d-86c8-0c19f8ff364e, de1ff836-9f48-4184-a389-83cdf38c8214, 04db1fcf-1d76-41f1-a282-cecb0c80606c, 52087d74-7e93-4645-b350-6d40a89874a6, 96fa5583-e073-49a3-8bfb-5a4b8a7d15ef, 6320b16f-1536-464c-a171-a51e0848bd7b, 3faf8e77-73a7-4bdb-8075-11f6ce031e08, ba811080-8fcf-4b78-9238-a1aa8f0b582b, 25e81327-f2af-4e30-b845-8d2fa6e6874a, 9acf0841-a179-4836-bf37-7bcc9caad20e, 0b385b09-5608-4c1d-8b8a-3af363fa86ec]
+2026-10-11T05:14:05.186Z  INFO 4272 --- [order-service] [pool-3-thread-1] c.e.s.o.OutboxProcessor                  : Finished processing outbox events with orderIds: [369d8b4e-a0b6-420d-8b77-1fdc28ed97e5, c08bc256-2148-4d77-93b4-2cd01931ebdd, 4dcea47e-f998-4d28-8e8c-2fbccb980371, 4b90449f-062a-40f5-b3cb-254032a94056, a4813073-1eb7-4f5c-9bd9-5eb4905eecb0, 360d4092-d122-4145-865f-b3d9b4c9b9ac, 5341c30d-4c21-4ecb-b2e1-627ecb3e355d, 6f2db01f-5f6d-4b41-b28a-55bfa3340eea, 958d4d76-ba9e-49fd-bb18-6d6542b949e8, 0786bd07-30d2-4688-8d29-f5ed6a88ac2e, 12af3cd5-66d3-4272-a0ab-b1fdd279a90c, 4126caf1-4d38-432c-b228-b3db3f663ff4, 8896649a-a9d1-4856-9c78-dde395b785e5, fa130b66-05e9-4810-a4ca-ef965e8f5117, 487be680-157f-4e97-8e2f-d4c51a15a8c8, 6329716b-1540-4bad-a573-92325bbea4e1, 922af369-e1a2-4823-aef5-9bdebe41441a, e8c91f68-f682-45c2-b836-ffec4b3debf6, eed1324d-1b51-49c7-b68a-b43a3c4bb888, 271a5270-f09a-4fdd-8157-30bd63cb6b3b, 6dc4d764-bc6e-4d2b-b2ef-2f0c73c01b79, b0087733-6f27-4b48-8c9e-8e7a75f2af9e, a1111dd2-0e36-43ee-afbd-6a3cd45d47df, 062c4c30-e0a5-49e7-841b-98b6ab72c975, f4a4c63b-8e59-4669-ac8e-66c844aabee9, 6d67fc2a-a006-4780-9a5e-e1542019cf3a, bbc910f1-9d06-43ad-b69d-97700a1ae662, cbd69a05-a97e-4b6d-af76-9444104af60e, 91cb12c3-82df-4040-b606-31bea84489f8, 08aa1309-da6a-40fd-a7dc-8f44c512c984, 9742f7f6-0b8f-496f-827d-ff5955a67320, fa7fb0ed-f4fd-4a61-8a48-5e323b4cef8a, d01d944d-bd21-479d-a8c3-a76caae2f7b7, 20ab2c42-1095-4958-baf8-59f7e3bb71a5, 82191d1d-21bc-487b-a7d7-6ce92c41c1c5, eb79e7ed-1618-4da7-ad79-bed12a3e4aef, fa220973-166e-4794-9bcb-0970c626d2fc, 802630c1-61a9-4a38-9018-84e76e973507, b42183de-f99b-4dcd-864f-24ecb31a66be, 2ad9a4e2-686c-44a7-86d1-2d11c1ace6e6, 3d8cd35c-9cde-40b0-95f6-9e2d508f6da2, 91bf4599-a765-4b2e-adee-7083673a0001, 5f8ad4f6-a64f-4de6-9617-b80e65b41376, d23863bb-7558-44ff-a0eb-6902898b629c, ff693766-4d90-4123-a65f-cfe7dab524e9, 4bab326f-22f2-41c1-a01a-a76f8bac22d5, 358dd9f3-7f08-4ece-8468-97febb335da4, 4b642ebd-f13c-4621-8598-c72b8718e5a7, 26a82f7b-45ee-48a0-9174-c91776382ca9, ef634eaf-720e-445a-99d1-9d8f7ff1b530]
+2026-10-11T05:14:05.186Z  INFO 4272 --- [order-service] [pool-3-thread-2] c.e.s.o.OutboxProcessor                  : Updated event status to PUBLISHED for events with eventIds: [4d148fa9-310f-454c-bfc2-4f4cb09c81d8, f3c6c34e-8499-4965-979d-a689664a6368, 2d8b5c1b-f3e2-4c16-b988-ca571a1895d5, 2475752f-b21c-4e66-8a51-279b708469d8, 3496a58b-8433-49c0-9c29-c8a6d05f1f0c, 46c49ef3-7505-43f2-8915-baf19a27fa42, 423f9e1b-4ad5-4475-94e1-dc60e6b4aab4, 903e0b9e-c1cb-4285-9919-1c45206c0ab7, 96ab71de-2aaf-43f7-bae0-5a2c49807dfd, 73fa76a4-5bc2-4ad0-bf78-ed9f29d20e3b, 99c7c5fa-4c58-497e-87cc-f1d440808e42, 234ed8b1-e6e4-4d3b-8179-51977fde5295, 8e715a7e-844c-4a7e-8df2-7a3d7495a19c, b09d44c3-5181-48bd-b86f-1852a923d46f, f730359f-0435-44c2-b9cb-55b170205372, e4bdccad-080d-45d4-9fea-deaa80bfe5dd, a45bb85c-cad3-4da5-bb58-983c6ff3ab4b, fe99850e-c21d-4d3b-bafc-1a5dce8fa27d, 5353e7f9-4a84-4f05-b4ce-ebf6733c71c2, 16ee5bf1-4d1f-402e-84b5-4a9615ed6585, ef19c81d-d718-4c50-97ae-32ffa49d7325, ea2da56f-13ec-4b4d-893d-582dacb65648, 1fb0cbf8-7253-49f2-893d-8a35a9dad491, 8e4aa4f0-002f-410b-a6d7-6fab29861f95, cb928845-4bbe-46f8-827b-ec733d34dfef, a6cb1489-e4f9-4b83-9973-713f3e42dd96, a4fb060f-8392-40fd-bc8f-577786919d50, 76019a3d-612c-426e-98c3-41d61060b4ac, 33ed278c-aaed-442a-9196-25c66c110328, 894c5a88-25a5-4c1f-9dc6-9d26662c8c05, 3de7bade-12fa-4da5-8a33-812fcdd1f0c5, 0cb0d86e-0b44-4e3b-8ff8-6f4146763a19, 233f2e81-d512-498a-861d-317927a7aa81, 7b1d2306-a8b6-4a1e-88e3-fb364dc77c1f, 039ecfeb-cf5b-4ff8-ab42-65db020c13f2, ee232273-2281-462d-904b-d2e605cee9ee, 879d0f7f-cccf-4b77-b350-2f7e944dfcec, f09ef37e-a9f9-4794-ba45-d64daa743eaf, 7445e178-323d-4cca-a8d1-757e916d24f5, b57582a1-116e-474a-beab-09efa9b4f9a0, f3007ba7-a5f6-4a55-b4e1-9064ca3eca89, cf7650e5-a4e9-4121-9e8f-8f910507516b, 755b4c80-36ce-4128-a45a-0097a593f821, 648fe651-3d94-4e65-a767-ab37c646bc75, ecb0cd28-3f79-49d2-90f1-4ece9bee2e6a, 9426023f-1df6-46b6-bc11-7b39bb606fbd, ce36ee5d-e66b-4bd1-a0cf-1a67c797008a, 8c84ee5e-e738-4061-8b0e-c3d503396e69, cac6fdf7-4395-491d-b409-9a8a44f1f838, 417199e0-b7b8-46f9-94d5-b9ab7382b831, bf1ba3e0-cb61-4c1f-975b-7729aa796441, c23f417b-94b0-4458-8fdc-6b3480c4fefb, 484c30fd-b629-41c9-be3e-f1aecb58c2fe, f3fc6771-4bfd-4f22-bb83-7876a19653b3, 72e8f696-d9c6-4ea0-b7ed-c368ea3dab78, e590a6fb-df47-42a0-830f-4d20b96cb635, 32950703-9e9f-4a5c-ae7b-ce278309a638, 853c09eb-c0d6-4df4-b35e-da3c5af743a9, 46e91e40-ad7d-4ddb-a02a-656a9333b0d0, bbc8a2ac-956b-4284-912d-84038b774dfc, 2956c83e-4ca7-4a9e-b376-72f3bcf69d37, 5da4e27b-d26d-49f9-b4a7-dbacab11d225, b2e201c6-fc29-485d-af0d-bc69aeb8b051, 5422c93e-f803-4593-83f0-36b601eeb769, 7c21c312-f41e-446e-aca4-6c5cdc02d463, 6871fd34-20f5-4e2c-8446-193c6b85bb39, 81774d27-d897-403b-9bae-53dbec3d4f43, c7b1337a-7673-4cda-bf02-0395a3a38f5d, c7abd8be-0bae-4db7-82b1-794bebd7eeb1, b1a38fab-5551-4e12-8317-7b408cecf9d3, ddb29bcc-ecc5-4d4f-b037-a60b5ce1bc58, 8bc8e83c-3358-4b91-a236-9b71af33cee2, 32ccf448-7d45-4ef9-b642-a7362fa6e3ec, 52aa919b-168f-480f-aaa4-517bfa1ff9b7, 51b48774-4fc0-44d7-b854-9dd3851bbb69, 8cd3bd67-a46a-47db-897b-620764eee0dd, 1d8c0362-8c31-4552-b5c7-396643dfd1aa, e00a4731-f6ca-405e-83d0-dc9702560bab, 8e69710a-6ad0-45b5-9861-ae6d33f49a3d, d663b73f-e678-4aa5-b010-5b25f9e5ab86, da425aef-a219-4d63-acda-1373b755d6f4, db9f3700-d75f-441b-b3b0-0115f61e16e7, 2788233a-423d-4527-a0ac-8ba31c6a80e3, 3566a7fb-f242-4f1c-b433-cf49e72ff58c, ac54afc7-991a-49fb-b9db-f756264b4b84, 5a234f17-46ab-4c2d-9dcc-ce5df828cdc4, aa9274f9-5dbb-4b06-bd94-dadbdd4bfc16, f2ed1c02-233d-4392-b623-c8281470de81, d3893de0-61be-4724-a866-cd3f22c62187, 011398b1-bb6d-424d-86c8-0c19f8ff364e, de1ff836-9f48-4184-a389-83cdf38c8214, 04db1fcf-1d76-41f1-a282-cecb0c80606c, 52087d74-7e93-4645-b350-6d40a89874a6, 96fa5583-e073-49a3-8bfb-5a4b8a7d15ef, 6320b16f-1536-464c-a171-a51e0848bd7b, 3faf8e77-73a7-4bdb-8075-11f6ce031e08, ba811080-8fcf-4b78-9238-a1aa8f0b582b, 25e81327-f2af-4e30-b845-8d2fa6e6874a, 9acf0841-a179-4836-bf37-7bcc9caad20e, 0b385b09-5608-4c1d-8b8a-3af363fa86ec]
+2026-10-11T05:14:05.190Z  INFO 4272 --- [order-service] [pool-3-thread-1] c.e.s.o.OutboxProcessor                  : Updated event status to PUBLISHED for events with eventIds: [369d8b4e-a0b6-420d-8b77-1fdc28ed97e5, c08bc256-2148-4d77-93b4-2cd01931ebdd, 4dcea47e-f998-4d28-8e8c-2fbccb980371, 4b90449f-062a-40f5-b3cb-254032a94056, a4813073-1eb7-4f5c-9bd9-5eb4905eecb0, 360d4092-d122-4145-865f-b3d9b4c9b9ac, 5341c30d-4c21-4ecb-b2e1-627ecb3e355d, 6f2db01f-5f6d-4b41-b28a-55bfa3340eea, 958d4d76-ba9e-49fd-bb18-6d6542b949e8, 0786bd07-30d2-4688-8d29-f5ed6a88ac2e, 12af3cd5-66d3-4272-a0ab-b1fdd279a90c, 4126caf1-4d38-432c-b228-b3db3f663ff4, 8896649a-a9d1-4856-9c78-dde395b785e5, fa130b66-05e9-4810-a4ca-ef965e8f5117, 487be680-157f-4e97-8e2f-d4c51a15a8c8, 6329716b-1540-4bad-a573-92325bbea4e1, 922af369-e1a2-4823-aef5-9bdebe41441a, e8c91f68-f682-45c2-b836-ffec4b3debf6, eed1324d-1b51-49c7-b68a-b43a3c4bb888, 271a5270-f09a-4fdd-8157-30bd63cb6b3b, 6dc4d764-bc6e-4d2b-b2ef-2f0c73c01b79, b0087733-6f27-4b48-8c9e-8e7a75f2af9e, a1111dd2-0e36-43ee-afbd-6a3cd45d47df, 062c4c30-e0a5-49e7-841b-98b6ab72c975, f4a4c63b-8e59-4669-ac8e-66c844aabee9, 6d67fc2a-a006-4780-9a5e-e1542019cf3a, bbc910f1-9d06-43ad-b69d-97700a1ae662, cbd69a05-a97e-4b6d-af76-9444104af60e, 91cb12c3-82df-4040-b606-31bea84489f8, 08aa1309-da6a-40fd-a7dc-8f44c512c984, 9742f7f6-0b8f-496f-827d-ff5955a67320, fa7fb0ed-f4fd-4a61-8a48-5e323b4cef8a, d01d944d-bd21-479d-a8c3-a76caae2f7b7, 20ab2c42-1095-4958-baf8-59f7e3bb71a5, 82191d1d-21bc-487b-a7d7-6ce92c41c1c5, eb79e7ed-1618-4da7-ad79-bed12a3e4aef, fa220973-166e-4794-9bcb-0970c626d2fc, 802630c1-61a9-4a38-9018-84e76e973507, b42183de-f99b-4dcd-864f-24ecb31a66be, 2ad9a4e2-686c-44a7-86d1-2d11c1ace6e6, 3d8cd35c-9cde-40b0-95f6-9e2d508f6da2, 91bf4599-a765-4b2e-adee-7083673a0001, 5f8ad4f6-a64f-4de6-9617-b80e65b41376, d23863bb-7558-44ff-a0eb-6902898b629c, ff693766-4d90-4123-a65f-cfe7dab524e9, 4bab326f-22f2-41c1-a01a-a76f8bac22d5, 358dd9f3-7f08-4ece-8468-97febb335da4, 4b642ebd-f13c-4621-8598-c72b8718e5a7, 26a82f7b-45ee-48a0-9174-c91776382ca9, ef634eaf-720e-445a-99d1-9d8f7ff1b530]
+2026-10-11T05:14:05.381Z ERROR 4272 --- [order-service] [    Test worker] c.e.s.o.OutboxProcessor                  : Error sending outbox event msg with eventId: e50d293c-c31b-4d89-999c-2128f592d753, incrementing attemptCount
+
+org.springframework.amqp.AmqpException: broker unavailable
+	at com.electronics.store.order_service.rabbit.RabbitMqPublisher.publish(RabbitMqPublisher.java:34) ~[main/:na]
+	at com.electronics.store.outbox_event_publisher.OutboxProcessor.processBatch(OutboxProcessor.java:37) ~[outbox-event-publisher-0.0.5-SNAPSHOT-plain.jar:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565) ~[na:na]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359) ~[spring-aop-7.0.8.jar:7.0.8]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:190) ~[spring-aop-7.0.8.jar:7.0.8]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:158) ~[spring-aop-7.0.8.jar:7.0.8]
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:133) ~[spring-tx-7.0.8.jar:7.0.8]
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:371) ~[spring-tx-7.0.8.jar:7.0.8]
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:130) ~[spring-tx-7.0.8.jar:7.0.8]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179) ~[spring-aop-7.0.8.jar:7.0.8]
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:719) ~[spring-aop-7.0.8.jar:7.0.8]
+	at com.electronics.store.outbox_event_publisher.OutboxProcessor$$SpringCGLIB$$0.processBatch(<generated>) ~[outbox-event-publisher-0.0.5-SNAPSHOT-plain.jar:na]
+	at com.electronics.store.order_service.outbox.OutboxProcessorTest.processBatch_leavesEventAsNew_whenPublishFails(OutboxProcessorTest.java:108) ~[test/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565) ~[na:na]
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:701) ~[junit-platform-commons-6.0.3.jar:6.0.3]
+	at org.junit.platform.commons.support.ReflectionSupport.invokeMethod(ReflectionSupport.java:502) ~[junit-platform-commons-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.support.MethodReflectionUtils.invoke(MethodReflectionUtils.java:45) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:61) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:124) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:163) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:148) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:123) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:105) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:99) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:66) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:47) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:39) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:104) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:98) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invokeVoid(InterceptingExecutableInvoker.java:71) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$0(TestMethodTestDescriptor.java:219) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:215) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:157) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:70) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$2(NodeTestTask.java:176) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$1(NodeTestTask.java:166) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:138) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$0(NodeTestTask.java:164) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:163) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:116) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604) ~[na:na]
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:42) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$2(NodeTestTask.java:180) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$1(NodeTestTask.java:166) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:138) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$0(NodeTestTask.java:164) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:163) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:116) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604) ~[na:na]
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:42) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$2(NodeTestTask.java:180) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$1(NodeTestTask.java:166) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:138) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$0(NodeTestTask.java:164) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:163) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:116) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:36) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:52) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:58) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.executeEngine(EngineExecutionOrchestrator.java:246) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.failOrExecuteEngine(EngineExecutionOrchestrator.java:218) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:179) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:108) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:66) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:157) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:65) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:125) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:114) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:93) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:48) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.InterceptingLauncher.lambda$execute$0(InterceptingLauncher.java:41) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.ClasspathAlignmentCheckingLauncherInterceptor.intercept(ClasspathAlignmentCheckingLauncherInterceptor.java:25) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.InterceptingLauncher.execute(InterceptingLauncher.java:40) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:48) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestDefinitionProcessor$CollectThenExecuteTestDefinitionConsumer.processAllTestDefinitions(JUnitPlatformTestDefinitionProcessor.java:179) ~[na:na]
+	at org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestDefinitionProcessor$CollectThenExecuteTestDefinitionConsumer.access$000(JUnitPlatformTestDefinitionProcessor.java:122) ~[na:na]
+	at org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestDefinitionProcessor.stop(JUnitPlatformTestDefinitionProcessor.java:116) ~[na:na]
+	at org.gradle.api.internal.tasks.testing.SuiteTestDefinitionProcessor.stop(SuiteTestDefinitionProcessor.java:63) ~[na:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565) ~[na:na]
+	at org.gradle.internal.dispatch.MethodInvocation.invokeOn(MethodInvocation.java:77) ~[na:na]
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:28) ~[na:na]
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:19) ~[na:na]
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33) ~[na:na]
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:88) ~[na:na]
+	at jdk.proxy1/jdk.proxy1.$Proxy4.stop(Unknown Source) ~[na:na]
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker$3.run(TestWorker.java:195) ~[na:na]
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.executeAndMaintainThreadName(TestWorker.java:126) ~[na:na]
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:103) ~[na:na]
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:63) ~[na:na]
+	at org.gradle.process.internal.worker.child.ActionExecutionWorker.execute(ActionExecutionWorker.java:56) ~[na:na]
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:122) ~[na:na]
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:72) ~[na:na]
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.run(GradleWorkerMain.java:69) ~[gradle-worker.jar:na]
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74) ~[gradle-worker.jar:na]
+
+2026-10-11T05:14:05.393Z  INFO 4272 --- [order-service] [    Test worker] c.e.s.o.OutboxProcessor                  : Finished processing outbox events with orderIds: []
+2026-10-11T05:14:05.394Z  INFO 4272 --- [order-service] [    Test worker] c.e.s.o.OutboxProcessor                  : Updated event status to PUBLISHED for events with eventIds: []
+2026-10-11T05:14:05.417Z  INFO 4272 --- [order-service] [    Test worker] c.e.s.o.OutboxProcessor                  : Finished processing outbox events with orderIds: [9acf04e1-9d45-4010-98ed-1ad1f7d6bcc8, 64458472-2946-4648-8f35-fa79baed1ada]
+2026-10-11T05:14:05.419Z  INFO 4272 --- [order-service] [    Test worker] c.e.s.o.OutboxProcessor                  : Updated event status to PUBLISHED for events with eventIds: [9acf04e1-9d45-4010-98ed-1ad1f7d6bcc8, 64458472-2946-4648-8f35-fa79baed1ada]
+2026-10-11T05:14:05.454Z ERROR 4272 --- [order-service] [    Test worker] c.e.s.o.OutboxProcessor                  : Error sending outbox event msg with eventId: 176dc41d-bbc8-401c-939b-9e90b943da4a, incrementing attemptCount
+
+org.springframework.amqp.AmqpException: simulated failure for one event
+	at com.electronics.store.order_service.outbox.OutboxProcessorTest.lambda$processBatch_publishesSuccessfulEventsOnly_whenOneEventFailsInBatch$0(OutboxProcessorTest.java:127) ~[test/:na]
+	at org.mockito.internal.stubbing.StubbedInvocationMatcher.answer(StubbedInvocationMatcher.java:42) ~[mockito-core-5.23.0.jar:na]
+	at org.mockito.internal.handler.MockHandlerImpl.handle(MockHandlerImpl.java:103) ~[mockito-core-5.23.0.jar:na]
+	at org.mockito.internal.handler.NullResultGuardian.handle(NullResultGuardian.java:29) ~[mockito-core-5.23.0.jar:na]
+	at org.mockito.internal.handler.InvocationNotifierHandler.handle(InvocationNotifierHandler.java:34) ~[mockito-core-5.23.0.jar:na]
+	at org.mockito.internal.creation.bytebuddy.access.MockMethodInterceptor.doIntercept(MockMethodInterceptor.java:84) ~[mockito-core-5.23.0.jar:na]
+	at org.mockito.internal.creation.bytebuddy.MockMethodAdvice.handle(MockMethodAdvice.java:143) ~[mockito-core-5.23.0.jar:na]
+	at com.electronics.store.order_service.rabbit.RabbitMqPublisher.publish(RabbitMqPublisher.java:34) ~[main/:na]
+	at com.electronics.store.outbox_event_publisher.OutboxProcessor.processBatch(OutboxProcessor.java:37) ~[outbox-event-publisher-0.0.5-SNAPSHOT-plain.jar:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565) ~[na:na]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359) ~[spring-aop-7.0.8.jar:7.0.8]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:190) ~[spring-aop-7.0.8.jar:7.0.8]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:158) ~[spring-aop-7.0.8.jar:7.0.8]
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:133) ~[spring-tx-7.0.8.jar:7.0.8]
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:371) ~[spring-tx-7.0.8.jar:7.0.8]
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:130) ~[spring-tx-7.0.8.jar:7.0.8]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179) ~[spring-aop-7.0.8.jar:7.0.8]
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:719) ~[spring-aop-7.0.8.jar:7.0.8]
+	at com.electronics.store.outbox_event_publisher.OutboxProcessor$$SpringCGLIB$$0.processBatch(<generated>) ~[outbox-event-publisher-0.0.5-SNAPSHOT-plain.jar:na]
+	at com.electronics.store.order_service.outbox.OutboxProcessorTest.processBatch_publishesSuccessfulEventsOnly_whenOneEventFailsInBatch(OutboxProcessorTest.java:132) ~[test/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565) ~[na:na]
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:701) ~[junit-platform-commons-6.0.3.jar:6.0.3]
+	at org.junit.platform.commons.support.ReflectionSupport.invokeMethod(ReflectionSupport.java:502) ~[junit-platform-commons-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.support.MethodReflectionUtils.invoke(MethodReflectionUtils.java:45) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:61) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:124) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:163) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:148) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:123) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:105) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:99) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:66) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:47) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:39) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:104) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:98) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invokeVoid(InterceptingExecutableInvoker.java:71) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$0(TestMethodTestDescriptor.java:219) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:215) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:157) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:70) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$2(NodeTestTask.java:176) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$1(NodeTestTask.java:166) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:138) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$0(NodeTestTask.java:164) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:163) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:116) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604) ~[na:na]
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:42) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$2(NodeTestTask.java:180) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$1(NodeTestTask.java:166) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:138) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$0(NodeTestTask.java:164) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:163) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:116) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604) ~[na:na]
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:42) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$2(NodeTestTask.java:180) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$1(NodeTestTask.java:166) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:138) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$0(NodeTestTask.java:164) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:163) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:116) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:36) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:52) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:58) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.executeEngine(EngineExecutionOrchestrator.java:246) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.failOrExecuteEngine(EngineExecutionOrchestrator.java:218) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:179) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:108) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:66) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:157) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:65) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:125) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:114) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:93) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:48) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.InterceptingLauncher.lambda$execute$0(InterceptingLauncher.java:41) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.ClasspathAlignmentCheckingLauncherInterceptor.intercept(ClasspathAlignmentCheckingLauncherInterceptor.java:25) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.InterceptingLauncher.execute(InterceptingLauncher.java:40) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:48) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestDefinitionProcessor$CollectThenExecuteTestDefinitionConsumer.processAllTestDefinitions(JUnitPlatformTestDefinitionProcessor.java:179) ~[na:na]
+	at org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestDefinitionProcessor$CollectThenExecuteTestDefinitionConsumer.access$000(JUnitPlatformTestDefinitionProcessor.java:122) ~[na:na]
+	at org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestDefinitionProcessor.stop(JUnitPlatformTestDefinitionProcessor.java:116) ~[na:na]
+	at org.gradle.api.internal.tasks.testing.SuiteTestDefinitionProcessor.stop(SuiteTestDefinitionProcessor.java:63) ~[na:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565) ~[na:na]
+	at org.gradle.internal.dispatch.MethodInvocation.invokeOn(MethodInvocation.java:77) ~[na:na]
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:28) ~[na:na]
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:19) ~[na:na]
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33) ~[na:na]
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:88) ~[na:na]
+	at jdk.proxy1/jdk.proxy1.$Proxy4.stop(Unknown Source) ~[na:na]
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker$3.run(TestWorker.java:195) ~[na:na]
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.executeAndMaintainThreadName(TestWorker.java:126) ~[na:na]
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:103) ~[na:na]
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:63) ~[na:na]
+	at org.gradle.process.internal.worker.child.ActionExecutionWorker.execute(ActionExecutionWorker.java:56) ~[na:na]
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:122) ~[na:na]
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:72) ~[na:na]
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.run(GradleWorkerMain.java:69) ~[gradle-worker.jar:na]
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74) ~[gradle-worker.jar:na]
+
+2026-10-11T05:14:05.463Z  INFO 4272 --- [order-service] [    Test worker] c.e.s.o.OutboxProcessor                  : Finished processing outbox events with orderIds: [0e7e6bf4-a3d9-40cb-8581-54c80f03968e, 68ace2da-decb-4ed7-9622-850c26d08f63]
+2026-10-11T05:14:05.464Z  INFO 4272 --- [order-service] [    Test worker] c.e.s.o.OutboxProcessor                  : Updated event status to PUBLISHED for events with eventIds: [0e7e6bf4-a3d9-40cb-8581-54c80f03968e, 68ace2da-decb-4ed7-9622-850c26d08f63]
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -26,6 +26,8 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
 
+import io.micrometer.core.instrument.Timer;
+
 import static com.electronics.store.order_service.persistence.enums.OrderStatus.*;
 import static com.electronics.store.order_service.persistence.enums.PublishmentStatus.*;
 import static com.electronics.store.order_service.persistence.enums.EventType.*;
@@ -50,7 +52,7 @@ public class OrderService {
 
     @Transactional
     public Order persist(@Valid CreateOrderRequest request) {
-        var sample = metrics.startOrderCreationTimer();
+        Timer.Sample sample = metrics.startOrderCreationTimer();
         try {
             final Order order = orderRepository.save(createOrder(request));
             outboxEventService.persist(createOutboxEventForNewOrder(order));
@@ -65,7 +67,7 @@ public class OrderService {
 
     @Transactional
     public void cancelOrder(UUID orderId) {
-        var sample = metrics.startOrderCancellationTimer();
+        Timer.Sample sample = metrics.startOrderCancellationTimer();
         try {
             final OutboxEvent outboxEvent = outboxEventService.findLastByOrderIdForUpdate(orderId)
                     .orElseThrow(() -> new OutboxEventNotFoundException("Outbox event with orderId: " + orderId + " not found!"));
@@ -105,7 +107,7 @@ public class OrderService {
 
     @Transactional
     public Order patch(@Valid UpdateOrderRequest request) {
-        var sample = metrics.startOrderModificationTimer();
+        Timer.Sample sample = metrics.startOrderModificationTimer();
         try {
             final Set<RequestItem> newItems = request.itemsToUpdate();
             if (CollectionUtils.isEmpty(newItems)) {

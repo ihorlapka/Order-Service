@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+<title>Test results - com.electronics.store.order_service.persistence.service.OrderServiceIntegrationalTest</title>
+<link href="../css/base-style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<script src="../js/report.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="content">
+<div class="breadcrumbs">
+<a class="breadcrumb" href="../index.html">all</a> &gt; 
+<span class="breadcrumb">com.electronics.store.order_service.persistence.service.OrderServiceIntegrationalTest</span>
+</div>
+<div class="tab-container">
+<ul class="tabLinks">
+<li>
+<a class="successGroup" href="#">Gradle Test Run :test</a>
+</li>
+</ul>
+<div class="tab">
+<h2>Gradle Test Run :test</h2>
+<h1>OrderServiceIntegrationalTest</h1>
+<div class="tab-container">
+<ul class="tabLinks">
+<li>
+<a class="" href="#">summary</a>
+</li>
+<li>
+<a class="" href="#">standard output</a>
+</li>
+</ul>
+<div class="tab">
+<h2>summary</h2>
+<div>
+<div class="summary">
+<table>
+<tr>
+<td>
+<div class="summaryGroup">
+<table>
+<tr>
+<td>
+<div class="infoBox">
+<div class="counter">18</div>
+<p>tests</p>
+</div>
+</td>
+<td>
+<div class="infoBox">
+<div class="counter">0</div>
+<p>failures</p>
+</div>
+</td>
+<td>
+<div class="infoBox">
+<div class="counter">0</div>
+<p>skipped</p>
+</div>
+</td>
+<td>
+<div class="infoBox duration">
+<div class="counter">2.579s</div>
+<p>duration</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td>
+<div class="infoBox success successRate">
+<div class="percent">100%</div>
+<p>successful</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<table class="test-results">
+<thead>
+<tr>
+<th>Child</th>
+<th hidden="">Name</th>
+<th>Tests</th>
+<th>Failures</th>
+<th>Skipped</th>
+<th>Duration</th>
+<th>Success rate</th>
+</tr>
+</thead>
+<tr>
+<td class="success">findByCustomerId_returnsEmptyList_whenCustomerHasNoOrders()</td>
+<td class="path" hidden="">findByCustomerId_returnsEmptyList_whenCustomerHasNoOrders()</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0.036s</td>
+<td class="success">100%</td>
+</tr>
+<tr>
+<td class="success">
+<a href="Hqo0vRgxGo8.html">findByCustomerId_returnsOnlyThatCustomersOrders()</a>
+</td>
+<td class="path" hidden="">findByCustomerId_returnsOnlyThatCustomersOrders()</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0.016s</td>
+<td class="success">100%</td>
+</tr>
+<tr>
+<td class="success">findByOrderId_returnsEmpty_whenOrderWithItemsByDoesNotExist()</td>
+<td class="path" hidden="">findByOrderId_returnsEmpty_whenOrderWithItemsByDoesNotExist()</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0.006s</td>
+<td class="success">100%</td>
+</tr>
+<tr>
+<td class="success">
+<a href="7Yg3TggnlXc.html">hardDeletesOrderAndEvent_whenOrderCreatedEventIsStillNew()</a>
+</td>
+<td class="path" hidden="">hardDeletesOrderAndEvent_whenOrderCreatedEventIsStillNew()</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0.023s</td>
+<td class="success">100%</td>
+</tr>
+<tr>
+<td class="success">
+<a href="6fY2gyadwKY.html">replacesItems_setsStatusModified_andCreatesOrderModifiedEvent()</a>
+</td>
+<td class="path" hidden="">replacesItems_setsStatusModified_andCreatesOrderModifiedEvent()</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0.022s</td>
+<td class="success">100%</td>
+</tr>
+<tr>
+<td class="success">
+<a href="tqlk1IVgf2g.html">savesOrder_andCreatesOrderCreatedOutboxEvent()</a>
+</td>
+<td class="path" hidden="">savesOrder_andCreatesOrderCreatedOutboxEvent()</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0.087s</td>
+<td class="success">100%</td>
+</tr>
+<tr>
+<td class="success">
+<a href="ASjAu4NKYEw.html">softCancels_marksOrderCancelledAndAddsCancelledEvent_whenOrderCreatedAlreadyPublished()</a>
+</td>
+<td class="path" hidden="">softCancels_marksOrderCancelledAndAddsCancelledEvent_whenOrderCreatedAlreadyPublished()</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0.032s</td>
+<td class="success">100%</td>
+</tr>
+<tr>
+<td class="success">
+<a href="-v_7Plu5-gc.html">throwsAlreadyCancelled_whenCancelledTwice()</a>
+</td>
+<td class="path" hidden="">throwsAlreadyCancelled_whenCancelledTwice()</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0.015s</td>
+<td class="success">100%</td>
+</tr>
+<tr>
+<td class="success">
+<a href="OrkjLDaitL4.html">throwsCancellationNotAllowed_whenShipmentAlreadyStarted()</a>
+</td>
+<td class="path" hidden="">throwsCancellationNotAllowed_whenShipmentAlreadyStarted()</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0.014s</td>
+<td class="success">100%</td>
+</tr>
+<tr>
+<td class="success">
+<a href="JChNC_WCy2U/index.html">throwsOrderChangeRestricted_whenOrderIsPastModifiableStages(OrderStatus)</a>
+</td>
+<td class="path" hidden="">throwsOrderChangeRestricted_whenOrderIsPastModifiableStages(OrderStatus)</td>
+<td>5</td>
+<td>0</td>
+<td>0</td>
+<td>0.104s</td>
+<td class="success">100%</td>
+</tr>
+<tr>
+<td class="success">
+<a href="Fk5SmemVPIk.html">throwsOrderIsAlreadyCancelled_whenOrderWasCancelled()</a>
+</td>
+<td class="path" hidden="">throwsOrderIsAlreadyCancelled_whenOrderWasCancelled()</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0.015s</td>
+<td class="success">100%</td>
+</tr>
+<tr>
+<td class="success">throwsOrderNotFound_whenOrderDoesNotExist()</td>
+<td class="path" hidden="">throwsOrderNotFound_whenOrderDoesNotExist()</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0.012s</td>
+<td class="success">100%</td>
+</tr>
+<tr>
+<td class="success">throwsOutboxEventNotFound_whenOrderNeverExisted()</td>
+<td class="path" hidden="">throwsOutboxEventNotFound_whenOrderNeverExisted()</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0.006s</td>
+<td class="success">100%</td>
+</tr>
+<tr>
+<td class="success">throwsUpdateRequestIsNotValid_whenItemsToUpdateIsEmpty()</td>
+<td class="path" hidden="">throwsUpdateRequestIsNotValid_whenItemsToUpdateIsEmpty()</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0.004s</td>
+<td class="success">100%</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="tab">
+<h2>standard output</h2>
+<span class="code">
+<pre id="root-0-test-stdout-com.electronics.store.order_service.persistence.service.OrderServiceIntegrationalTest">2026-10-11T05:14:05.739Z  INFO 4272 --- [order-service] [    Test worker] tc.postgres:17.5                         : Creating container for image: postgres:17.5
+2026-10-11T05:14:05.756Z  INFO 4272 --- [order-service] [    Test worker] tc.postgres:17.5                         : Container postgres:17.5 is starting: df9ecd92527c323cab1254cdc04d4e25f3eab663beca16f33254ebf70e51dc6c
+2026-10-11T05:14:06.811Z  INFO 4272 --- [order-service] [    Test worker] tc.postgres:17.5                         : Container postgres:17.5 started in PT1.072526466S
+2026-10-11T05:14:06.812Z  INFO 4272 --- [order-service] [    Test worker] tc.postgres:17.5                         : Container is started (JDBC URL: jdbc:postgresql://localhost:32770/test?loggerLevel=OFF)
+2026-10-11T05:14:06.812Z  INFO 4272 --- [order-service] [    Test worker] org.testcontainers.ext.ScriptUtils       : Executing database script from schema.sql
+2026-10-11T05:14:06.841Z  INFO 4272 --- [order-service] [    Test worker] org.testcontainers.ext.ScriptUtils       : Executed database script from schema.sql in 28 ms.
+2026-10-11T05:14:06.859Z  INFO 4272 --- [order-service] [orders-status-3] o.s.a.r.l.SimpleMessageListenerContainer : Waiting for workers to finish.
+2026-10-11T05:14:06.860Z  INFO 4272 --- [order-service] [orders-status-3] o.s.a.r.l.SimpleMessageListenerContainer : Successfully waited for workers to finish.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.1.0)
+
+2026-10-11T05:14:06.892Z  INFO 4272 --- [order-service] [    Test worker] .e.s.o.p.s.OrderServiceIntegrationalTest : Starting OrderServiceIntegrationalTest using Java 25.0.4.1 with PID 4272 (started by runner in /home/runner/work/Order-Service/Order-Service)
+2026-10-11T05:14:06.892Z  INFO 4272 --- [order-service] [    Test worker] .e.s.o.p.s.OrderServiceIntegrationalTest : The following 1 profile is active: &quot;test&quot;
+2026-10-11T05:14:07.140Z  INFO 4272 --- [order-service] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-11T05:14:07.147Z  INFO 4272 --- [order-service] [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 5 ms. Found 2 JPA repository interfaces.
+2026-10-11T05:14:07.280Z  INFO 4272 --- [order-service] [    Test worker] com.zaxxer.hikari.HikariDataSource       : RegistryServiceHikariCP - Starting...
+2026-10-11T05:14:07.289Z  INFO 4272 --- [order-service] [    Test worker] com.zaxxer.hikari.pool.HikariPool        : RegistryServiceHikariCP - Added connection org.postgresql.jdbc.PgConnection@4867aa65
+2026-10-11T05:14:07.289Z  INFO 4272 --- [order-service] [    Test worker] com.zaxxer.hikari.HikariDataSource       : RegistryServiceHikariCP - Start completed.
+2026-10-11T05:14:07.301Z  INFO 4272 --- [order-service] [    Test worker] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-10-11T05:14:07.322Z  INFO 4272 --- [order-service] [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-11T05:14:07.327Z  WARN 4272 --- [order-service] [    Test worker] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-10-11T05:14:07.330Z  INFO 4272 --- [order-service] [    Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:32770/test?loggerLevel=OFF]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 17.5
+	Default catalog/schema: test/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-11T05:14:07.387Z  INFO 4272 --- [order-service] [    Test worker] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-11T05:14:07.387Z  INFO 4272 --- [order-service] [    Test worker] org.hibernate.orm.jdbc.batch             : HHH100501: Automatic JDBC statement batching enabled (maximum batch size 50)
+2026-10-11T05:14:07.412Z  INFO 4272 --- [order-service] [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-11T05:14:07.669Z  INFO 4272 --- [order-service] [    Test worker] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-10-11T05:14:07.681Z  INFO 4272 --- [order-service] [    Test worker] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
+2026-10-11T05:14:07.682Z  INFO 4272 --- [order-service] [    Test worker] o.s.a.r.l.SimpleMessageListenerContainer : Broker not available; cannot force queue declarations during start: java.net.ConnectException: Connection refused (connect failed)
+2026-10-11T05:14:07.683Z  INFO 4272 --- [order-service] [orders-status-1] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
+2026-10-11T05:14:07.684Z ERROR 4272 --- [order-service] [orders-status-1] o.s.a.r.l.SimpleMessageListenerContainer : Failed to check/redeclare auto-delete queue(s).
+
+org.springframework.amqp.AmqpConnectException: java.net.ConnectException: Connection refused (connect failed)
+	at org.springframework.amqp.rabbit.support.RabbitExceptionTranslator.convertRabbitAccessException(RabbitExceptionTranslator.java:60) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.createBareConnection(AbstractConnectionFactory.java:629) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.connection.CachingConnectionFactory.createConnection(CachingConnectionFactory.java:746) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.connection.ConnectionFactoryUtils.createConnection(ConnectionFactoryUtils.java:256) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.core.RabbitTemplate.doExecute(RabbitTemplate.java:2239) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.core.RabbitTemplate.execute(RabbitTemplate.java:2211) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.core.RabbitTemplate.execute(RabbitTemplate.java:2191) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.core.RabbitAdmin.getQueueInfo(RabbitAdmin.java:472) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.core.RabbitAdmin.getQueueProperties(RabbitAdmin.java:456) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.attemptDeclarations(AbstractMessageListenerContainer.java:1972) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer.redeclareElementsIfNecessary(AbstractMessageListenerContainer.java:1935) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.initialize(SimpleMessageListenerContainer.java:1602) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer$AsyncMessageProcessingConsumer.run(SimpleMessageListenerContainer.java:1400) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at java.base/java.lang.Thread.run(Thread.java:1474) ~[na:na]
+Caused by: java.net.ConnectException: Connection refused (connect failed)
+	at java.base/sun.nio.ch.Net.pollConnect(Native Method) ~[na:na]
+	at java.base/sun.nio.ch.Net.pollConnectNow(Net.java:639) ~[na:na]
+	at java.base/sun.nio.ch.NioSocketImpl.timedFinishConnect(NioSocketImpl.java:543) ~[na:na]
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:594) ~[na:na]
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:284) ~[na:na]
+	at java.base/java.net.Socket.connect(Socket.java:659) ~[na:na]
+	at com.rabbitmq.client.impl.SocketFrameHandlerFactory.create(SocketFrameHandlerFactory.java:61) ~[amqp-client-5.30.0.jar:5.30.0]
+	at com.rabbitmq.client.ConnectionFactory.newConnection(ConnectionFactory.java:1355) ~[amqp-client-5.30.0.jar:5.30.0]
+	at com.rabbitmq.client.ConnectionFactory.newConnection(ConnectionFactory.java:1297) ~[amqp-client-5.30.0.jar:5.30.0]
+	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.connectAddresses(AbstractConnectionFactory.java:676) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.connect(AbstractConnectionFactory.java:644) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	at org.springframework.amqp.rabbit.connection.AbstractConnectionFactory.createBareConnection(AbstractConnectionFactory.java:590) ~[spring-rabbit-4.1.0.jar:4.1.0]
+	... 12 common frames omitted
+
+2026-10-11T05:14:07.685Z  INFO 4272 --- [order-service] [orders-status-1] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
+2026-10-11T05:14:07.686Z  INFO 4272 --- [order-service] [orders-status-2] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
+2026-10-11T05:14:07.687Z ERROR 4272 --- [order-service] [orders-status-2] o.s.a.r.l.SimpleMessageListenerContainer : Failed to check/redeclare auto-delete queue(s).
+2026-10-11T05:14:07.687Z  INFO 4272 --- [order-service] [orders-status-2] o.s.a.r.c.CachingConnectionFactory       : Attempting to connect to: [localhost:5672]
+2026-10-11T05:14:07.692Z  INFO 4272 --- [order-service] [    Test worker] .e.s.o.p.s.OrderServiceIntegrationalTest : Started OrderServiceIntegrationalTest in 0.829 seconds (process running for 22.533)
+</pre>
+<button class="clipboard-copy-btn" aria-label="Copy to clipboard" data-copy-element-id="root-0-test-stdout-com.electronics.store.order_service.persistence.service.OrderServiceIntegrationalTest">Copy</button>
+</span>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<p>
+<div>
+<label class="hidden" id="label-for-line-wrapping-toggle" for="line-wrapping-toggle">Wrap lines
+<input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
+</label>
+</div>Generated by 
+<a href="https://www.gradle.org">Gradle 9.5.1</a> at Oct 11, 2026, 5:14:08 AM</p>
+</div>
+</div>
+</body>
+</html>

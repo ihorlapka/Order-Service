@@ -1,0 +1,66 @@
+spring:
+  application:
+    name: order-service
+  data:
+    web:
+      pageable:
+        default-page-size: 20
+        max-page-size: 100
+  datasource:
+    url: jdbc:postgresql://localhost:5432/es_orders
+    username: ihor
+    password: qwerty
+    driver-class-name: org.postgresql.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      pool-name: RegistryServiceHikariCP
+      minimum-idle: 5
+      maximum-pool-size: 20
+      auto-commit: true
+      connection-timeout: 30000
+      idle-timeout: 600000
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc.batch_size: 50
+        order_inserts: true
+        order_updates: true
+        generate_statistics: false
+    open-in-view: false
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: ihor
+    password: root
+    publisher-confirm-type: correlated
+    publisher-returns: true
+rabbit:
+  orders:
+    exchange.name: es.order.events.exchange
+    routing.key:
+      created: order.created
+      modified: order.modified
+      cancelled: order.cancelled
+  saga:
+    queue.name: es.saga.events.queue
+  inventory:
+    exchange.name: es.inventory.events.exchange
+    routing.key: inventory.#
+  payment:
+    exchange.name: es.payment.events.exchange
+    routing.key: payment.#
+  shipment:
+    exchange.name: es.shipment.events.exchange
+    routing.key: shipment.#
+outbox:
+  timeout.after.failure.ms: 5000
+  events.batch.size: 100
+orders:
+  health:
+    pending-outbox-events-threshold: 1000
+    stale-outbox-events-threshold-minutes: 30

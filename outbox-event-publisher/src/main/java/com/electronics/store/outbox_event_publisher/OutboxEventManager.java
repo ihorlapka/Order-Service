@@ -1,6 +1,8 @@
 package com.electronics.store.outbox_event_publisher;
 
 import com.electronics.store.outbox_event_publisher.event.Event;
+import com.electronics.store.outbox_event_publisher.metrics.OutboxMetrics;
+import io.micrometer.core.instrument.Timer;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,11 +22,14 @@ public class OutboxEventManager<E extends Event> {
 
     private final OutboxProcessor<E> outboxProcessor;
     private final int timeoutAfterFailure;
+    private final OutboxMetrics metrics;
 
 
     public void publishAndUpdate() {
+        Timer.Sample sample = metrics.startOutboxProcessingTimer();
         if (!processing.compareAndSet(false, true)) {
             log.debug("Outbox processing already in progress, skipping trigger event");
+            metrics.stopOutboxProcessingTimer(sample);
             return;
         }
         executorService.submit(() -> {
@@ -42,6 +47,7 @@ public class OutboxEventManager<E extends Event> {
                         log.error("Error processing order outbox events", e);
                     } finally {
                         processing.set(false);
+                        metrics.stopOutboxProcessingTimer(sample);
                     }
                 }
         );
