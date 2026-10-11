@@ -41,3 +41,7 @@ Multi-module Gradle project (Spring Boot 4.1.0, Java 25):
 - Outbox processor runs on single-thread executor (`outbox-processor` thread)
 - GitHub Packages publishing requires credentials (set via gradle properties or env vars)
 - Lombok annotation processing enabled for both main and test sources
+
+## File Creation Restrictions
+- Do NOT create css, html, js, proto, or other frontend/config files unless explicitly requested in the prompt
+- Only create files within `order-service` (root) or `outbox-event-publisher` module directories
