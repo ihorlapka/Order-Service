@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="OutboxEventManagerTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-11T05:15:39.147Z" hostname="runnervmmprz5" time="2.988">
+<testsuite name="OutboxEventManagerTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-11T13:53:06.774Z" hostname="runnervmmprz5" time="2.55">
   <properties/>
-  <testcase name="publishAndUpdate_releasesGuard_evenWhenProcessorThrows()" classname="OutboxEventManagerTest" time="1.333"/>
-  <testcase name="publishAndUpdate_ignoresSecondTrigger_whileFirstRunStillInProgress()" classname="OutboxEventManagerTest" time="0.163"/>
-  <testcase name="publishAndUpdate_allowsNewRun_oncePreviousRunFinished()" classname="OutboxEventManagerTest" time="0.214"/>
-  <testcase name="publishAndUpdate_backsOffFiveSeconds_beforeRetryingAfterBatchError()" classname="OutboxEventManagerTest" time="1.033"/>
-  <testcase name="destroy_shutsDownExecutorGracefully()" classname="OutboxEventManagerTest" time="0.107"/>
+  <testcase name="publishAndUpdate_releasesGuard_evenWhenProcessorThrows()" classname="OutboxEventManagerTest" time="0.943"/>
+  <testcase name="publishAndUpdate_ignoresSecondTrigger_whileFirstRunStillInProgress()" classname="OutboxEventManagerTest" time="0.144"/>
+  <testcase name="publishAndUpdate_allowsNewRun_oncePreviousRunFinished()" classname="OutboxEventManagerTest" time="0.211"/>
+  <testcase name="publishAndUpdate_backsOffFiveSeconds_beforeRetryingAfterBatchError()" classname="OutboxEventManagerTest" time="1.025"/>
+  <testcase name="destroy_shutsDownExecutorGracefully()" classname="OutboxEventManagerTest" time="0.106"/>
   <testcase name="publishAndUpdate_loopsUntilNoMoreEvents()" classname="OutboxEventManagerTest" time="0.106"/>
-  <system-out><![CDATA[05:15:40.233 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Started outbox events messages processing...
-05:15:40.238 [outbox-processor] ERROR com.electronics.store.outbox_event_publisher.OutboxEventManager -- Error processing order outbox events
+  <system-out><![CDATA[13:53:07.480 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Started outbox events messages processing...
+13:53:07.483 [outbox-processor] ERROR com.electronics.store.outbox_event_publisher.OutboxEventManager -- Error processing order outbox events
 java.lang.RuntimeException: boom
 	at com.electronics.store.outbox_event_publisher.OutboxProcessor.processBatch(OutboxProcessor.java:27)
 	at com.electronics.store.outbox_event_publisher.OutboxEventManager.lambda$publishAndUpdate$1(OutboxEventManager.java:39)
@@ -17,8 +17,8 @@ java.lang.RuntimeException: boom
 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
 	at java.base/java.lang.Thread.run(Thread.java:840)
-05:15:40.371 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Started outbox events messages processing...
-05:15:40.373 [outbox-processor] ERROR com.electronics.store.outbox_event_publisher.OutboxEventManager -- Error processing order outbox events
+13:53:07.609 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Started outbox events messages processing...
+13:53:07.610 [outbox-processor] ERROR com.electronics.store.outbox_event_publisher.OutboxEventManager -- Error processing order outbox events
 java.lang.RuntimeException: boom
 	at com.electronics.store.outbox_event_publisher.OutboxProcessor.processBatch(OutboxProcessor.java:27)
 	at com.electronics.store.outbox_event_publisher.OutboxEventManager.lambda$publishAndUpdate$1(OutboxEventManager.java:39)
@@ -27,25 +27,25 @@ java.lang.RuntimeException: boom
 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
 	at java.base/java.lang.Thread.run(Thread.java:840)
-05:15:40.480 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Outbox executor service has been shut down gracefully
-05:15:40.515 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Started outbox events messages processing...
-05:15:40.567 [outbox-processor] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- OutboxProcessor stopped
-05:15:40.670 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Outbox executor service has been shut down gracefully
-05:15:40.678 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Started outbox events messages processing...
-05:15:40.679 [outbox-processor] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- OutboxProcessor stopped
-05:15:40.782 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Started outbox events messages processing...
-05:15:40.783 [outbox-processor] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- OutboxProcessor stopped
-05:15:40.885 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Outbox executor service has been shut down gracefully
-05:15:40.890 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Started outbox events messages processing...
-05:15:41.891 [outbox-processor] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- OutboxProcessor stopped
-05:15:41.919 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Outbox executor service has been shut down gracefully
-05:15:41.924 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Started outbox events messages processing...
-05:15:41.927 [outbox-processor] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- OutboxProcessor stopped
-05:15:42.026 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Outbox executor service has been shut down gracefully
-05:15:42.027 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Outbox executor service has been shut down gracefully
-05:15:42.032 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Started outbox events messages processing...
-05:15:42.032 [outbox-processor] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- OutboxProcessor stopped
-05:15:42.134 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Outbox executor service has been shut down gracefully
+13:53:07.715 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Outbox executor service has been shut down gracefully
+13:53:07.734 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Started outbox events messages processing...
+13:53:07.771 [outbox-processor] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- OutboxProcessor stopped
+13:53:07.874 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Outbox executor service has been shut down gracefully
+13:53:07.881 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Started outbox events messages processing...
+13:53:07.881 [outbox-processor] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- OutboxProcessor stopped
+13:53:07.983 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Started outbox events messages processing...
+13:53:07.983 [outbox-processor] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- OutboxProcessor stopped
+13:53:08.086 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Outbox executor service has been shut down gracefully
+13:53:08.089 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Started outbox events messages processing...
+13:53:09.090 [outbox-processor] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- OutboxProcessor stopped
+13:53:09.112 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Outbox executor service has been shut down gracefully
+13:53:09.115 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Started outbox events messages processing...
+13:53:09.115 [outbox-processor] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- OutboxProcessor stopped
+13:53:09.217 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Outbox executor service has been shut down gracefully
+13:53:09.218 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Outbox executor service has been shut down gracefully
+13:53:09.221 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Started outbox events messages processing...
+13:53:09.222 [outbox-processor] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- OutboxProcessor stopped
+13:53:09.324 [Test worker] INFO com.electronics.store.outbox_event_publisher.OutboxEventManager -- Outbox executor service has been shut down gracefully
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
