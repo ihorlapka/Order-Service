@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.electronics.store.order_service.controllers.OrderControllerTest" tests="17" skipped="0" failures="0" errors="0" timestamp="2026-10-11T05:13:46.282Z" hostname="runnervmmprz5" time="3.661">
+  <properties/>
+  <testcase name="returns404_whenOutboxEventNotFound()" classname="com.electronics.store.order_service.controllers.OrderControllerTest" time="0.188"/>
+  <testcase name="createOrder_shouldReturn404_whenItemValidationFails()" classname="com.electronics.store.order_service.controllers.OrderControllerTest" time="0.108"/>
+  <testcase name="getCustomerOrders_shouldReturnEmptyList_whenNoOrdersFound()" classname="com.electronics.store.order_service.controllers.OrderControllerTest" time="0.025"/>
+  <testcase name="createOrder_shouldReturn201_whenRequestIsValid()" classname="com.electronics.store.order_service.controllers.OrderControllerTest" time="0.016"/>
+  <testcase name="returns200_whenOrderExists()" classname="com.electronics.store.order_service.controllers.OrderControllerTest" time="0.009"/>
+  <testcase name="returns422_whenCancellationNotAllowedBecauseAlreadyShipped()" classname="com.electronics.store.order_service.controllers.OrderControllerTest" time="0.008"/>
+  <testcase name="getCustomerOrders_shouldReturnOrdersList()" classname="com.electronics.store.order_service.controllers.OrderControllerTest" time="0.011"/>
+  <testcase name="returns409_whenOrderIsAlreadyCancelled()" classname="com.electronics.store.order_service.controllers.OrderControllerTest" time="0.008"/>
+  <testcase name="returns400_whenRequestBodyIsMalformedJson()" classname="com.electronics.store.order_service.controllers.OrderControllerTest" time="0.009"/>
+  <testcase name="returns400_whenIdPathVariableIsNotAValidUuid()" classname="com.electronics.store.order_service.controllers.OrderControllerTest" time="0.013"/>
+  <testcase name="createOrder_shouldReturn400_whenRequestBodyIsInvalid()" classname="com.electronics.store.order_service.controllers.OrderControllerTest" time="0.008"/>
+  <testcase name="returns404_whenOrderDoesNotExist()" classname="com.electronics.store.order_service.controllers.OrderControllerTest" time="0.008"/>
+  <testcase name="getOrder_shouldReturn200_whenOrderExists()" classname="com.electronics.store.order_service.controllers.OrderControllerTest" time="0.008"/>
+  <testcase name="returns500_whenServiceThrowsUnexpectedException()" classname="com.electronics.store.order_service.controllers.OrderControllerTest" time="0.022"/>
+  <testcase name="returns400_withFieldErrors_whenRequestBodyFailsBeanValidation()" classname="com.electronics.store.order_service.controllers.OrderControllerTest" time="0.008"/>
+  <testcase name="getOrder_shouldReturn404_whenOrderNotFound()" classname="com.electronics.store.order_service.controllers.OrderControllerTest" time="0.007"/>
+  <testcase name="returns204_whenCancelledSuccessfully()" classname="com.electronics.store.order_service.controllers.OrderControllerTest" time="0.007"/>
+  <system-out><![CDATA[05:13:46.461 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.electronics.store.order_service.controllers.OrderControllerTest]: OrderControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+05:13:46.726 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.electronics.store.order_service.OrderServiceApplication for test class com.electronics.store.order_service.controllers.OrderControllerTest
+05:13:46.729 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.electronics.store.order_service.controllers.OrderControllerTest]: OrderControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+05:13:46.746 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.electronics.store.order_service.OrderServiceApplication for test class com.electronics.store.order_service.controllers.OrderControllerTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.1.0)
+
+2026-10-11T05:13:47.275Z  INFO 4272 --- [    Test worker] c.e.s.o.controllers.OrderControllerTest  : Starting OrderControllerTest using Java 25.0.4.1 with PID 4272 (started by runner in /home/runner/work/Order-Service/Order-Service)
+2026-10-11T05:13:47.277Z  INFO 4272 --- [    Test worker] c.e.s.o.controllers.OrderControllerTest  : No active profile set, falling back to 1 default profile: "default"
+2026-10-11T05:13:49.380Z  INFO 4272 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-10-11T05:13:49.381Z  INFO 4272 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-10-11T05:13:49.384Z  INFO 4272 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-10-11T05:13:49.427Z  INFO 4272 --- [    Test worker] c.e.s.o.controllers.OrderControllerTest  : Started OrderControllerTest in 2.596 seconds (process running for 4.267)
+2026-10-11T05:13:49.514Z  INFO 4272 --- [    Test worker] c.e.s.o.controllers.OrderController      : Received request to cancel order 468b9f0b-70f6-4502-b04b-c8aaaaf21a28
+2026-10-11T05:13:49.520Z  WARN 4272 --- [    Test worker] c.e.s.o.e.h.GlobalExceptionHandler       : Outbox event not found: Outbox event with orderId: 468b9f0b-70f6-4502-b04b-c8aaaaf21a28 not found!
+2026-10-11T05:13:49.725Z  INFO 4272 --- [    Test worker] c.e.s.o.controllers.OrderController      : Received CreateOrderRequest[requestId=8b18a740-fb6b-437f-a9d3-96495214c113, customerId=7421325f-63a2-43c0-8d21-fe0fcf380e0d, currency=UAH, requestItems=[RequestItem[itemId=09300e8e-ce4d-4101-8e25-4fe49290eaed, quantity=2]]]
+2026-10-11T05:13:49.730Z  WARN 4272 --- [    Test worker] c.e.s.o.e.h.GlobalExceptionHandler       : Order rejected, not enough items: Not enough items in inventory!
+2026-10-11T05:13:49.750Z  INFO 4272 --- [    Test worker] c.e.s.o.controllers.OrderController      : Received request to get orders by customerId: 7421325f-63a2-43c0-8d21-fe0fcf380e0d
+2026-10-11T05:13:49.776Z  INFO 4272 --- [    Test worker] c.e.s.o.controllers.OrderController      : Received CreateOrderRequest[requestId=8b18a740-fb6b-437f-a9d3-96495214c113, customerId=7421325f-63a2-43c0-8d21-fe0fcf380e0d, currency=UAH, requestItems=[RequestItem[itemId=09300e8e-ce4d-4101-8e25-4fe49290eaed, quantity=2]]]
+2026-10-11T05:13:49.777Z  INFO 4272 --- [    Test worker] c.e.s.o.controllers.OrderController      : Created order Order(id=f5abd069-7fab-4c73-afbd-743b9fbd0f8c, customerId=7421325f-63a2-43c0-8d21-fe0fcf380e0d, status=PENDING, createdAt=2026-10-11T05:13:49.773918464Z, currency=UAH, totalPrice=200)
+2026-10-11T05:13:49.793Z  INFO 4272 --- [    Test worker] c.e.s.o.controllers.OrderController      : Received request to get order: 468b9f0b-70f6-4502-b04b-c8aaaaf21a28
+2026-10-11T05:13:49.793Z  INFO 4272 --- [    Test worker] c.e.s.o.controllers.OrderController      : Found order Optional[Order(id=468b9f0b-70f6-4502-b04b-c8aaaaf21a28, customerId=7421325f-63a2-43c0-8d21-fe0fcf380e0d, status=PENDING, createdAt=2026-10-11T05:13:49.791812635Z, currency=UAH, totalPrice=200)]
+2026-10-11T05:13:49.803Z  INFO 4272 --- [    Test worker] c.e.s.o.controllers.OrderController      : Received request to cancel order 468b9f0b-70f6-4502-b04b-c8aaaaf21a28
+2026-10-11T05:13:49.805Z  INFO 4272 --- [    Test worker] c.e.s.o.e.h.GlobalExceptionHandler       : Cancel rejected, not allowed at current stage: Unable to cancel outbox event with orderId: 468b9f0b-70f6-4502-b04b-c8aaaaf21a28 because shipment has already been started
+2026-10-11T05:13:49.814Z  INFO 4272 --- [    Test worker] c.e.s.o.controllers.OrderController      : Received request to get orders by customerId: 7421325f-63a2-43c0-8d21-fe0fcf380e0d
+2026-10-11T05:13:49.828Z  INFO 4272 --- [    Test worker] c.e.s.o.controllers.OrderController      : Received request to cancel order 468b9f0b-70f6-4502-b04b-c8aaaaf21a28
+2026-10-11T05:13:49.829Z  INFO 4272 --- [    Test worker] c.e.s.o.e.h.GlobalExceptionHandler       : Cancel rejected, order already cancelled: Outbox event with orderId: 468b9f0b-70f6-4502-b04b-c8aaaaf21a28 is cancelled
+2026-10-11T05:13:49.839Z  WARN 4272 --- [    Test worker] c.e.s.o.e.h.GlobalExceptionHandler       : Malformed request body for /api/v1/orders
+2026-10-11T05:13:49.855Z  WARN 4272 --- [    Test worker] c.e.s.o.e.h.GlobalExceptionHandler       : Type mismatch on /api/v1/orders/not-a-uuid: Invalid value 'not-a-uuid' for parameter 'id'
+2026-10-11T05:13:49.867Z  WARN 4272 --- [    Test worker] c.e.s.o.e.h.GlobalExceptionHandler       : Malformed request body for /api/v1/orders
+2026-10-11T05:13:49.876Z  INFO 4272 --- [    Test worker] c.e.s.o.controllers.OrderController      : Received request to get order: 468b9f0b-70f6-4502-b04b-c8aaaaf21a28
+2026-10-11T05:13:49.877Z  INFO 4272 --- [    Test worker] c.e.s.o.controllers.OrderController      : Found order Optional.empty
+2026-10-11T05:13:49.886Z  INFO 4272 --- [    Test worker] c.e.s.o.controllers.OrderController      : Received request to get order: 5ced56a1-1911-414a-b095-5ec2ddd4777e
+2026-10-11T05:13:49.886Z  INFO 4272 --- [    Test worker] c.e.s.o.controllers.OrderController      : Found order Optional[Order(id=5ced56a1-1911-414a-b095-5ec2ddd4777e, customerId=7421325f-63a2-43c0-8d21-fe0fcf380e0d, status=PENDING, createdAt=2026-10-11T05:13:49.884764517Z, currency=UAH, totalPrice=200)]
+2026-10-11T05:13:49.897Z  INFO 4272 --- [    Test worker] c.e.s.o.controllers.OrderController      : Received CreateOrderRequest[requestId=5218aab1-ce5d-424f-8c0c-b3f4213d8b20, customerId=2292e03f-e6d2-4fbb-8d30-3efe353154bb, currency=USD, requestItems=[RequestItem[itemId=2c86da93-792f-4d75-a100-3180ff4397b1, quantity=2]]]
+2026-10-11T05:13:49.898Z ERROR 4272 --- [    Test worker] c.e.s.o.e.h.GlobalExceptionHandler       : Unexpected error while processing /api/v1/orders
+
+java.lang.RuntimeException: db is on fire
+	at com.electronics.store.order_service.persistence.service.OrderService.persist(OrderService.java:55) ~[main/:na]
+	at com.electronics.store.order_service.controllers.OrderController.createOrder(OrderController.java:33) ~[main/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565) ~[na:na]
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:252) ~[spring-web-7.0.8.jar:7.0.8]
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:184) ~[spring-web-7.0.8.jar:7.0.8]
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:117) ~[spring-webmvc-7.0.8.jar:7.0.8]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:934) ~[spring-webmvc-7.0.8.jar:7.0.8]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:853) ~[spring-webmvc-7.0.8.jar:7.0.8]
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:86) ~[spring-webmvc-7.0.8.jar:7.0.8]
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:963) ~[spring-webmvc-7.0.8.jar:7.0.8]
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:866) ~[spring-webmvc-7.0.8.jar:7.0.8]
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1000) ~[spring-webmvc-7.0.8.jar:7.0.8]
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:903) ~[spring-webmvc-7.0.8.jar:7.0.8]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:649) ~[tomcat-embed-core-11.0.22.jar:6.1]
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:874) ~[spring-webmvc-7.0.8.jar:7.0.8]
+	at org.springframework.test.web.servlet.TestDispatcherServlet.service(TestDispatcherServlet.java:72) ~[spring-test-7.0.8.jar:7.0.8]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:710) ~[tomcat-embed-core-11.0.22.jar:6.1]
+	at org.springframework.mock.web.MockFilterChain$ServletFilterProxy.doFilter(MockFilterChain.java:160) ~[spring-test-7.0.8.jar:7.0.8]
+	at org.springframework.mock.web.MockFilterChain.doFilter(MockFilterChain.java:127) ~[spring-test-7.0.8.jar:7.0.8]
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-7.0.8.jar:7.0.8]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.8.jar:7.0.8]
+	at org.springframework.test.web.servlet.setup.MockMvcFilterDecorator.doFilter(MockMvcFilterDecorator.java:160) ~[spring-test-7.0.8.jar:7.0.8]
+	at org.springframework.mock.web.MockFilterChain.doFilter(MockFilterChain.java:127) ~[spring-test-7.0.8.jar:7.0.8]
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) ~[spring-web-7.0.8.jar:7.0.8]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.8.jar:7.0.8]
+	at org.springframework.test.web.servlet.setup.MockMvcFilterDecorator.doFilter(MockMvcFilterDecorator.java:160) ~[spring-test-7.0.8.jar:7.0.8]
+	at org.springframework.mock.web.MockFilterChain.doFilter(MockFilterChain.java:127) ~[spring-test-7.0.8.jar:7.0.8]
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:199) ~[spring-web-7.0.8.jar:7.0.8]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-7.0.8.jar:7.0.8]
+	at org.springframework.test.web.servlet.setup.MockMvcFilterDecorator.doFilter(MockMvcFilterDecorator.java:160) ~[spring-test-7.0.8.jar:7.0.8]
+	at org.springframework.mock.web.MockFilterChain.doFilter(MockFilterChain.java:127) ~[spring-test-7.0.8.jar:7.0.8]
+	at org.springframework.test.web.servlet.MockMvc.perform(MockMvc.java:199) ~[spring-test-7.0.8.jar:7.0.8]
+	at com.electronics.store.order_service.controllers.OrderControllerTest.returns500_whenServiceThrowsUnexpectedException(OrderControllerTest.java:139) ~[test/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565) ~[na:na]
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:701) ~[junit-platform-commons-6.0.3.jar:6.0.3]
+	at org.junit.platform.commons.support.ReflectionSupport.invokeMethod(ReflectionSupport.java:502) ~[junit-platform-commons-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.support.MethodReflectionUtils.invoke(MethodReflectionUtils.java:45) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:61) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:124) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:163) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:148) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:123) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:105) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:99) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:66) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:47) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:39) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:104) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:98) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invokeVoid(InterceptingExecutableInvoker.java:71) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$0(TestMethodTestDescriptor.java:219) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:215) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:157) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:70) ~[junit-jupiter-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$2(NodeTestTask.java:176) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$1(NodeTestTask.java:166) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:138) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$0(NodeTestTask.java:164) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:163) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:116) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604) ~[na:na]
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:42) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$2(NodeTestTask.java:180) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$1(NodeTestTask.java:166) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:138) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$0(NodeTestTask.java:164) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:163) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:116) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604) ~[na:na]
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:42) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$2(NodeTestTask.java:180) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$1(NodeTestTask.java:166) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:138) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$0(NodeTestTask.java:164) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:74) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:163) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:116) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:36) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:52) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:58) ~[junit-platform-engine-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.executeEngine(EngineExecutionOrchestrator.java:246) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.failOrExecuteEngine(EngineExecutionOrchestrator.java:218) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:179) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:108) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:66) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:157) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:65) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:125) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:114) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:93) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:48) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.InterceptingLauncher.lambda$execute$0(InterceptingLauncher.java:41) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.ClasspathAlignmentCheckingLauncherInterceptor.intercept(ClasspathAlignmentCheckingLauncherInterceptor.java:25) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.InterceptingLauncher.execute(InterceptingLauncher.java:40) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:48) ~[junit-platform-launcher-6.0.3.jar:6.0.3]
+	at org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestDefinitionProcessor$CollectThenExecuteTestDefinitionConsumer.processAllTestDefinitions(JUnitPlatformTestDefinitionProcessor.java:179) ~[na:na]
+	at org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestDefinitionProcessor$CollectThenExecuteTestDefinitionConsumer.access$000(JUnitPlatformTestDefinitionProcessor.java:122) ~[na:na]
+	at org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestDefinitionProcessor.stop(JUnitPlatformTestDefinitionProcessor.java:116) ~[na:na]
+	at org.gradle.api.internal.tasks.testing.SuiteTestDefinitionProcessor.stop(SuiteTestDefinitionProcessor.java:63) ~[na:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565) ~[na:na]
+	at org.gradle.internal.dispatch.MethodInvocation.invokeOn(MethodInvocation.java:77) ~[na:na]
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:28) ~[na:na]
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:19) ~[na:na]
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33) ~[na:na]
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:88) ~[na:na]
+	at jdk.proxy1/jdk.proxy1.$Proxy4.stop(Unknown Source) ~[na:na]
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker$3.run(TestWorker.java:195) ~[na:na]
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.executeAndMaintainThreadName(TestWorker.java:126) ~[na:na]
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:103) ~[na:na]
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:63) ~[na:na]
+	at org.gradle.process.internal.worker.child.ActionExecutionWorker.execute(ActionExecutionWorker.java:56) ~[na:na]
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:122) ~[na:na]
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:72) ~[na:na]
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.run(GradleWorkerMain.java:69) ~[gradle-worker.jar:na]
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74) ~[gradle-worker.jar:na]
+
+2026-10-11T05:13:49.921Z  WARN 4272 --- [    Test worker] c.e.s.o.e.h.GlobalExceptionHandler       : Malformed request body for /api/v1/orders
+2026-10-11T05:13:49.931Z  INFO 4272 --- [    Test worker] c.e.s.o.controllers.OrderController      : Received request to get order: ff8db722-219b-4dc8-ac06-2d57199ebf58
+2026-10-11T05:13:49.931Z  INFO 4272 --- [    Test worker] c.e.s.o.controllers.OrderController      : Found order Optional.empty
+2026-10-11T05:13:49.940Z  INFO 4272 --- [    Test worker] c.e.s.o.controllers.OrderController      : Received request to cancel order 468b9f0b-70f6-4502-b04b-c8aaaaf21a28
+]]></system-out>
+  <system-err><![CDATA[Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (/home/runner/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy-agent/1.18.10/9426d28828bdcdf42666bb7a68c468279ea78f59/byte-buddy-agent-1.18.10.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+</testsuite>

@@ -1,0 +1,70 @@
+{
+  "groups": [
+    {
+      "name": "rabbit",
+      "type": "com.electronics.store.order_service.rabbit.RabbitMqProperties",
+      "sourceType": "com.electronics.store.order_service.rabbit.RabbitMqProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "rabbit.inventory-events-exchange",
+      "type": "java.lang.String",
+      "sourceType": "com.electronics.store.order_service.rabbit.RabbitMqProperties"
+    },
+    {
+      "name": "rabbit.inventory-routing-key",
+      "type": "java.lang.String",
+      "sourceType": "com.electronics.store.order_service.rabbit.RabbitMqProperties"
+    },
+    {
+      "name": "rabbit.order-cancelled-routing-key",
+      "type": "java.lang.String",
+      "sourceType": "com.electronics.store.order_service.rabbit.RabbitMqProperties"
+    },
+    {
+      "name": "rabbit.order-created-routing-key",
+      "type": "java.lang.String",
+      "sourceType": "com.electronics.store.order_service.rabbit.RabbitMqProperties"
+    },
+    {
+      "name": "rabbit.order-modified-routing-key",
+      "type": "java.lang.String",
+      "sourceType": "com.electronics.store.order_service.rabbit.RabbitMqProperties"
+    },
+    {
+      "name": "rabbit.orders-exchange",
+      "type": "java.lang.String",
+      "sourceType": "com.electronics.store.order_service.rabbit.RabbitMqProperties"
+    },
+    {
+      "name": "rabbit.payment-events-exchange",
+      "type": "java.lang.String",
+      "sourceType": "com.electronics.store.order_service.rabbit.RabbitMqProperties"
+    },
+    {
+      "name": "rabbit.payment-routing-key",
+      "type": "java.lang.String",
+      "sourceType": "com.electronics.store.order_service.rabbit.RabbitMqProperties"
+    },
+    {
+      "name": "rabbit.saga-events-queue",
+      "type": "java.lang.String",
+      "sourceType": "com.electronics.store.order_service.rabbit.RabbitMqProperties"
+    },
+    {
+      "name": "rabbit.shipment-events-exchange",
+      "type": "java.lang.String",
+      "sourceType": "com.electronics.store.order_service.rabbit.RabbitMqProperties"
+    },
+    {
+      "name": "rabbit.shipment-routing-key",
+      "type": "java.lang.String",
+      "sourceType": "com.electronics.store.order_service.rabbit.RabbitMqProperties"
+    }
+  ],
+  "hints": [],
+  "ignored": {
+    "properties": []
+  }
+}
