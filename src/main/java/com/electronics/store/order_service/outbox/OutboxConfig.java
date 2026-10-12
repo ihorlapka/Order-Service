@@ -16,6 +16,8 @@ import org.springframework.context.annotation.Import;
 @Configuration
 public class OutboxConfig {
 
+    private static final String SERVICE_NAME = "order_service";
+
     @Bean
     public OutboxEventHandler<OutboxEvent> outboxEventHandler(OutboxEventManager<OutboxEvent> outboxEventManager) {
         return new OutboxEventHandler<>(outboxEventManager);
@@ -23,7 +25,7 @@ public class OutboxConfig {
 
     @Bean
     public OutboxMetrics outboxMetrics(MeterRegistry meterRegistry) {
-        return new OutboxMetrics(meterRegistry);
+        return new OutboxMetrics(meterRegistry, SERVICE_NAME);
     }
 
     @Bean

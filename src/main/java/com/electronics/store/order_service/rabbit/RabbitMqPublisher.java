@@ -1,6 +1,6 @@
 package com.electronics.store.order_service.rabbit;
 
-import com.electronics.store.order_service.metrics.RabbitMetrics;
+import com.electronics.store.order_service.metrics.CustomRabbitMetrics;
 import com.electronics.store.order_service.persistence.enums.EventType;
 import com.electronics.store.order_service.rabbit.message.MessageEvent;
 import com.electronics.store.outbox_event_publisher.EventPublisher;
@@ -17,6 +17,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.UUID;
 
+import io.micrometer.core.instrument.Timer.Sample;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -26,12 +28,13 @@ public class RabbitMqPublisher implements EventPublisher {
 
     private final RabbitTemplate rabbitTemplate;
     private final RabbitMqProperties rabbitMqProperties;
-    private final RabbitMetrics metrics;
+    private final CustomRabbitMetrics metrics;
 
 
     @Override
     public void publish(UUID orderId, UUID eventId, String eventType, String payload) {
         final String routingKey = getRoutingKey(eventType);
+        final Sample publishmentStart = metrics.startPublishTimer();
         try {
             log.info("Sending message for orderId: {}, eventId: {}, {}, {}", orderId, eventId, eventType, payload);
             final MessageProperties properties = MessagePropertiesBuilder.newInstance()
@@ -44,12 +47,12 @@ public class RabbitMqPublisher implements EventPublisher {
             final Message message = new Message(payload.getBytes(StandardCharsets.UTF_8), properties);
             rabbitTemplate.send(rabbitMqProperties.getOrdersExchange(), routingKey, message);
             log.info("Message sent for orderId: {}, eventId: {}, {}, routingKey: {}", orderId, eventId, eventType, routingKey);
-            metrics.incrementRabbitMessagesPublished();
         } catch (AmqpException e) {
             log.error("Failed to send message to exchange={}, routingKey={}, orderId: {}, eventId: {}, {}",
                     rabbitMqProperties.getOrdersExchange(), routingKey, orderId, eventId, eventType, e);
-            metrics.incrementRabbitMessagesFailed();
             throw e;
+        } finally {
+            metrics.recordMessagePublishDuration(publishmentStart);
         }
     }
 

@@ -1,12 +1,19 @@
 package com.electronics.store.order_service.rabbit;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.boot.amqp.metrics.RabbitMetrics;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+
+import java.util.Collections;
+import java.util.List;
 
 @Import(RabbitMqProperties.class)
 @Configuration
@@ -69,5 +76,14 @@ public class RabbitMqConfig {
     @Bean
     public MessageConverter messageConverter() {
         return new JacksonJsonMessageConverter();
+    }
+
+    @Bean
+    public RabbitMetrics rabbitMetrics(CachingConnectionFactory connectionFactory, MeterRegistry meterRegistry) {
+        List<Tag> tags = Collections.emptyList();
+        com.rabbitmq.client.ConnectionFactory nativeConnectionFactory = connectionFactory.getRabbitConnectionFactory();
+        RabbitMetrics rabbitMetrics = new RabbitMetrics(nativeConnectionFactory, tags);
+        rabbitMetrics.bindTo(meterRegistry);
+        return rabbitMetrics;
     }
 }
