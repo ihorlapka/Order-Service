@@ -1,5 +1,6 @@
 package com.electronics.store.order_service.rabbit;
 
+import com.electronics.store.order_service.metrics.CustomRabbitMetrics;
 import com.electronics.store.order_service.processor.SagaProcessor;
 import com.electronics.store.order_service.rabbit.message.MessageEvent;
 import lombok.RequiredArgsConstructor;
@@ -10,12 +11,15 @@ import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
+import static java.lang.System.currentTimeMillis;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class RabbitMqConsumer {
 
     private final SagaProcessor sagaProcessor;
+    private final CustomRabbitMetrics metrics;
 
     @RabbitListener(id = "orders-status",
             queues = "#{@rabbitMqProperties.getSagaEventsQueue()}",
@@ -26,9 +30,12 @@ public class RabbitMqConsumer {
                               @Header(value = AmqpHeaders.CORRELATION_ID) String orderId,
                               @Header(value = AmqpHeaders.TIMESTAMP) long sentTimestamp) {
         try {
+            metrics.recordDeliveryTime(currentTimeMillis() - sentTimestamp);
             log.info("Received: {}, msgId: {}, orderId: {}, sentTime: {}", event, eventId, orderId, sentTimestamp);
             sagaProcessor.process(event);
+            metrics.incrementProcessedMessages(event.eventType());
         } catch (NullPointerException | IllegalArgumentException | IllegalStateException | ArrayIndexOutOfBoundsException e) {
+            metrics.incrementInvalidMessages();
             throw new AmqpRejectAndDontRequeueException("Invalid event " + event, e); // straight to Dead Letter Queue
         }
     }

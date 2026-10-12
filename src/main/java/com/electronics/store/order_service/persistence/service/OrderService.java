@@ -3,6 +3,7 @@ package com.electronics.store.order_service.persistence.service;
 import com.electronics.store.order_service.controllers.dto.RequestItem;
 import com.electronics.store.order_service.controllers.misc.CreateOrderRequest;
 import com.electronics.store.order_service.controllers.misc.UpdateOrderRequest;
+import com.electronics.store.order_service.metrics.OrderServiceMetrics;
 import com.electronics.store.order_service.persistence.enums.OrderStatus;
 import com.electronics.store.order_service.persistence.model.Order;
 import com.electronics.store.order_service.persistence.model.OutboxEvent;
@@ -25,6 +26,8 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
 
+import io.micrometer.core.instrument.Timer;
+
 import static com.electronics.store.order_service.persistence.enums.OrderStatus.*;
 import static com.electronics.store.order_service.persistence.enums.PublishmentStatus.*;
 import static com.electronics.store.order_service.persistence.enums.EventType.*;
@@ -41,6 +44,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OutboxEventService outboxEventService;
     private final ApplicationEventPublisher eventPublisher;
+    private final OrderServiceMetrics metrics;
 
     public Optional<Order> findByOrderWithItemsById(UUID orderId) {
         return orderRepository.findOrderWithItemsById(orderId);
@@ -48,40 +52,53 @@ public class OrderService {
 
     @Transactional
     public Order persist(@Valid CreateOrderRequest request) {
-        final Order order = orderRepository.save(createOrder(request));
-        outboxEventService.persist(createOutboxEventForNewOrder(order));
-        publishTriggerEvent(new PublishmentTriggerEvent(order.getId()));
-        log.info("Order stored orderId: {}", order.getId());
-        return order;
+        Timer.Sample sample = metrics.startOrderCreationTimer();
+        try {
+            final Order order = orderRepository.save(createOrder(request));
+            outboxEventService.persist(createOutboxEventForNewOrder(order));
+            publishTriggerEvent(new PublishmentTriggerEvent(order.getId()));
+            log.info("Order stored orderId: {}", order.getId());
+            metrics.incrementOrdersCreated();
+            return order;
+        } finally {
+            metrics.stopOrderCreationTimer(sample);
+        }
     }
 
     @Transactional
     public void cancelOrder(UUID orderId) {
-        final OutboxEvent outboxEvent = outboxEventService.findLastByOrderIdForUpdate(orderId)
-                .orElseThrow(() -> new OutboxEventNotFoundException("Outbox event with orderId: " + orderId + " not found!"));
-        log.info("Found the latest outbox event: {}", outboxEvent);
-        if (NEW.equals(outboxEvent.getStatus()) && ORDER_CREATED.equals(outboxEvent.getEventType())) {
-            int orderRows = orderRepository.removeById(orderId);
-            int outboxEventRows = outboxEventService.removeByOrderId(orderId);
-            if (orderRows != 1 || outboxEventRows != 1) {
-                log.error("Expected to be removed only one Order and one OutboxEvent but there were removed " +
-                        "orders: {}, outboxEvents: {}", orderRows, outboxEventRows);
+        Timer.Sample sample = metrics.startOrderCancellationTimer();
+        try {
+            final OutboxEvent outboxEvent = outboxEventService.findLastByOrderIdForUpdate(orderId)
+                    .orElseThrow(() -> new OutboxEventNotFoundException("Outbox event with orderId: " + orderId + " not found!"));
+            log.info("Found the latest outbox event: {}", outboxEvent);
+            if (NEW.equals(outboxEvent.getStatus()) && ORDER_CREATED.equals(outboxEvent.getEventType())) {
+                int orderRows = orderRepository.removeById(orderId);
+                int outboxEventRows = outboxEventService.removeByOrderId(orderId);
+                if (orderRows != 1 || outboxEventRows != 1) {
+                    log.error("Expected to be removed only one Order and one OutboxEvent but there were removed " +
+                            "orders: {}, outboxEvents: {}", orderRows, outboxEventRows);
+                }
+                log.info("Outbox event with orderId: {} is cancelled", orderId);
+                metrics.incrementOrdersCancelled();
+                return;
+            } else if (ORDER_CANCELLED.equals(outboxEvent.getEventType())) {
+                log.info("Outbox event cancelling with orderId: {} has already been triggered", orderId);
+                throw new OrderIsAlreadyCancelledException("Outbox event with orderId: " + orderId + " is cancelled");
+            } else if (SHIPMENT_CREATED.equals(outboxEvent.getEventType()) || SHIPMENT_COMPLETED.equals(outboxEvent.getEventType())) {
+                log.info("Unable to cancel outbox event with orderId: {}, because shipment has already been started", orderId);
+                throw new OrderCancellationIsNotAllowedException("Unable to cancel outbox event with orderId: " + orderId +
+                        " because shipment has already been started");
             }
-            log.info("Outbox event with orderId: {} is cancelled", orderId);
-            return;
-        } else if (ORDER_CANCELLED.equals(outboxEvent.getEventType())) {
-            log.info("Outbox event cancelling with orderId: {} has already been triggered", orderId);
-            throw new OrderIsAlreadyCancelledException("Outbox event with orderId: " + orderId + " is cancelled");
-        } else if (SHIPMENT_CREATED.equals(outboxEvent.getEventType()) || SHIPMENT_COMPLETED.equals(outboxEvent.getEventType())) {
-            log.info("Unable to cancel outbox event with orderId: {}, because shipment has already been started", orderId);
-            throw new OrderCancellationIsNotAllowedException("Unable to cancel outbox event with orderId: " + orderId +
-                    " because shipment has already been started");
+            final Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException("Order with orderId: " + orderId + " not found!"));
+            order.setStatus(CANCELLED);
+            outboxEventService.persist(createOutboxEventForCancelledOrder(order));
+            publishTriggerEvent(new PublishmentTriggerEvent(orderId));
+            log.info("Order orderId: {} is being cancelled", orderId);
+            metrics.incrementOrdersCancelled();
+        } finally {
+            metrics.stopOrderCancellationTimer(sample);
         }
-        final Order order = orderRepository.findById(orderId).orElseThrow(() -> new OrderNotFoundException("Order with orderId: " + orderId + " not found!"));
-        order.setStatus(CANCELLED);
-        outboxEventService.persist(createOutboxEventForCancelledOrder(order));
-        publishTriggerEvent(new PublishmentTriggerEvent(orderId));
-        log.info("Order orderId: {} is being cancelled", orderId);
     }
 
     public List<Order> findByCustomerId(UUID customerId) {
@@ -90,44 +107,50 @@ public class OrderService {
 
     @Transactional
     public Order patch(@Valid UpdateOrderRequest request) {
-        final Set<RequestItem> newItems = request.itemsToUpdate();
-        if (CollectionUtils.isEmpty(newItems)) {
-            throw new UpdateRequestIsNotValidException("Items to update should be present, orderId: " + request.orderId() + "!");
-        }
-        final Order order = orderRepository.findOrderWithItemsByIdForUpdate(request.orderId())
-                .orElseThrow(() -> new OrderNotFoundException("Order with orderId: " + request.orderId() + " not found!"));
-        if (CANCELLED.equals(order.getStatus())) {
-            throw new OrderIsAlreadyCancelledException("Order: " + request.orderId() + " has already been cancelled");
-        } else if (canNotBeModified(order.getStatus())) {
-            throw new OrderChangeRestrictedException("Order: " + request.orderId() + " cannot be modified anymore!");
-        }
-        order.getItems().removeIf(existingItem -> {
-            boolean noSuchItem = noSuchItem(newItems, existingItem.getItemId());
-            if (noSuchItem) {
-                existingItem.setOrder(null);
+        Timer.Sample sample = metrics.startOrderModificationTimer();
+        try {
+            final Set<RequestItem> newItems = request.itemsToUpdate();
+            if (CollectionUtils.isEmpty(newItems)) {
+                throw new UpdateRequestIsNotValidException("Items to update should be present, orderId: " + request.orderId() + "!");
             }
-            return noSuchItem;
-        });
-        final Map<UUID, OrderItem> orderItemsByIds = order.getItems().stream()
-                .collect(toMap(OrderItem::getItemId, Function.identity()));
-        for (RequestItem requestItem : newItems) {
-            orderItemsByIds.compute(requestItem.itemId(), (k, v) -> {
-                if (v == null) {
-                    final OrderItem orderItem = new OrderItem(requestItem.itemId(), requestItem.quantity(), order);
-                    order.getItems().add(orderItem);
-                    return orderItem;
-                } else {
-                    v.setQuantity(requestItem.quantity());
-                    return v;
+            final Order order = orderRepository.findOrderWithItemsByIdForUpdate(request.orderId())
+                    .orElseThrow(() -> new OrderNotFoundException("Order with orderId: " + request.orderId() + " not found!"));
+            if (CANCELLED.equals(order.getStatus())) {
+                throw new OrderIsAlreadyCancelledException("Order: " + request.orderId() + " has already been cancelled");
+            } else if (canNotBeModified(order.getStatus())) {
+                throw new OrderChangeRestrictedException("Order: " + request.orderId() + " cannot be modified anymore!");
+            }
+            order.getItems().removeIf(existingItem -> {
+                boolean noSuchItem = noSuchItem(newItems, existingItem.getItemId());
+                if (noSuchItem) {
+                    existingItem.setOrder(null);
                 }
+                return noSuchItem;
             });
+            final Map<UUID, OrderItem> orderItemsByIds = order.getItems().stream()
+                    .collect(toMap(OrderItem::getItemId, Function.identity()));
+            for (RequestItem requestItem : newItems) {
+                orderItemsByIds.compute(requestItem.itemId(), (k, v) -> {
+                    if (v == null) {
+                        final OrderItem orderItem = new OrderItem(requestItem.itemId(), requestItem.quantity(), order);
+                        order.getItems().add(orderItem);
+                        return orderItem;
+                    } else {
+                        v.setQuantity(requestItem.quantity());
+                        return v;
+                    }
+                });
+            }
+            log.info("Items were updated successfully: {}, requestId: {}", newItems, request.requestId());
+            order.setStatus(MODIFIED);
+            outboxEventService.persist(createOutboxEvent(order, order.getItems(), ORDER_MODIFIED, NEW));
+            publishTriggerEvent(new PublishmentTriggerEvent(request.orderId()));
+            log.info("Order patched: {}", order);
+            metrics.incrementOrdersModified();
+            return order;
+        } finally {
+            metrics.stopOrderModificationTimer(sample);
         }
-        log.info("Items were updated successfully: {}, requestId: {}", newItems, request.requestId());
-        order.setStatus(MODIFIED);
-        outboxEventService.persist(createOutboxEvent(order, order.getItems(), ORDER_MODIFIED, NEW));
-        publishTriggerEvent(new PublishmentTriggerEvent(request.orderId()));
-        log.info("Order patched: {}", order);
-        return order;
     }
 
     @Transactional
@@ -149,6 +172,7 @@ public class OrderService {
             item.setDescription(reservedItem.description());
         });
         log.info("Order updated with reserved items: {} {}", orderId, reservedItemByItemId);
+        metrics.incrementOrdersReserved();
     }
 
     @Transactional
@@ -156,6 +180,7 @@ public class OrderService {
         log.info("Processing inventory reservation failed, orderId: {}", orderId);
         orderRepository.updateStatus(orderId, RESERVATION_FAILED);
         log.info("Order updated with reservation failed, orderId: {} {}", orderId, inventoryFailedData);
+        metrics.incrementOrdersReservationFailed();
     }
 
     private boolean canNotBeModified(OrderStatus status) {

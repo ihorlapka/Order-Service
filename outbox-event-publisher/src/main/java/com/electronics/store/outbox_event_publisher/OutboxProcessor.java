@@ -2,6 +2,7 @@ package com.electronics.store.outbox_event_publisher;
 
 import com.electronics.store.outbox_event_publisher.event.Event;
 import com.electronics.store.outbox_event_publisher.event.EventService;
+import com.electronics.store.outbox_event_publisher.metrics.OutboxMetrics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ public class OutboxProcessor<E extends Event> {
     private final EventPublisher publisher;
     private final EventService<E> eventService;
     private final int eventsBatchSize;
+    private final OutboxMetrics metrics;
 
 
     @Transactional
@@ -47,5 +49,6 @@ public class OutboxProcessor<E extends Event> {
         return new ProcessingResult(true, hasError);
     }
 
-    public record ProcessingResult(boolean hasMore, boolean hasError) {}
+    public record ProcessingResult(boolean hasMore, boolean hasError) {
+    }
 }
