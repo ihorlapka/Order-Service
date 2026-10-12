@@ -12,6 +12,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static io.micrometer.core.instrument.Timer.Sample;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -26,7 +27,7 @@ public class OutboxEventManager<E extends Event> {
 
 
     public void publishAndUpdate() {
-        Timer.Sample sample = metrics.startOutboxProcessingTimer();
+        final Sample sample = metrics.startOutboxProcessingTimer();
         if (!processing.compareAndSet(false, true)) {
             log.debug("Outbox processing already in progress, skipping trigger event");
             metrics.stopOutboxProcessingTimer(sample);
